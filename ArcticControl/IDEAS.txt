@@ -1,0 +1,4 @@
+﻿Get-WmiObject -Class Win32_PnPSignedDriver | Where-Object -FilterScript {$_.InfName -eq "oem61.inf"} | Format-Table -Property InfName,DeviceClass,DriverVersion,DriverProviderName
+
+Get-WmiObject -Class Win32_PnPSignedDriver | Where-Object -FilterScript {$_.InfName -eq "oem61.inf"} | Format-Table -Property InfName,DeviceClass,DriverVersion,DriverProviderName
+

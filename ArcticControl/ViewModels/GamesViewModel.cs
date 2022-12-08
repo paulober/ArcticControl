@@ -1,0 +1,95 @@
+﻿using System.Collections.ObjectModel;
+using System.Windows.Input;
+
+using ArcticControl.Contracts.Services;
+using ArcticControl.Contracts.ViewModels;
+using ArcticControl.Core.Contracts.Services;
+using ArcticControl.Core.Models;
+using ArcticControl.IntelWebAPI.Contracts.Services;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+
+namespace ArcticControl.ViewModels;
+
+public class GamesViewModel : ObservableRecipient, INavigationAware
+{
+    private readonly INavigationService _navigationService;
+    private readonly ISampleDataService _sampleDataService;
+    private readonly IGamesScannerService _gamesScannerService;
+
+    public ICommand ItemClickCommand
+    {
+        get;
+    }
+
+    public ObservableCollection<InstalledGame> Source { get; } = new ObservableCollection<InstalledGame>();
+
+    public GamesViewModel(
+        INavigationService navigationService, 
+        ISampleDataService sampleDataService, 
+        IGamesScannerService gamesScannerService)
+    {
+        _navigationService = navigationService;
+        _sampleDataService = sampleDataService;
+        _gamesScannerService = gamesScannerService;
+
+        ItemClickCommand = new RelayCommand<InstalledGame>(OnItemClick);
+    }
+
+    public async void OnNavigatedTo(object parameter)
+    {
+        Source.Clear();
+
+        // TODO: Replace with real data.
+        /*var data = await _sampleDataService.GetContentGridDataAsync();
+        foreach (var item in data)
+        {
+            Source.Add(item);
+        }*/
+        IEnumerable<InstalledGame> data = _gamesScannerService.GetInstalledGames();
+
+        foreach (InstalledGame game in data)
+        {
+            Source.Add(game);
+        }
+    }
+
+    public void OnNavigatedFrom()
+    {
+    }
+
+    private void OnItemClick(InstalledGame? clickedItem)
+    {
+        if (clickedItem != null)
+        {
+            _navigationService.SetListDataItemForNextConnectedAnimation(clickedItem);
+            _navigationService.NavigateTo(typeof(GamesDetailViewModel).FullName!, clickedItem.Name);
+        }
+    }
+
+    public void InstalledGame_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+    {
+        /*if (sender is Grid g)
+        {
+            g.RenderTransform = new CompositeTransform() { ScaleX = 1.1, ScaleY = 1.1 };
+        } */
+        if (sender is Image img)
+        {
+            //img.RenderTransform = new CompositeTransform() { ScaleX = 1.1, ScaleY = 1.1 };
+            img.RenderTransformOrigin = new Windows.Foundation.Point(0.5,0.5);
+            img.RenderTransform = new ScaleTransform() { ScaleX = 1.1, ScaleY = 1.1};
+        }
+    }
+
+    public void InstalledGame_PointerExited(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+    {
+        if (sender is Image img)
+        {
+            //img.RenderTransform = new CompositeTransform() { ScaleX = 1, ScaleY = 1 };
+            img.RenderTransformOrigin = new Windows.Foundation.Point(0, 0);
+            img.RenderTransform = new ScaleTransform() { ScaleX = 1, ScaleY = 1, CenterX = 1, CenterY = 1 };
+        }
+    }
+}

@@ -1,0 +1,10 @@
+﻿{
+    "profiles": {
+      "ArcticControl (Package)": {
+        "commandName": "MsixPackage"
+      },
+      "ArcticControl (Unpackaged)": {
+        "commandName": "Project"
+      }
+    }
+}

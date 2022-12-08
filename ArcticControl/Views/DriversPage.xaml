@@ -1,0 +1,284 @@
+﻿<Page
+    x:Class="ArcticControl.Views.DriversPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:models="using:ArcticControl.IntelWebAPI.Models"
+    xmlns:views="using:ArcticControl.Views"
+    xmlns:behaviors="using:ArcticControl.Behaviors"
+    xmlns:helpers="using:ArcticControl.Helpers"
+    xmlns:media="using:Microsoft.UI.Xaml.Media"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
+    behaviors:NavigationViewHeaderBehavior.HeaderMode="Never"
+    mc:Ignorable="d">
+    <Page.Resources>        
+        <!--<DataTemplate x:Key="ItemTemplate" x:DataType="models:WebArcDriver">
+            <Grid Height="60">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <FontIcon
+                    Grid.Column="0"
+                    VerticalAlignment="Center"
+                    FontSize="32"
+                    Glyph="&#xe74c;"
+                    Foreground="SpringGreen"
+                    AutomationProperties.Name="Driver" />
+                <StackPanel
+                    Grid.Column="1"
+                    Margin="{StaticResource SmallLeftMargin}"
+                    VerticalAlignment="Center">
+                    <TextBlock Text="{x:Bind DriverVersion}" Style="{StaticResource ListTitleStyle}" />
+                    <TextBlock Text="{x:Bind FriendlyDate}" Style="{StaticResource ListSubTitleStyle}" />
+                </StackPanel>
+            </Grid>
+        </DataTemplate>-->
+
+        <helpers:LocalArcDriverStateToBrushConverter x:Key="LocalArcDriverStateToBrushConverter"/>
+        <helpers:BoolToGlyphConverter x:Key="BoolToGlyphConverter"/>
+
+        <DataTemplate x:Key="DriverListViewItemTemplate" x:DataType="models:WebArcDriver">
+            <Grid Padding="0,2,0,3">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <FontIcon
+                    Grid.Column="0"
+                    Grid.RowSpan="2"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Center"
+                    FontSize="32"
+                    Margin="6"
+                    Glyph="{x:Bind DriverVersion.IsLatest, Converter={StaticResource BoolToGlyphConverter}, Mode=OneTime}"
+                    Foreground="{x:Bind DriverVersion.LocalState, Converter={StaticResource LocalArcDriverStateToBrushConverter}, Mode=OneTime}"
+                    AutomationProperties.Name="Driver" />
+
+                <TextBlock 
+                    Grid.Column="1"
+                    Grid.Row="0"
+                    x:Phase="1"
+                    Text="{x:Bind DriverVersion.BuildNumber}" 
+                    Margin="12,6,0,0"
+                    Style="{ThemeResource BaseTextBlockStyle}"/>
+                <!--{StaticResource SmallLeftMargin} Style="{StaticResource ListTitleStyle}" -->
+                <TextBlock
+                    Grid.Column="1"
+                    Grid.Row="1"
+                    x:Phase="2"
+                    Text="{x:Bind FriendlyDate}"
+                    Margin="12,0,0,6"
+                    Style="{ThemeResource BodyTextBlockStyle}" />
+                <!--StaticResource ListSubTitleStyle-->
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="DetailsTemplate">
+            <Grid>
+                <views:DriversDetailControl ListDetailsMenuItem="{Binding}"  />
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="NoSelectionContentTemplate">
+            <Grid>
+                <TextBlock
+                    x:Uid="Drivers_NoSelection"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    TextAlignment="Center"
+                    Style="{ThemeResource SubtitleTextBlockStyle}" />
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="ListHeaderTemplate">
+            <Grid Height="40">
+                <TextBlock
+                    VerticalAlignment="Center"
+                    Style="{StaticResource ListTitleStyle}"
+                    Text="{Binding}" />
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="MinimalListHeaderTemplate">
+            <Grid Height="40">
+                <TextBlock
+                    Margin="96,0,0,0"
+                    VerticalAlignment="Center"
+                    Style="{StaticResource ListTitleStyle}"
+                    Text="{Binding}" />
+            </Grid>
+        </DataTemplate>
+    </Page.Resources>
+
+    <Grid>
+        <Grid x:Name="ContentArea">
+            <!--<VisualStateManager.VisualStateGroups>
+                <VisualStateGroup>
+                    <VisualState>
+                        <VisualState.StateTriggers>
+                            641 is the default CompactModeThresholdWidth in NavigationView 
+                            <AdaptiveTrigger MinWindowWidth="641" />
+                        </VisualState.StateTriggers>
+                        <VisualState.Setters>
+                            <Setter Target="ListDetailsViewControl.ListHeaderTemplate" Value="{StaticResource ListHeaderTemplate}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>-->
+            <!--<controls:ListDetailsView
+                x:Uid="Drivers"
+                x:Name="ListDetailsViewControl"
+                BackButtonBehavior="Manual"
+                Background="Transparent"
+                BorderBrush="Transparent"
+                DetailsTemplate="{StaticResource DetailsTemplate}"
+                ItemsSource="{x:Bind ViewModel.WebArcDrivers}"
+                ItemTemplate="{StaticResource ItemTemplate}"
+                ListHeaderTemplate="{StaticResource MinimalListHeaderTemplate}"
+                NoSelectionContentTemplate="{StaticResource NoSelectionContentTemplate}"
+                SelectedItem="{x:Bind ViewModel.Selected, Mode=TwoWay}"
+                ViewStateChanged="OnViewStateChanged"/>-->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0" Margin="{StaticResource MediumRightMargin}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid
+                        Grid.Row="0"
+                        VerticalAlignment="Stretch">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <muxc:ListView
+                            x:Name="NewDriversListView"
+                            Grid.Row="0"
+                            ItemTemplate="{StaticResource DriverListViewItemTemplate}"
+                            ItemsSource="{x:Bind ViewModel.NewWebArcDrivers}"
+                            SelectedItem="{x:Bind ViewModel.NewSelected, Mode=TwoWay}"
+                            SelectionMode="Single"
+                            IsItemClickEnabled="False"/>
+
+                        <muxc:Expander
+                            x:Name="OldDriversExpander"
+                            Grid.Row="1"
+                            Margin="{StaticResource SmallTopMargin}"
+                            IsExpanded="False"
+                            ExpandDirection="Down"
+                            VerticalAlignment="Stretch"
+                            VerticalContentAlignment="Top"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch">
+
+                            <muxc:Expander.Header>
+                                <TextBlock 
+                                x:Name="OldDriversExpanderHeader" 
+                                Text="Older Drivers (not recommended)"/>
+                            </muxc:Expander.Header>
+
+                            <muxc:Expander.Content>
+                                <muxc:ListView
+                                x:Name="OldDriversListView"
+                                ItemTemplate="{StaticResource DriverListViewItemTemplate}"
+                                ItemsSource="{x:Bind ViewModel.OldWebArcDrivers}"
+                                SelectionMode="Single"
+                                SelectedItem="{x:Bind ViewModel.OldSelected, Mode=TwoWay}"
+                                IsItemClickEnabled="False"/>
+                            </muxc:Expander.Content>
+                        </muxc:Expander>
+                    </Grid>
+
+                    <StackPanel 
+                        Grid.Row="1" 
+                        Margin="{StaticResource MediumTopBottomMargin}" 
+                        HorizontalAlignment="Stretch"
+                        CornerRadius="5"
+                        Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
+
+                        <StackPanel HorizontalAlignment="Center" Margin="{StaticResource SmallTopBottomMargin}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <FontIcon
+                                    Grid.Column="0"
+                                    FontSize="16"
+                                    Glyph="&#xe74c;"
+                                    Foreground="DarkSlateBlue"
+                                    Margin="0,6,12,6"/>
+                                <TextBlock VerticalAlignment="Center" FontSize="15" Grid.Column="1" Text="Drivers newer than the installed"/>
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <FontIcon
+                                    Grid.Column="0"
+                                    FontSize="16"
+                                    Glyph="&#xe74c;"
+                                    Foreground="Chartreuse"
+                                    Margin="0,6,12,6"/>
+                                <TextBlock VerticalAlignment="Center" FontSize="15" Grid.Column="1" Text="Current installed driver"/>
+                            </Grid>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <FontIcon
+                                    Grid.Column="0"
+                                    FontSize="16"
+                                    Glyph="&#xe74c;"
+                                    Foreground="DarkOrange"
+                                    Margin="0,6,12,6"/>
+                                <TextBlock VerticalAlignment="Center" FontSize="15" Grid.Column="1" Text="Drivers older than the installed"/>
+                            </Grid>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+
+                <Grid x:Name="DetailsRoot" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <!-- Show Details -->
+                    <views:DriversDetailControl 
+                        ListDetailsMenuItem="{x:Bind ViewModel.Selected, Mode=OneWay}" 
+                        HorizontalAlignment="Stretch" 
+                        VerticalAlignment="Stretch"  />
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <Grid 
+            x:Name="LoadingContainer" 
+            Visibility="Visible" 
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch">
+
+            <ProgressRing 
+                IsActive="True" 
+                HorizontalAlignment="Stretch" 
+                VerticalAlignment="Stretch" 
+                Margin="100"
+                Width="200" Height="200" MaxWidth="600"/>
+        </Grid>
+    </Grid>
+</Page>
