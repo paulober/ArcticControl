@@ -180,7 +180,7 @@
                             Margin="{StaticResource SmallTopMargin}"
                             IsExpanded="False"
                             ExpandDirection="Down"
-                            VerticalAlignment="Stretch"
+                            VerticalAlignment="Top"
                             VerticalContentAlignment="Top"
                             HorizontalAlignment="Stretch"
                             HorizontalContentAlignment="Stretch">

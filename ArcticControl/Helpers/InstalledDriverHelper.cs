@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Management;
+using ArcticControlGPUInterop;
 
 namespace ArcticControl.Helpers;
 
@@ -27,9 +28,6 @@ internal static class InstalledDriverHelper
                             pn.Contains("igdkmd64.sys")
                             || pn.Contains("igdkmdn64.sys")
                             || pn.Contains("igdkmdnd64.sys")
-#if DEBUG
-                            || pn.Contains("intelpep.sys")
-#endif
                         )
                         {
                             return true;
@@ -55,14 +53,28 @@ internal static class InstalledDriverHelper
     /// <returns></returns>
     public static string GetArcDriverVersion()
     {
-#if DEBUG
-        return IsIntelGraphicsDriverInstalled() ? "31.0.101.3430" : string.Empty;
-#else
-
         try
         {
-            SelectQuery query = new("Win32_PnPSignedDriver");
+            /*SelectQuery query = new("Win32_PnPSignedDriver");
             query.Condition = "DeviceClass = 'DISPLAY' AND DriverProviderName LIKE '%Intel%'";
+            query.SelectedProperties.Add("DriverVersion");
+            ManagementObjectSearcher searcher = new(query);
+            var drivers = searcher.Get();
+            if (drivers.Count > 0)
+            {
+                foreach (var driver in drivers)
+                {
+                    var driverVersion = driver.GetPropertyValue("DriverVersion");
+                    if (driverVersion is string dv)
+                    {
+                        return dv;
+                    }
+                }
+            }*/
+
+            // maybe faster than searching all PnPSignedDrivers
+            SelectQuery query = new("Win32_VideoController");
+            query.Condition = "Caption LIKE '%Intel(R) Arc(TM)%' OR Name LIKE '%Intel(R) Arc(TM)%'";
             query.SelectedProperties.Add("DriverVersion");
             ManagementObjectSearcher searcher = new(query);
             var drivers = searcher.Get();
@@ -84,6 +96,5 @@ internal static class InstalledDriverHelper
         }
 
         return string.Empty;
-#endif
     }
 }

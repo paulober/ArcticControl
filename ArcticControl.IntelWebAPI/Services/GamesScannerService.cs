@@ -8,6 +8,7 @@ public class GamesScannerService : IGamesScannerService
 {
     private const string STEAM_LIBRARIES_CONFIG_PATH = "C:\\Program Files (x86)\\Steam\\steamapps\\libraryfolders.vdf";
     private const string STEAM_LIBRARY_CACHE_PATH = "C:\\Program Files (x86)\\Steam\\appcache\\librarycache";
+    private const string EPICGAMES_MANIFESTS_PATH = "C:\\ProgramData\\Epic\\EpicGamesLauncher\\Data\\Manifests";
 
     private List<InstalledGame>? installedGames;
 

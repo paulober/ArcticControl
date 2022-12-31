@@ -1,7 +1,11 @@
-﻿using ArcticControl.ViewModels;
-
+﻿using System.Diagnostics;
+using System.Linq;
+using ArcticControl.Core.Models;
+using ArcticControl.ViewModels;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Data;
 
 namespace ArcticControl.Views;
 
@@ -87,5 +91,14 @@ public sealed partial class PerformancePage : Page
         {
             FanSpeedControlDropDownButton.Content = mfi.Text;
         }
+    }
+
+    private void GridView_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        // The await causes the handler to return immediately.
+        //Task.Run(() => StartBackgroundTickTimer());
+        // Now update the UI with the results.
+        // ...
+        ViewModel.StartBackgroundTickTimer(DispatcherQueue.GetForCurrentThread());
     }
 }

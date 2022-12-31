@@ -15,5 +15,6 @@ public sealed partial class MainWindow : WindowEx
         // set min window width
         var manager = WindowManager.Get(this);
         manager.MinWidth = 1200;
+        manager.MaxWidth = 1600;
     }
 }

@@ -19,7 +19,6 @@ public class PageService : IPageService
         Configure<GamesDetailViewModel, GamesDetailPage>();
         Configure<GamesViewModel, GamesPage>();
         Configure<PerformanceViewModel, PerformancePage>();
-        Configure<StudioViewModel, StudioPage>();
         Configure<NewsViewModel, NewsPage>();
         Configure<SettingsViewModel, SettingsPage>();
     }

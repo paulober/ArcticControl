@@ -1,0 +1,20 @@
+<UserControl
+    x:Class="ArcticControl.Views.PerformanceValueTemplate"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <RelativePanel Name="ForegroundElement" Width="125" Height="125" Padding="10" CornerRadius="10">
+        <TextBlock Text="{x:Bind Obj.Title, Mode=OneTime}" RelativePanel.AlignTopWithPanel="True" Style="{ThemeResource BodyTextStyle}"/>
+        <StackPanel 
+                    Orientation="Horizontal" 
+                    Margin="0,3,0,0" 
+                    RelativePanel.AlignBottomWithPanel="True"
+                    RelativePanel.AlignRightWithPanel="True">
+            <TextBlock x:Name="ValueField" Text="{x:Bind Obj.Value, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,6,0"/>
+            <TextBlock Text="{x:Bind Obj.Unit, Mode=OneWay}" Foreground="CornflowerBlue" VerticalAlignment="Bottom" Padding="0,0,0,5" />
+        </StackPanel>
+    </RelativePanel>
+</UserControl>

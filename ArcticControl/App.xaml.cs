@@ -56,7 +56,7 @@ public partial class App : Application
             // https://learn.microsoft.com/de-de/dotnet/api/system.net.http.httpclient?view=net-6.0#remarks
             services.AddHttpClient("Intel", client =>
             {
-                client.BaseAddress = new Uri("https://www.intel.de/");
+                client.BaseAddress = new Uri("https://www.intel.com/");
             });
 
             // Default Activation Handler
@@ -89,8 +89,6 @@ public partial class App : Application
             services.AddTransient<SettingsPage>();
             services.AddTransient<NewsViewModel>();
             services.AddTransient<NewsPage>();
-            services.AddTransient<StudioViewModel>();
-            services.AddTransient<StudioPage>();
             services.AddTransient<PerformanceViewModel>();
             services.AddTransient<PerformancePage>();
             services.AddTransient<GamesViewModel>();

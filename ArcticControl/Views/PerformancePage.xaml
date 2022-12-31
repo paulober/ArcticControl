@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="using:ArcticControl.Views"
     xmlns:coreModels="using:ArcticControl.Core.Models"
     mc:Ignorable="d">
 
@@ -58,16 +59,18 @@
                         Style="{ThemeResource BodyStrongTextBlockStyle}"/>
 
                     <ScrollViewer Grid.Row="1" HorizontalAlignment="Stretch">
+                        <!--ItemsSource="{x:Bind ViewModel.PerformanceValues, Mode=OneWay}"-->
                         <GridView 
+                            x:Name="PerformanceGridView"
                             VerticalAlignment="Stretch"
-                            FlowDirection="LeftToRight" 
-                            ItemTemplate="{StaticResource PerformanceValueTemplate}" 
-                            ItemsSource="{x:Bind ViewModel.PerformanceValues, Mode=OneWay}"
+                            FlowDirection="LeftToRight"
+                            ItemTemplate="{StaticResource PerformanceValueTemplate}"
                             IsItemClickEnabled="False"
                             SelectionMode="None"
                             ScrollViewer.HorizontalScrollMode="Disabled"
                             ScrollViewer.VerticalScrollBarVisibility="Visible"
-                            ScrollViewer.VerticalScrollMode="Enabled">
+                            ScrollViewer.VerticalScrollMode="Enabled"
+                            Loaded="GridView_Loaded">
 
                             <GridView.ItemContainerStyle>
                                 <Style TargetType="GridViewItem" BasedOn="{StaticResource DefaultGridViewItemStyle}">
@@ -79,6 +82,17 @@
                                     <SolidColorBrush x:Key="GridViewItemBackground" Opacity="0.3" Color="SlateGray"/>
                                 </ResourceDictionary>
                             </GridView.Resources>
+                            <GridView.Items>
+                                <GridViewItem>
+                                    <local:PerformanceValueTemplate Obj="{x:Bind ViewModel.CPUUtilizationObj, Mode=OneWay}" />
+                                </GridViewItem>
+                                <GridViewItem>
+                                    <local:PerformanceValueTemplate Obj="{x:Bind ViewModel.MemoryUtilizationObj, Mode=OneWay}" />
+                                </GridViewItem>
+                                <GridViewItem>
+                                    <local:PerformanceValueTemplate Obj="{x:Bind ViewModel.GPUVolatageObj, Mode=OneWay}" />
+                                </GridViewItem>
+                            </GridView.Items>
                         </GridView>
                     </ScrollViewer>
                 </Grid>

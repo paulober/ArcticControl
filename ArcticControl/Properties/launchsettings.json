@@ -1,10 +1,11 @@
-﻿{
-    "profiles": {
-      "ArcticControl (Package)": {
-        "commandName": "MsixPackage"
-      },
-      "ArcticControl (Unpackaged)": {
-        "commandName": "Project"
-      }
+{
+  "profiles": {
+    "ArcticControl (Package)": {
+      "commandName": "MsixPackage",
+      "nativeDebugging": true
+    },
+    "ArcticControl (Unpackaged)": {
+      "commandName": "Project"
     }
+  }
 }
