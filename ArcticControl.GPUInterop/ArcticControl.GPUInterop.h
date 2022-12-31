@@ -45,6 +45,29 @@ namespace ArcticControlGPUInterop {
 		String^ GetAdapterName();
 		void SetFansToDefaultMode();
 		array<TempSensor^>^ GetTemperatures();
+		/// <summary>
+		/// <para>Very dangerous!! - Read description</para>
+		/// <para>Overclock Waiver - Warranty Waiver.</para>
+		///
+		/// <para>- Most of the overclock functions will return an error if the waiver is not set. 
+		///	  This is because most overclock settings will increase the electric / thermal stress 
+		///   on the part and thus reduce its lifetime.</para>
+		///
+		///	<para>- By setting the waiver, the user is indicate that they are accepting a reduction 
+		/// in the lifetime of the part.</para>
+		///
+		///	<para>- It is the responsibility of overclock applications to notify each user at least 
+		/// once with a popup of the dangersand requiring acceptance.</para>
+		///
+		///	<para>- Only once the user has accepted should this function be called by the application.</para>
+		///
+		///	<para>- It is acceptable for the application to cache the user choiceand call this function 
+		/// on future executions without issuing the popup.</para>
+		/// 
+		/// <para>Excerpt from the documentation provided by Intel. - 31.12.2022</para>
+		/// </summary>
+		/// <returns>True if the action as executed with a SUCESS result.</returns>
+		Boolean^ SetOverclockWaiver();
 
 		Double^ GetOverclockTemperatureLimit();
 		Boolean^ SetOverclockTemperatureLimit(Double^ newTempLimit);

@@ -248,6 +248,26 @@ array<ArcticControlGPUInterop::TempSensor^>^ ArcticControlGPUInterop::GPUInterop
     return gcnew array<TempSensor^>{};
 }
 
+// !! DANGEROUS !!
+Boolean^ ArcticControlGPUInterop::GPUInterop::SetOverclockWaiver()
+{
+    if (hAPIHandle == nullptr && (*adapterCount) < 1)
+    {
+        goto Exit;
+    }
+
+    ctl_result_t result;
+    result = ctlOverclockWaiverSet(hDevices[0]);
+
+    if (CTL_RESULT_SUCCESS == result)
+    {
+        return true;
+    }
+
+Exit:
+    return false;
+}
+
 Double^ ArcticControlGPUInterop::GPUInterop::GetOverclockTemperatureLimit()
 {
     if (hAPIHandle == nullptr && (*adapterCount) < 1)
