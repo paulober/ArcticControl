@@ -2,7 +2,6 @@
 using ArcticControl.Contracts.Services;
 using ArcticControl.Core.Contracts.Services;
 using ArcticControl.Core.Services;
-using ArcticControl.Helpers;
 using ArcticControl.IntelWebAPI.Contracts.Services;
 using ArcticControl.IntelWebAPI.Services;
 using ArcticControl.Models;
@@ -10,7 +9,10 @@ using ArcticControl.Notifications;
 using ArcticControl.Services;
 using ArcticControl.ViewModels;
 using ArcticControl.Views;
-
+using Microsoft.AppCenter;
+using Microsoft.AppCenter.Analytics;
+using Microsoft.AppCenter.Crashes;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
@@ -46,10 +48,20 @@ public partial class App : Application
         Host = Microsoft.Extensions.Hosting.Host.
         CreateDefaultBuilder().
         UseContentRoot(AppContext.BaseDirectory).
+        ConfigureAppConfiguration((appConfig) =>
+        {
+            appConfig.AddUserSecrets<App>();
+        }).
         ConfigureServices((context, services) =>
         {
             // add logging
             services.AddLogging();
+
+#if !DEBUG
+            Analytics.SetEnabledAsync(false);
+            Crashes.SetEnabledAsync(false);
+            AppCenter.Configure(context.Configuration["AppCenter:Secret"]);
+#endif
 
             // Http client factory
             // HttpClient is intended to be instantiated once per application, rather than per-use. See Remarks.
@@ -69,6 +81,7 @@ public partial class App : Application
             services.AddSingleton<IAppNotificationService, AppNotificationService>();
             services.AddSingleton<ILocalSettingsService, LocalSettingsService>();
             services.AddSingleton<IThemeSelectorService, ThemeSelectorService>();
+            services.AddSingleton<IPrivacyConsentDisplayService, PrivacyConsentDisplayService>();
             services.AddTransient<IWebViewService, WebViewService>();
             services.AddTransient<INavigationViewService, NavigationViewService>();
 
@@ -116,13 +129,17 @@ public partial class App : Application
     {
         // TODO: Log and handle exceptions as appropriate.
         // https://docs.microsoft.com/windows/windows-app-sdk/api/winrt/microsoft.ui.xaml.application.unhandledexception.
+        if (Crashes.IsEnabledAsync().GetAwaiter().GetResult())
+        {
+            Crashes.TrackError(e.Exception);
+        }
     }
 
     protected async override void OnLaunched(LaunchActivatedEventArgs args)
     {
         base.OnLaunched(args);
 
-        App.GetService<IAppNotificationService>().Show(string.Format("AppNotificationSamplePayload".GetLocalized(), AppContext.BaseDirectory));
+        // App.GetService<IAppNotificationService>().Show(string.Format("AppNotificationSamplePayload".GetLocalized(), AppContext.BaseDirectory));
 
         await App.GetService<IActivationService>().ActivateAsync(args);
     }

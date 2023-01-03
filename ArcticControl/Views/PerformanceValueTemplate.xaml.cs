@@ -48,7 +48,7 @@ public sealed partial class PerformanceValueTemplate : UserControl
         if (d is PerformanceValueTemplate control)
         {
             control.ForegroundElement.UpdateLayout();
-            control.ValueField.Text = (e.NewValue as PerformanceValueDataObject).Value;
+            control.ValueField.Text = ((PerformanceValueDataObject)e.NewValue).Value;
         }
     }
 }

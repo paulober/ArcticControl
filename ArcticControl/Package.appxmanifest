@@ -7,22 +7,25 @@
   xmlns:genTemplate="http://schemas.microsoft.com/appx/developer/templatestudio"
   xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
   xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
-  IgnorableNamespaces="uap rescap genTemplate">
+  xmlns:iot="http://schemas.microsoft.com/appx/manifest/iot/windows10"
+  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
+  xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
+  IgnorableNamespaces="uap rescap genTemplate iot uap3 mp">
 
   <Identity
-    Name="993F52CE-EB7A-4B75-91EB-A46FE0570EBE"
-    Publisher="CN=paulo"
-    Version="1.0.0.0" />
+    Name="26580PaulOberosler.ArcticControl"
+    Publisher="CN=42BD3C1F-9B9E-4875-88FA-EA94684D36E4"
+    Version="0.1.0.0" />
 
   <Properties>
     <DisplayName>Arctic Control</DisplayName>
-    <PublisherDisplayName>paulo</PublisherDisplayName>
+    <PublisherDisplayName>Paul Oberosler</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
   <Dependencies>
-    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.17763.0" MaxVersionTested="10.0.19041.0" />
-    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.19041.0" />
+    <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.22000.0" MaxVersionTested="10.0.22621.0" />
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.22000.0" MaxVersionTested="10.0.22621.0" />
   </Dependencies>
 
   <Resources>
@@ -59,7 +62,6 @@
   </Applications>
 
   <Capabilities>
-    <rescap:Capability Name="runFullTrust" />
 	<rescap:Capability Name="broadFileSystemAccess" />
   </Capabilities>
 

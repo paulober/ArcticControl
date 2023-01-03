@@ -89,15 +89,15 @@
                                 <GridViewItem>
                                     <local:PerformanceValueTemplate Obj="{x:Bind ViewModel.MemoryUtilizationObj, Mode=OneWay}" />
                                 </GridViewItem>
-                                <GridViewItem>
+                                <!--<GridViewItem>
                                     <local:PerformanceValueTemplate Obj="{x:Bind ViewModel.GPUVolatageObj, Mode=OneWay}" />
-                                </GridViewItem>
+                                </GridViewItem>-->
                             </GridView.Items>
                         </GridView>
                     </ScrollViewer>
                 </Grid>
 
-                <RelativePanel 
+                <!--<RelativePanel 
                     HorizontalAlignment="Stretch" 
                     BorderBrush="SlateGray" 
                     BorderThickness="0,1,0,1"
@@ -121,15 +121,26 @@
                             <TextBlock Grid.Column="1" Text="Configure"/>
                         </Grid>
                     </Button>
-                </RelativePanel>
+                </RelativePanel>-->
 
-                <RelativePanel Height="100" HorizontalAlignment="Stretch">
+                <!-- when element above exists: Height="100" and remove style other than horizontalalignment -->
+                <RelativePanel
+                    BorderBrush="SlateGray" 
+                    BorderThickness="0,1,0,1"
+                    Padding="0,25,0,25"
+                    HorizontalAlignment="Stretch">
+                    
                     <TextBlock 
                         RelativePanel.AlignLeftWithPanel="True" 
                         Text="Telemetry Overlay" 
                         FontSize="20" 
                         Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                    <ToggleButton RelativePanel.AlignRightWithPanel="True" Content="OFF" ClickMode="Release" Click="TelemetryOverlayToggleButton_Click" />
+                    <ToggleButton 
+                        RelativePanel.AlignRightWithPanel="True" 
+                        Content="OFF" 
+                        ClickMode="Release" 
+                        Click="TelemetryOverlayToggleButton_Click"
+                        IsEnabled="False"/>
                 </RelativePanel>
             </StackPanel>
         </ScrollViewer>
@@ -168,7 +179,8 @@
                                 Text="Apply settings on system boot" 
                                 FontSize="20" 
                                 Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                            <ToggleButton 
+                            <ToggleButton
+                                IsEnabled="False"
                                 RelativePanel.AlignRightWithPanel="True" 
                                 Content="OFF" 
                                 ClickMode="Release" 
@@ -183,7 +195,7 @@
                             Padding="0,25,0,25">
 
                             <!-- GPU Performance Boost (slider) -->
-                            <RelativePanel HorizontalAlignment="Stretch" Margin="{StaticResource SmallTopMargin}">
+                            <!--<RelativePanel HorizontalAlignment="Stretch" Margin="{StaticResource SmallTopMargin}">
                                 <TextBlock 
                                     RelativePanel.AlignLeftWithPanel="True" 
                                     RelativePanel.AlignVerticalCenterWithPanel="True"
@@ -191,7 +203,7 @@
                                     FontSize="20" 
                                     Style="{ThemeResource BodyStrongTextBlockStyle}" />
                                 
-                                <StackPanel 
+                                <StackPanel
                                     RelativePanel.AlignRightWithPanel="True"
                                     Margin="{StaticResource SmallRightMargin}">
 
@@ -204,6 +216,7 @@
                                     </RelativePanel>
                                     <Slider
                                         x:Name="GPUPerformanceBoostSlider"
+                                        IsEnabled="False"
                                         Minimum="0"
                                         Maximum="100"
                                         Width="200"
@@ -213,7 +226,7 @@
                                         <TextBlock RelativePanel.AlignRightWithPanel="True" Text="100"/>
                                     </RelativePanel>
                                 </StackPanel>
-                            </RelativePanel>
+                            </RelativePanel>-->
 
                             <!-- GPU Voltage Offset (slider) -->
                             <RelativePanel HorizontalAlignment="Stretch" Margin="{StaticResource LargeTopMargin}">
@@ -239,6 +252,7 @@
                                         x:Name="GPUVoltageOffsetSlider"
                                         Minimum="0"
                                         Maximum="261"
+                                        Value="{x:Bind ViewModel.GPUVoltageOffsetSliderValue, Mode=TwoWay}"
                                         Width="200"
                                         ValueChanged="GPUVoltageOffsetSlider_ValueChanged"/>
                                     <RelativePanel HorizontalAlignment="Stretch">
@@ -272,6 +286,7 @@
                                         x:Name="GPUPowerLimitSlider"
                                         Minimum="95"
                                         Maximum="228"
+                                        Value="{x:Bind ViewModel.GPUPowerLimitSliderValue, Mode=TwoWay}"
                                         Width="200"
                                         ValueChanged="GPUPowerLimitSlider_ValueChanged"/>
                                     <RelativePanel HorizontalAlignment="Stretch">
@@ -305,6 +320,7 @@
                                         x:Name="GPUTemperatureLimitSlider"
                                         Minimum="60"
                                         Maximum="90"
+                                        Value="{x:Bind ViewModel.GPUTemperatureLimitSliderValue, Mode=TwoWay}"
                                         Width="200"
                                         ValueChanged="GPUTemperatureLimitSlider_ValueChanged"/>
                                     <RelativePanel HorizontalAlignment="Stretch">
@@ -324,15 +340,14 @@
 
                                 <DropDownButton 
                                     x:Name="FanSpeedControlDropDownButton"
-                                    Content="Automatic" 
+                                    Content="Automatic"
+                                    IsEnabled="False"
                                     RelativePanel.AlignRightWithPanel="True">
                                     
                                     <DropDownButton.Flyout>
                                         <MenuFlyout Placement="Bottom">
                                             <MenuFlyoutItem Text="Automatic" Click="FanSpeedControlItem_Click"/>
-                                            <MenuFlyoutItem Text="Setting 1" Click="FanSpeedControlItem_Click"/>
-                                            <MenuFlyoutItem Text="Setting 2" Click="FanSpeedControlItem_Click"/>
-                                            <MenuFlyoutItem Text="Setting 3" Click="FanSpeedControlItem_Click"/>
+                                            <MenuFlyoutItem Text="Fixed" Click="FanSpeedControlItem_Click"/>
                                         </MenuFlyout>
                                     </DropDownButton.Flyout>
                                 </DropDownButton>
@@ -367,6 +382,7 @@
                                 BorderBrush="CornflowerBlue"
                                 BorderThickness="1.5"
                                 IsEnabled="False"
+                                Click="{x:Bind ViewModel.RevertSliderChanges}"
                                 ClickMode="Release">
 
                                 <Button.Resources>
@@ -382,7 +398,8 @@
                                 Content="Apply" 
                                 IsEnabled="True" 
                                 Background="SeaGreen"
-                                ClickMode="Release">
+                                ClickMode="Release"
+                                Click="ApplyButton_Click">
 
                                 <Button.Resources>
                                     <ResourceDictionary>

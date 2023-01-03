@@ -1,6 +1,6 @@
 ﻿namespace ArcticControl.Contracts.Services;
 
-public interface IActivationService
+internal interface IActivationService
 {
     Task ActivateAsync(object activationArgs);
 }

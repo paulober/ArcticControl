@@ -6,10 +6,26 @@ using ArcticControl.Helpers;
 using ArcticControlGPUInterop;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml;
+using Windows.ApplicationModel;
 
 namespace ArcticControl.ViewModels;
 
-public class PerformanceViewModel : ObservableRecipient, INavigationAware
+internal enum SliderValueDefaults: ushort
+{
+    GPUVoltageOffset = 1,
+    GPUPowerLimit = 2,
+    GPUTemperatureLimit = 3
+}
+
+internal static class SliderDefaultValues
+{
+    internal static readonly ushort GPUVoltageOffset = 0;
+    internal static readonly ushort GPUPowerLimit = 190;
+    internal static readonly ushort GPUTemperatureLimit = 90;
+}
+
+public class PerformanceViewModel : ObservableRecipient, INavigationAware, IDisposable
 {
     /// <summary>
     /// INOP at the moment cause no NotifyCollectionChangedAction available for indicating changes in an element.
@@ -19,6 +35,39 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
     {
         get; init;
     } = new();
+
+    private readonly Dictionary<SliderValueDefaults, double> CurrentActiveSliderValues = new()
+    {
+        { SliderValueDefaults.GPUPowerLimit, Convert.ToDouble(SliderDefaultValues.GPUPowerLimit) },
+        { SliderValueDefaults.GPUTemperatureLimit, Convert.ToDouble(SliderDefaultValues.GPUTemperatureLimit) },
+        { SliderValueDefaults.GPUVoltageOffset, Convert.ToDouble(SliderDefaultValues.GPUVoltageOffset) }
+    };
+
+    public bool WaiverSigned = false;
+
+    private double _gpuVoltageOffsetSliderValue = Convert.ToDouble(SliderDefaultValues.GPUVoltageOffset);
+
+    public double GPUVoltageOffsetSliderValue
+    {
+        get => _gpuVoltageOffsetSliderValue;
+        set => SetProperty(ref _gpuVoltageOffsetSliderValue, value); 
+    }
+
+    private double _gpuPowerLimitSliderValue = Convert.ToDouble(SliderDefaultValues.GPUPowerLimit);
+
+    public double GPUPowerLimitSliderValue
+    {
+        get => _gpuPowerLimitSliderValue;
+        set => SetProperty(ref _gpuPowerLimitSliderValue, value);
+    }
+
+    private double _gpuTemperatureLimitSliderValue = Convert.ToDouble(SliderDefaultValues.GPUTemperatureLimit);
+
+    public double GPUTemperatureLimitSliderValue
+    {
+        get => _gpuTemperatureLimitSliderValue;
+        set => SetProperty(ref _gpuTemperatureLimitSliderValue, value);
+    }
 
     #region ValueDataObject properties to be able to update the values
     private PerformanceValueDataObject _cpuUtilizationObj 
@@ -48,11 +97,13 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
 
     public PerformanceViewModel()
     {
+        _gpuInterop = new GPUInterop();
     }
 
     private DispatcherQueue? _dpq;
     private CancellationTokenSource? _tickTimerTaskCancelationTokenSource;
     private Task? _tickTimerTask;
+    private readonly GPUInterop _gpuInterop;
 
     // framecounter, UI Binded Property, format, 
     private readonly List<Tuple<PerformanceSource, string>> _performanceCounters = new()
@@ -77,8 +128,8 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
                     var wmiObject = new ManagementObjectSearcher("select * from Win32_OperatingSystem");
 
                     var memoryValues = wmiObject.Get().Cast<ManagementObject>().Select(mo => new {
-                        FreePhysicalMemory = double.Parse(mo["FreePhysicalMemory"].ToString()),
-                        TotalVisibleMemorySize = double.Parse(mo["TotalVisibleMemorySize"].ToString())
+                        FreePhysicalMemory = double.Parse(mo["FreePhysicalMemory"].ToString() ?? "0.0"),
+                        TotalVisibleMemorySize = double.Parse(mo["TotalVisibleMemorySize"].ToString() ?? "0.0")
                     }).FirstOrDefault();
 
                     if (memoryValues != null)
@@ -93,13 +144,13 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
                 }
                 return "N/A";
             }
-        }), nameof(MemoryUtilizationObj)),
+        }), nameof(MemoryUtilizationObj))/*,
         Tuple.Create(new PerformanceSource(new PerformanceSourceArgs()
         {
             Type = PerformanceSourceType.PerformanceCounter,
             PerformanceCounterArgs = new string[] {"Processor", "% Processor Time", "_Total"},
             Format = "0.0"
-        }), nameof(GPUVolatageObj))
+        }), nameof(GPUVolatageObj))*/
     };
 
     private async Task DoTick()
@@ -183,16 +234,95 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
         */
 
         // will call !GPUInterop finalizer automaticly after current scope ends
-        using GPUInterop gpuInterop = new();
+        /*using GPUInterop gpuInterop = new();
         //Debug.WriteLine("gpuInterop.TestApi(): " + gpuInterop.TestApi().ToString());
         var result = (bool)gpuInterop.InitCtlApi();
         if (result)
         {
             Debug.WriteLine("GPUInterop: " + gpuInterop.GetAdapterName());
             var res = (double)gpuInterop.GetOverclockVRAMVoltageOffset();
-            var res1 = (double)gpuInterop.GetOverclockVRAMFrequencyOffset();
+            var res1 = (double)gpuInterop.GetOverclockVRAMVoltageOffset();
             Debug.WriteLine(res);
+        }*/
+
+        var result = (bool)_gpuInterop.InitCtlApi();
+        if (result)
+        {
+            GetOverclockingValues();
         }
+    }
+
+    private void GetOverclockingValues(bool skipTempLimit = false)
+    {
+        var powerLimit = (double)_gpuInterop.GetOverclockPowerLimit();
+        var tempLimit = skipTempLimit 
+            ? GPUTemperatureLimitSliderValue 
+            : (double)_gpuInterop.GetOverclockTemperatureLimit();
+        var gpuVoltageOffset = (double)_gpuInterop.GetOverclockGPUVoltageOffset();
+
+        GPUPowerLimitSliderValue = powerLimit;
+        GPUTemperatureLimitSliderValue = tempLimit;
+        GPUVoltageOffsetSliderValue = gpuVoltageOffset;
+
+        CurrentActiveSliderValues[SliderValueDefaults.GPUPowerLimit] = powerLimit;
+        CurrentActiveSliderValues[SliderValueDefaults.GPUTemperatureLimit] = tempLimit;
+        CurrentActiveSliderValues[SliderValueDefaults.GPUVoltageOffset] = gpuVoltageOffset;
+    }
+
+    public void ResetToDefaultSliderValues()
+    {
+        GPUPowerLimitSliderValue = Convert.ToDouble(SliderDefaultValues.GPUPowerLimit);
+        GPUTemperatureLimitSliderValue = Convert.ToDouble(SliderDefaultValues.GPUTemperatureLimit);
+        GPUVoltageOffsetSliderValue = Convert.ToDouble(SliderDefaultValues.GPUVoltageOffset);
+    }
+
+    public void RevertSliderChanges(object? sender, RoutedEventArgs? e)
+    {
+        GPUPowerLimitSliderValue = CurrentActiveSliderValues[SliderValueDefaults.GPUPowerLimit];
+        GPUTemperatureLimitSliderValue = CurrentActiveSliderValues[SliderValueDefaults.GPUTemperatureLimit];
+        GPUVoltageOffsetSliderValue = CurrentActiveSliderValues[SliderValueDefaults.GPUVoltageOffset];
+    }
+
+    public bool ApplyChanges()
+    {
+        var doSkipTempLimit = false;
+
+        if (GPUPowerLimitSliderValue != CurrentActiveSliderValues[SliderValueDefaults.GPUPowerLimit])
+        {
+            // *1000 to convert W in mW
+            _gpuInterop.SetOverclockPowerLimit(GPUPowerLimitSliderValue*1000.0);
+        }
+        if (GPUTemperatureLimitSliderValue != CurrentActiveSliderValues[SliderValueDefaults.GPUTemperatureLimit])
+        {
+            if (!WaiverSigned)
+            {
+                return false;
+            }
+            var result = (bool)_gpuInterop.SetOverclockTemperatureLimit(GPUTemperatureLimitSliderValue);
+            if (result)
+            {
+                // skip temp limit check because the gpu needs time to refresh values so it would return old tempLimit
+                doSkipTempLimit = true;
+            }
+        }
+        if (GPUVoltageOffsetSliderValue != CurrentActiveSliderValues[SliderValueDefaults.GPUVoltageOffset])
+        {
+            if (!WaiverSigned)
+            {
+                return false;
+            }
+            _gpuInterop.SetOverclockGPUVoltageOffset(GPUVoltageOffsetSliderValue);
+        }
+
+        // check if gpu driver acepted values or adjust some and also reset CurrentValues variable
+        GetOverclockingValues(skipTempLimit: doSkipTempLimit);
+
+        return true;
+    }
+
+    public void SetOverclockWaiver()
+    {
+        _gpuInterop.SetOverclockWaiver();
     }
 
     public async void OnNavigatedFrom()
@@ -215,4 +345,6 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
             }
         }
     }
+
+    public void Dispose() => _gpuInterop.Dispose();
 }

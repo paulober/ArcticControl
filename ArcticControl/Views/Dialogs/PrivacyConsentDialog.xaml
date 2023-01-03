@@ -1,0 +1,14 @@
+<UserControl
+    x:Class="ArcticControl.Views.Dialogs.PrivacyConsentDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <TextBlock x:Uid="PrivacyConsentDialog_Content" TextWrapping="WrapWholeWords"/>
+        <HyperlinkButton x:Uid="SettingsPage_PrivacyTermsLink" Margin="{StaticResource SettingsPageHyperlinkButtonMargin}"/>
+        <HyperlinkButton x:Uid="SettingsPage_TermsOfServiceLink" Margin="{StaticResource SettingsPageHyperlinkButtonMargin}"/>
+    </StackPanel>
+</UserControl>

@@ -21,6 +21,11 @@ String^ ArcticControlGPUInterop::GPUInterop::GetMyName()
 
 bool^ ArcticControlGPUInterop::GPUInterop::initApi()
 {
+    if (hDevices != nullptr && adapterCount != nullptr && hAPIHandle != nullptr)
+    {
+        return true;
+    }
+
     ctl_result_t result = CTL_RESULT_SUCCESS;
     hDevices = nullptr;
     ctl_init_args_t ctlInitArgs{};
@@ -276,7 +281,7 @@ Double^ ArcticControlGPUInterop::GPUInterop::GetOverclockTemperatureLimit()
     }
 
     ctl_result_t result;
-    double tempLimit;
+    double tempLimit = 0.0;
     result = ctlOverclockTemperatureLimitGet(hDevices[0], &tempLimit);
 
     if (CTL_RESULT_SUCCESS == result)
@@ -315,7 +320,7 @@ Double^ ArcticControlGPUInterop::GPUInterop::GetOverclockPowerLimit()
     }
 
     ctl_result_t result;
-    double sustainedPowerLimit;
+    double sustainedPowerLimit = 0.0;
     result = ctlOverclockPowerLimitGet(hDevices[0], &sustainedPowerLimit);
 
     if (CTL_RESULT_SUCCESS == result)
@@ -455,6 +460,7 @@ Boolean^ ArcticControlGPUInterop::GPUInterop::SetOverclockVRAMVoltageOffset(Doub
     ctl_result_t result;
     result = ctlOverclockVramVoltageOffsetSet(hDevices[0], *newVRAMVoltageOffset);
 
+    WriteLine("Result: " + gcnew String(DecodeRetCode(result).c_str()));
     if (CTL_RESULT_SUCCESS == result)
     {
         return true;

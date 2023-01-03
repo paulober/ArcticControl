@@ -38,7 +38,7 @@ public class GamesViewModel : ObservableRecipient, INavigationAware
         ItemClickCommand = new RelayCommand<InstalledGame>(OnItemClick);
     }
 
-    public async void OnNavigatedTo(object parameter)
+    public void OnNavigatedTo(object parameter)
     {
         Source.Clear();
 

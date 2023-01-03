@@ -29,7 +29,7 @@
             Margin="{StaticResource MediumBottomMargin}">
             
             <TextBlock 
-                Text="Welcome to Arctic Control (i'm a placeholder)" 
+                Text="Welcome to Arctic Control (placeholder)" 
                 Style="{StaticResource HeaderTextBlockStyle}" 
                 HorizontalAlignment="Center" 
                 VerticalAlignment="Center"/>
@@ -42,7 +42,7 @@
             Margin="{StaticResource MediumBottomRightMargin}">
 
             <TextBlock 
-                Text="Experience future of dGPUs (placeholder)" 
+                Text="AD / News (placeholder)" 
                 Style="{StaticResource HeaderTextBlockStyle}" 
                 HorizontalAlignment="Center" 
                 VerticalAlignment="Center"/>
@@ -55,7 +55,7 @@
             Margin="{StaticResource MediumBottomMargin}">
 
             <TextBlock 
-                Text="Intel Gaming Access Program (placeholder)" 
+                Text="AD / News (placeholder)" 
                 Style="{StaticResource HeaderTextBlockStyle}" 
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"/>

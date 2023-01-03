@@ -40,10 +40,12 @@ public class AppNotificationActivationHandler : ActivationHandler<LaunchActivate
         ////         _navigationService.NavigateTo(typeof(SettingsViewModel).FullName!);
         ////     });
         //// }
+        ///
+        var arg = args.Arguments;
 
         App.MainWindow.DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Low, () =>
         {
-            App.MainWindow.ShowMessageDialogAsync("TODO: Handle notification activations.", "Notification Activation");
+            App.MainWindow.ShowMessageDialogAsync("Feature is under development...", "Notification Activation");
         });
 
         await Task.CompletedTask;

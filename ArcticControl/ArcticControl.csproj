@@ -20,9 +20,21 @@
 
   <PropertyGroup>
 	<CsWinRTIncludes>ArcticControl.IGCLInterop</CsWinRTIncludes>
+	<PackageCertificateKeyFile>ArcticControl_TemporaryKey.pfx</PackageCertificateKeyFile>
+	<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+	<UserSecretsId>224e2610-9556-43cb-b467-a50328f0654a</UserSecretsId>
+	<GenerateAppInstallerFile>False</GenerateAppInstallerFile>
+	<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+	<AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+	<AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
+	<GenerateTestArtifacts>True</GenerateTestArtifacts>
+	<AppxBundle>Auto</AppxBundle>
+	<AppxBundlePlatforms>x64|arm64</AppxBundlePlatforms>
+	<GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Views\Dialogs\PrivacyConsentDialog.xaml" />
     <None Remove="Views\DriversListViewDetailsControl.xaml" />
     <None Remove="Views\PerformanceValueTemplate.xaml" />
     <None Remove="Views\StartPage.xaml" />
@@ -36,6 +48,11 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Animations" Version="7.1.2" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
+    <PackageReference Include="Microsoft.AppCenter.Analytics" Version="5.0.1" />
+    <PackageReference Include="Microsoft.AppCenter.Crashes" Version="5.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
     <PackageReference Include="Microsoft.Windows.CsWinRT" Version="2.0.1" />
@@ -56,6 +73,9 @@
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Page Update="Views\Dialogs\PrivacyConsentDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="Views\PerformanceValueTemplate.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

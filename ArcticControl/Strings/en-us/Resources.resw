@@ -133,10 +133,7 @@
     <value>Games</value>
   </data>
   <data name="Shell_Performance.Content" xml:space="preserve">
-    <value>Performance</value>
-  </data>
-  <data name="Shell_Studio.Content" xml:space="preserve">
-    <value>Studio</value>
+    <value>Performance (experimental)</value>
   </data>
   <data name="WebView_Loading.Text" xml:space="preserve">
     <value>Loading...</value>
@@ -196,10 +193,10 @@
     <value>Work in progress...</value>
   </data>
   <data name="SettingsPage_PrivacyTermsLink.Content" xml:space="preserve">
-    <value>Privacy Statement</value>
+    <value>AppCenter Privacy Statement</value>
   </data>
   <data name="SettingsPage_PrivacyTermsLink.NavigateUri" xml:space="preserve">
-    <value>https://YourPrivacyUrlGoesHere/</value>
+    <value>https://aka.ms/appcenterprivacy</value>
   </data>
   <data name="AppNotificationSamplePayload" xml:space="preserve">
     <value>&lt;toast launch="action=ToastClick"&gt;
@@ -214,5 +211,20 @@
     &lt;action content="Settings" arguments="action=Settings"/&gt;
   &lt;/actions&gt;
 &lt;/toast&gt;</value>
+  </data>
+  <data name="Settings_NotFromIntelNote.Text" xml:space="preserve">
+    <value>This app is a project of a community member and not related to Intel in any way.</value>
+  </data>
+  <data name="Settings_PrivacyText.Text" xml:space="preserve">
+    <value>The application uses Microsoft AppCenter Analytics/Crashes, please read the related privacy policy on their official website (https://appcenter.ms/ or https://aka.ms/appcenterprivacy).</value>
+  </data>
+  <data name="SettingsPage_TermsOfServiceLink.Content" xml:space="preserve">
+    <value>Terms of Service (Microsoft Azure)</value>
+  </data>
+  <data name="SettingsPage_TermsOfServiceLink.NavigateUri" xml:space="preserve">
+    <value>https://azure.microsoft.com/support/legal</value>
+  </data>
+  <data name="PrivacyConsentDialog_Content.Text" xml:space="preserve">
+    <value>This application has integrated App Center SDK to send data. The App does not store or share any personal data except what's collected by the App Center SDK to record crashes and analytics to help improving the App. Do you accept sending the App usage and crash data to App Center when using this application? Choose \"Accept\" to continue or \"Refuse\" to exit</value>
   </data>
 </root>
