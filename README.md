@@ -34,7 +34,12 @@ If you have feedback let me now in following thread on the Intel Insiders Commun
 - Continue with steps in "Update" section
 
 ### Package installation
-- If you already installed this application once, just select one of the following appinstaller links: [Windows 11 x64](ms-appinstaller:?source=https://github.com/paulober/ArcticControl/releases/latest/download/ArcticControl_x64.appinstaller) or [Windows 11 arm64](ms-appinstaller:?source=https://github.com/paulober/ArcticControl/releases/latest/download/ArcticControl_arm64.appinstaller)
+- If you already installed this application once, just open one of the following appinstaller links in your browser or download the .appinstaller file manually from the releases tab: 
+
+| -- OS --       | Installer link |
+|:--------------:|----------------|
+| Windows 11 x64 | ms-appinstaller:?source=https://github.com/paulober/ArcticControl/releases/latest/download/ArcticControl_x64.appinstaller |
+| Windows 11 arm64 | ms-appinstaller:?source=https://github.com/paulober/ArcticControl/releases/latest/download/ArcticControl_arm64.appinstaller |
 
 ### Finally
 - You can now delete all downloaded files as they are no longer needed. You find the installed application in you start menu.
