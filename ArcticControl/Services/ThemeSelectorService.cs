@@ -52,7 +52,7 @@ public class ThemeSelectorService : IThemeSelectorService
             return cacheTheme;
         }
 
-        return ElementTheme.Default;
+        return ElementTheme.Dark;
     }
 
     private async Task SaveThemeInSettingsAsync(ElementTheme theme)

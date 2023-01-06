@@ -18,7 +18,7 @@ The application uses Microsoft AppCenter Analytics/Crashes, please read the rela
 
 This application is a project of a Intel® Arc™ community member and NOT related to Intel® in any way.
 
-If you have feedback let me now in following thread on the Intel Insiders Community discord: https://discord.com/channels/554824368740630529/1049459749160235058 or here on the repo the issues tab-
+If you have feedback let me now in following thread on the Intel Insiders Community discord: https://discord.com/channels/554824368740630529/1049459749160235058 or here on the repo the issues tab.
 
 # Installation instructions
 | All files contain "x64" or "arm64" in their name, always download the version of a certain file which contains your processor architecture.
@@ -26,7 +26,7 @@ If you have feedback let me now in following thread on the Intel Insiders Commun
 - Head over to the releases tab on the right and download the file ending with .msix from the latest release.
 
 ### Requirements
-- Microsoft [.NET 6 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
+- Microsoft [.NET 7 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
 
 ### First installation
 - If this is the first time you install this application, head over to the releases tab on the right and download the files ending with .cer and .cmd from the latest release.

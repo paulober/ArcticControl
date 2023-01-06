@@ -10,6 +10,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArcticControl.IntelWebAPI", "ArcticControl.IntelWebAPI\ArcticControl.IntelWebAPI.csproj", "{9EB12207-ACC7-4A02-8BDA-7FC6741DAEB4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Projektmappenelemente", "Projektmappenelemente", "{C9C074E6-5E11-444C-9DE2-261EAB59D18A}"
+	ProjectSection(SolutionItems) = preProject
+		installCertificate.cmd = installCertificate.cmd
+		README.md = README.md
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ArcticControl.GPUInterop", "ArcticControl.GPUInterop\ArcticControl.GPUInterop.vcxproj", "{BD67FCB4-6655-40A6-A5F5-5D94C0E388DF}"
 EndProject

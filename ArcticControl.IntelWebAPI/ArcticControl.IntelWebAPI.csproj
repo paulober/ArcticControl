@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
 	<RootNamespace>ArcticControl.IntelWebAPI</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-	<LangVersion>10.0</LangVersion>
+	<LangVersion>11.0</LangVersion>
 	<Platforms>x64;arm64;AnyCPU</Platforms>
   </PropertyGroup>
 
