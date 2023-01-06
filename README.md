@@ -29,9 +29,9 @@ If you have feedback let me now in following thread on the Intel Insiders Commun
 - Microsoft [.NET 6 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
 
 ### First installation
-- If this is the first time you install this application, Head over to the releases tab on the right and download the files ending with .cer and .cmd from the latest release.
+- If this is the first time you install this application, head over to the releases tab on the right and download the files ending with .cer and .cmd from the latest release.
 - Open your downloads folder and right click the "installCertificate.cmd" and select "Run as administrator"
-- Continue with steps in "Update" section
+- Continue with steps in the next section.
 
 ### Package installation
 - If you already installed this application once, just open one of the following appinstaller links in your browser or download the .appinstaller file manually from the releases tab: 
