@@ -51,6 +51,42 @@
                 </StackPanel>
             </StackPanel>
 
+            <TextBlock x:Uid="Settings_Advanced" Style="{ThemeResource SubtitleTextBlockStyle}" />
+
+            <StackPanel Margin="{StaticResource SmallTopBottomMargin}">
+                <TextBlock x:Uid="Settings_GPUPowerMaxLimit" />
+                <Grid Width="Auto" Margin="{StaticResource SmallTopMargin}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <NumberBox
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Width="160"
+                        Value="{x:Bind ViewModel.GPUPowerMaxLimit, Mode=TwoWay}"
+                        SpinButtonPlacementMode="Inline"
+                        SmallChange="1"
+                        LargeChange="10"
+                        Loaded="{x:Bind ViewModel.GPUPowerMaxLimitNumberBox_Loaded, Mode=OneTime}"/>
+                    <Button
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        VerticalAlignment="Center"
+                        Content="Save"
+                        Click="{x:Bind ViewModel.SaveMaxGPUPowerLimitButton_Click, Mode=OneTime}"
+                        Margin="{StaticResource MediumLeftRightMargin}"/>
+                </Grid>
+                <TextBlock 
+                    x:Uid="Settings_GPUPowerMaxLimit_InputError"
+                    FontSize="{ThemeResource ToolTipContentThemeFontSize}"
+                    Foreground="Red"
+                    Visibility="{x:Bind ViewModel.GPUPowerMaxLimitInputErrorVis, Mode=OneWay}" />
+            </StackPanel>
+
             <TextBlock x:Uid="Settings_About" Style="{ThemeResource SubtitleTextBlockStyle}" />
 
             <StackPanel Margin="{StaticResource XSmallTopMargin}">

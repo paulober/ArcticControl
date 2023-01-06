@@ -9,13 +9,15 @@ using ArcticControl.Notifications;
 using ArcticControl.Services;
 using ArcticControl.ViewModels;
 using ArcticControl.Views;
-using Microsoft.AppCenter;
-using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
+#if !DEBUG
+using Microsoft.AppCenter;
+using Windows.Globalization;
+#endif
 
 namespace ArcticControl;
 
@@ -58,9 +60,11 @@ public partial class App : Application
             services.AddLogging();
 
 #if !DEBUG
-            Analytics.SetEnabledAsync(false);
-            Crashes.SetEnabledAsync(false);
+            //await Analytics.SetEnabledAsync(false);
+            //await Crashes.SetEnabledAsync(false);
+            AppCenter.SetCountryCode(new GeographicRegion().CodeTwoLetter);
             AppCenter.Configure(context.Configuration["AppCenter:Secret"]);
+            //await AppCenter.SetEnabledAsync(false);
 #endif
 
             // Http client factory
@@ -127,8 +131,6 @@ public partial class App : Application
 
     private void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
     {
-        // TODO: Log and handle exceptions as appropriate.
-        // https://docs.microsoft.com/windows/windows-app-sdk/api/winrt/microsoft.ui.xaml.application.unhandledexception.
         if (Crashes.IsEnabledAsync().GetAwaiter().GetResult())
         {
             Crashes.TrackError(e.Exception);

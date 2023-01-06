@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Management;
+using ArcticControl.Contracts.Services;
 using ArcticControl.Contracts.ViewModels;
+using ArcticControl.Core.Helpers;
 using ArcticControl.Core.Models;
 using ArcticControl.Helpers;
 using ArcticControlGPUInterop;
@@ -15,14 +17,18 @@ internal enum SliderValueDefaults: ushort
 {
     GPUVoltageOffset = 1,
     GPUPowerLimit = 2,
-    GPUTemperatureLimit = 3
+    GPUTemperatureLimit = 3,
+    GPUFrequencyOffset = 4,
+    FanSpeed = 5
 }
 
 internal static class SliderDefaultValues
 {
-    internal static readonly ushort GPUVoltageOffset = 0;
-    internal static readonly ushort GPUPowerLimit = 190;
-    internal static readonly ushort GPUTemperatureLimit = 90;
+    internal const ushort GPUFrequencyOffset = 0;
+    internal const ushort GPUVoltageOffset = 0;
+    internal const ushort GPUPowerLimit = 190;
+    internal const ushort GPUTemperatureLimit = 90;
+    internal const ushort FanSpeed = 20;
 }
 
 public class PerformanceViewModel : ObservableRecipient, INavigationAware, IDisposable
@@ -40,10 +46,20 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware, IDisp
     {
         { SliderValueDefaults.GPUPowerLimit, Convert.ToDouble(SliderDefaultValues.GPUPowerLimit) },
         { SliderValueDefaults.GPUTemperatureLimit, Convert.ToDouble(SliderDefaultValues.GPUTemperatureLimit) },
-        { SliderValueDefaults.GPUVoltageOffset, Convert.ToDouble(SliderDefaultValues.GPUVoltageOffset) }
+        { SliderValueDefaults.GPUVoltageOffset, Convert.ToDouble(SliderDefaultValues.GPUVoltageOffset) },
+        { SliderValueDefaults.GPUFrequencyOffset, Convert.ToDouble(SliderDefaultValues.GPUFrequencyOffset) },
+        { SliderValueDefaults.FanSpeed, Convert.ToDouble(SliderDefaultValues.FanSpeed) },
     };
 
     public bool WaiverSigned = false;
+
+    private double _gpuFrequencyOffsetSliderValue = Convert.ToDouble(SliderDefaultValues.GPUFrequencyOffset);
+
+    public double GPUFrequencyOffsetSliderValue
+    {
+        get => _gpuFrequencyOffsetSliderValue;
+        set => SetProperty(ref _gpuFrequencyOffsetSliderValue, value);
+    }
 
     private double _gpuVoltageOffsetSliderValue = Convert.ToDouble(SliderDefaultValues.GPUVoltageOffset);
 
@@ -51,6 +67,13 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware, IDisp
     {
         get => _gpuVoltageOffsetSliderValue;
         set => SetProperty(ref _gpuVoltageOffsetSliderValue, value); 
+    }
+
+    private double _gpuPowerMaxLimit = 228.0;
+    public double GPUPowerMaxLimit
+    {
+        get => _gpuPowerMaxLimit;
+        set => SetProperty(ref _gpuPowerMaxLimit, value);
     }
 
     private double _gpuPowerLimitSliderValue = Convert.ToDouble(SliderDefaultValues.GPUPowerLimit);
@@ -67,6 +90,22 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware, IDisp
     {
         get => _gpuTemperatureLimitSliderValue;
         set => SetProperty(ref _gpuTemperatureLimitSliderValue, value);
+    }
+
+    private uint _fanSpeedSliderValue = Convert.ToUInt32(SliderDefaultValues.FanSpeed);
+
+    public uint FanSpeedSliderValue
+    {
+        get => _fanSpeedSliderValue;
+        set => SetProperty(ref _fanSpeedSliderValue, value);
+    }
+
+    private bool _fanSpeedFixed = false;
+
+    public bool FanSpeedFixed
+    {
+        get => _fanSpeedFixed;
+        set => SetProperty(ref _fanSpeedFixed, value);
     }
 
     #region ValueDataObject properties to be able to update the values
@@ -95,8 +134,9 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware, IDisp
     }
     #endregion
 
-    public PerformanceViewModel()
+    public PerformanceViewModel(ILocalSettingsService localSettingsService)
     {
+        _localSettingsService = localSettingsService;
         _gpuInterop = new GPUInterop();
     }
 
@@ -104,6 +144,7 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware, IDisp
     private CancellationTokenSource? _tickTimerTaskCancelationTokenSource;
     private Task? _tickTimerTask;
     private readonly GPUInterop _gpuInterop;
+    private readonly ILocalSettingsService _localSettingsService;
 
     // framecounter, UI Binded Property, format, 
     private readonly List<Tuple<PerformanceSource, string>> _performanceCounters = new()
@@ -213,7 +254,8 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware, IDisp
         }, ct);
     }
 
-    public void OnNavigatedTo(object parameter)
+    // TODO: maybe switch to Task vs void
+    public async void OnNavigatedTo(object parameter)
     {
         // ItemsSource placeholders setup
         /*
@@ -249,7 +291,34 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware, IDisp
         if (result)
         {
             GetOverclockingValues();
+            // TODO: move somewhere
+            // GPUPowerTest
+#if DEBUG
+            result = _gpuInterop.InitPowerDomains();
+            if (result)
+            {
+                Debug.WriteLine("PowerInit: Res true");
+                var powerProps = _gpuInterop.GetPowerProperties();
+                if (powerProps != null)
+                {
+                    Debug.WriteLine(
+                        $"PowerProps: CanControl-{powerProps.CanControl} ; DefaultLimit-{powerProps.DefaultLimit} ;" +
+                        $" MinLimit-{powerProps.MinLimit} ; MaxLimit-{powerProps.MaxLimit}");
+                }
+                var powerLimits = _gpuInterop.GetPowerLimits();
+                if (powerLimits != null)
+                {
+                    Debug.WriteLine($"PowerLimits: " + Environment.NewLine +
+                        $"SustainedPowerLimits: Enabled-{powerLimits.SustainedPowerLimit.Enabled} ; Power-{powerLimits.SustainedPowerLimit.Power} ; Interval-{powerLimits.SustainedPowerLimit.Interval}" + Environment.NewLine +
+                        $"BurstPowerLimit: Enabled-{powerLimits.BurstPowerLimit.Enabled} ; Power-{powerLimits.BurstPowerLimit.Power}" + Environment.NewLine +
+                        $"PeakPowerLimit: PowerDC-{powerLimits.PeakPowerLimit.PowerDC} ; PowerAC-{powerLimits.PeakPowerLimit.PowerAC}");
+                }
+            }
+#endif
         }
+
+        var settingsGPUPowerMaxLimit = await _localSettingsService.ReadSettingAsync<double>(LocalSettingsKeys.GPUPowerMaxLimit);
+        GPUPowerMaxLimit = settingsGPUPowerMaxLimit < 228.0 ? 228.0 : settingsGPUPowerMaxLimit;
     }
 
     private void GetOverclockingValues(bool skipTempLimit = false)
@@ -259,14 +328,20 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware, IDisp
             ? GPUTemperatureLimitSliderValue 
             : (double)_gpuInterop.GetOverclockTemperatureLimit();
         var gpuVoltageOffset = (double)_gpuInterop.GetOverclockGPUVoltageOffset();
+        var gpuFrequencyOffset = (double)_gpuInterop.GetOverclockGPUFrequencyOffset();
 
         GPUPowerLimitSliderValue = powerLimit;
         GPUTemperatureLimitSliderValue = tempLimit;
         GPUVoltageOffsetSliderValue = gpuVoltageOffset;
+        GPUFrequencyOffsetSliderValue = gpuFrequencyOffset;
 
         CurrentActiveSliderValues[SliderValueDefaults.GPUPowerLimit] = powerLimit;
         CurrentActiveSliderValues[SliderValueDefaults.GPUTemperatureLimit] = tempLimit;
         CurrentActiveSliderValues[SliderValueDefaults.GPUVoltageOffset] = gpuVoltageOffset;
+        CurrentActiveSliderValues[SliderValueDefaults.GPUFrequencyOffset] = gpuFrequencyOffset;
+
+        // TODO: Fan stuff
+        // if (FanSpeedFixed)...
     }
 
     public void ResetToDefaultSliderValues()
@@ -274,6 +349,7 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware, IDisp
         GPUPowerLimitSliderValue = Convert.ToDouble(SliderDefaultValues.GPUPowerLimit);
         GPUTemperatureLimitSliderValue = Convert.ToDouble(SliderDefaultValues.GPUTemperatureLimit);
         GPUVoltageOffsetSliderValue = Convert.ToDouble(SliderDefaultValues.GPUVoltageOffset);
+        GPUFrequencyOffsetSliderValue = Convert.ToDouble(SliderDefaultValues.GPUFrequencyOffset);
     }
 
     public void RevertSliderChanges(object? sender, RoutedEventArgs? e)
@@ -281,6 +357,7 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware, IDisp
         GPUPowerLimitSliderValue = CurrentActiveSliderValues[SliderValueDefaults.GPUPowerLimit];
         GPUTemperatureLimitSliderValue = CurrentActiveSliderValues[SliderValueDefaults.GPUTemperatureLimit];
         GPUVoltageOffsetSliderValue = CurrentActiveSliderValues[SliderValueDefaults.GPUVoltageOffset];
+        GPUFrequencyOffsetSliderValue = CurrentActiveSliderValues[SliderValueDefaults.GPUFrequencyOffset];
     }
 
     public bool ApplyChanges()
@@ -312,6 +389,14 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware, IDisp
                 return false;
             }
             _gpuInterop.SetOverclockGPUVoltageOffset(GPUVoltageOffsetSliderValue);
+        }
+        if (GPUFrequencyOffsetSliderValue != CurrentActiveSliderValues[SliderValueDefaults.GPUFrequencyOffset])
+        {
+            if (!WaiverSigned)
+            {
+                return false;
+            }
+            _gpuInterop.SetOverclockGPUFrequencyOffset(GPUFrequencyOffsetSliderValue);
         }
 
         // check if gpu driver acepted values or adjust some and also reset CurrentValues variable

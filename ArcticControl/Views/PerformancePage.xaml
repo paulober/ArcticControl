@@ -167,7 +167,7 @@
                     Style="{ThemeResource BodyStrongTextBlockStyle}"/>
 
                 <ScrollViewer Grid.Row="1" HorizontalAlignment="Stretch" Padding="0,0,5,0">
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch">
+                    <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Margin="0,0,8,0">
                         <RelativePanel 
                             BorderBrush="SlateGray" 
                             BorderThickness="0,0,0,1"
@@ -228,6 +228,52 @@
                                 </StackPanel>
                             </RelativePanel>-->
 
+                            <!-- GPU Frequency Offset (slider) -->
+                            <Grid HorizontalAlignment="Stretch" Margin="{StaticResource MediumTopMargin}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock
+                                    Grid.Column="0"
+                                    x:Name="GPUFrequencyOffsetTitle"
+                                    RelativePanel.AlignLeftWithPanel="True"
+                                    RelativePanel.AlignVerticalCenterWithPanel="True"
+                                    VerticalAlignment="Center"
+                                    Text="GPU Frequency Offset" 
+                                    FontSize="20" 
+                                    Style="{ThemeResource BodyStrongTextBlockStyle}" />
+
+                                <StackPanel
+                                    Grid.Column="2"
+                                    RelativePanel.AlignRightWithPanel="True" 
+                                    Margin="{StaticResource SmallRightMargin}">
+
+                                    <RelativePanel HorizontalAlignment="Stretch">
+                                        <TextBlock
+                                            x:Name="GPUFrequencyOffsetLabel"
+                                            RelativePanel.AlignRightWithPanel="True" 
+                                            Text="+0 MHz" 
+                                            Foreground="CornflowerBlue"/>
+                                    </RelativePanel>
+                                    <Slider 
+                                        x:Name="GPUFrequencyOffsetSlider"
+                                        Minimum="0"
+                                        Maximum="800"
+                                        Value="{x:Bind ViewModel.GPUFrequencyOffsetSliderValue, Mode=TwoWay}"
+                                        Width="200"
+                                        ValueChanged="GPUFrequencyOffsetSlider_ValueChanged"/>
+                                    <RelativePanel HorizontalAlignment="Stretch">
+                                        <TextBlock RelativePanel.AlignLeftWithPanel="True" Text="0"/>
+                                        <TextBlock RelativePanel.AlignRightWithPanel="True" Text="800"/>
+                                    </RelativePanel>
+                                </StackPanel>
+                            </Grid>
+
                             <!-- GPU Voltage Offset (slider) -->
                             <RelativePanel HorizontalAlignment="Stretch" Margin="{StaticResource LargeTopMargin}">
                                 <TextBlock 
@@ -251,7 +297,7 @@
                                     <Slider 
                                         x:Name="GPUVoltageOffsetSlider"
                                         Minimum="0"
-                                        Maximum="261"
+                                        Maximum="245"
                                         Value="{x:Bind ViewModel.GPUVoltageOffsetSliderValue, Mode=TwoWay}"
                                         Width="200"
                                         ValueChanged="GPUVoltageOffsetSlider_ValueChanged"/>
@@ -285,13 +331,16 @@
                                     <Slider 
                                         x:Name="GPUPowerLimitSlider"
                                         Minimum="95"
-                                        Maximum="228"
+                                        StepFrequency="1"
+                                        Maximum="{x:Bind ViewModel.GPUPowerMaxLimit, Mode=OneWay}"
                                         Value="{x:Bind ViewModel.GPUPowerLimitSliderValue, Mode=TwoWay}"
                                         Width="200"
                                         ValueChanged="GPUPowerLimitSlider_ValueChanged"/>
                                     <RelativePanel HorizontalAlignment="Stretch">
                                         <TextBlock RelativePanel.AlignLeftWithPanel="True" Text="95"/>
-                                        <TextBlock RelativePanel.AlignRightWithPanel="True" Text="228"/>
+                                        <TextBlock 
+                                            RelativePanel.AlignRightWithPanel="True" 
+                                            Text="{x:Bind ViewModel.GPUPowerMaxLimit, Mode=OneWay}"/>
                                     </RelativePanel>
                                 </StackPanel>
                             </RelativePanel>
@@ -340,17 +389,54 @@
 
                                 <DropDownButton 
                                     x:Name="FanSpeedControlDropDownButton"
-                                    Content="Automatic"
+                                    Content="Automatic (Default)"
                                     IsEnabled="False"
                                     RelativePanel.AlignRightWithPanel="True">
                                     
                                     <DropDownButton.Flyout>
                                         <MenuFlyout Placement="Bottom">
-                                            <MenuFlyoutItem Text="Automatic" Click="FanSpeedControlItem_Click"/>
+                                            <MenuFlyoutItem Text="Automatic (Default)" Click="FanSpeedControlItem_Click"/>
                                             <MenuFlyoutItem Text="Fixed" Click="FanSpeedControlItem_Click"/>
                                         </MenuFlyout>
                                     </DropDownButton.Flyout>
                                 </DropDownButton>
+                            </RelativePanel>
+
+                            <!-- Fan Speed manual control (slider) -->
+                            <RelativePanel 
+                                Visibility="Collapsed" 
+                                HorizontalAlignment="Stretch" 
+                                Margin="{StaticResource LargeTopMargin}">
+                                <TextBlock 
+                                    RelativePanel.AlignLeftWithPanel="True"
+                                    RelativePanel.AlignVerticalCenterWithPanel="True"
+                                    Text="Fan Speed (%)" 
+                                    FontSize="20" 
+                                    Style="{ThemeResource BodyStrongTextBlockStyle}" />
+
+                                <StackPanel
+                                    RelativePanel.AlignRightWithPanel="True" 
+                                    Margin="{StaticResource SmallRightMargin}">
+
+                                    <RelativePanel HorizontalAlignment="Stretch">
+                                        <TextBlock
+                                            x:Name="FanSpeedLabel"
+                                            RelativePanel.AlignRightWithPanel="True" 
+                                            Text="20 %" 
+                                            Foreground="CornflowerBlue"/>
+                                    </RelativePanel>
+                                    <Slider 
+                                        x:Name="FanSpeedSlider"
+                                        Minimum="0"
+                                        Maximum="100"
+                                        Value="{x:Bind ViewModel.FanSpeedSliderValue, Mode=TwoWay}"
+                                        Width="200"
+                                        ValueChanged="FanSpeedSlider_ValueChanged"/>
+                                    <RelativePanel HorizontalAlignment="Stretch">
+                                        <TextBlock RelativePanel.AlignLeftWithPanel="True" Text="0%"/>
+                                        <TextBlock RelativePanel.AlignRightWithPanel="True" Text="100%"/>
+                                    </RelativePanel>
+                                </StackPanel>
                             </RelativePanel>
                         </StackPanel>
 

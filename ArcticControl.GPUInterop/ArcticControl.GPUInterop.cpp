@@ -19,7 +19,7 @@ String^ ArcticControlGPUInterop::GPUInterop::GetMyName()
     return "Hi there in CLR. I'm the real slim shady!";
 }
 
-bool^ ArcticControlGPUInterop::GPUInterop::initApi()
+Boolean ArcticControlGPUInterop::GPUInterop::initApi()
 {
     if (hDevices != nullptr && adapterCount != nullptr && hAPIHandle != nullptr)
     {
@@ -86,7 +86,7 @@ bool^ ArcticControlGPUInterop::GPUInterop::initApi()
     return false;
 }
 
-bool^ ArcticControlGPUInterop::GPUInterop::TestApi() 
+Boolean ArcticControlGPUInterop::GPUInterop::TestApi() 
 {
     if (initApi())
     {
@@ -98,7 +98,7 @@ bool^ ArcticControlGPUInterop::GPUInterop::TestApi()
     return false;
 }
 
-Boolean^ ArcticControlGPUInterop::GPUInterop::InitCtlApi()
+Boolean ArcticControlGPUInterop::GPUInterop::InitCtlApi()
 {
     if (hAPIHandle != nullptr)
     {
@@ -254,7 +254,7 @@ array<ArcticControlGPUInterop::TempSensor^>^ ArcticControlGPUInterop::GPUInterop
 }
 
 // !! DANGEROUS !!
-Boolean^ ArcticControlGPUInterop::GPUInterop::SetOverclockWaiver()
+Boolean ArcticControlGPUInterop::GPUInterop::SetOverclockWaiver()
 {
     if (hAPIHandle == nullptr && (*adapterCount) < 1)
     {
@@ -293,7 +293,7 @@ Exit:
     return gcnew Double(0.0);;
 }
 
-Boolean^ ArcticControlGPUInterop::GPUInterop::SetOverclockTemperatureLimit(Double^ newTempLimit)
+Boolean ArcticControlGPUInterop::GPUInterop::SetOverclockTemperatureLimit(Double^ newTempLimit)
 {
     if (hAPIHandle == nullptr && (*adapterCount) < 1)
     {
@@ -333,7 +333,7 @@ Exit:
     return gcnew Double(0.0);
 }
 
-Boolean^ ArcticControlGPUInterop::GPUInterop::SetOverclockPowerLimit(Double^ newPowerLimit)
+Boolean ArcticControlGPUInterop::GPUInterop::SetOverclockPowerLimit(Double^ newPowerLimit)
 {
     if (hAPIHandle == nullptr && (*adapterCount) < 1)
     {
@@ -343,6 +343,9 @@ Boolean^ ArcticControlGPUInterop::GPUInterop::SetOverclockPowerLimit(Double^ new
     ctl_result_t result;
     result = ctlOverclockPowerLimitSet(hDevices[0], *newPowerLimit);
 
+    WriteLine(
+        "[GPUInterop]: GPU PowerLimit overclock to " + newPowerLimit->ToString()
+        + " with Status: " + gcnew String(DecodeRetCode(result).c_str()));
     if (CTL_RESULT_SUCCESS == result)
     {
         return true;
@@ -372,7 +375,7 @@ Exit:
     return gcnew Double(0.0);
 }
 
-Boolean^ ArcticControlGPUInterop::GPUInterop::SetOverclockGPUVoltageOffset(Double^ newGPUVoltageOffset)
+Boolean ArcticControlGPUInterop::GPUInterop::SetOverclockGPUVoltageOffset(Double^ newGPUVoltageOffset)
 {
     if (hAPIHandle == nullptr && (*adapterCount) < 1)
     {
@@ -411,7 +414,7 @@ Exit:
     return gcnew Double(0.0);
 }
 
-Boolean^ ArcticControlGPUInterop::GPUInterop::SetOverclockGPUFrequencyOffset(Double^ newGPUFrequencyOffset)
+Boolean ArcticControlGPUInterop::GPUInterop::SetOverclockGPUFrequencyOffset(Double^ newGPUFrequencyOffset)
 {
     if (hAPIHandle == nullptr && (*adapterCount) < 1)
     {
@@ -421,6 +424,9 @@ Boolean^ ArcticControlGPUInterop::GPUInterop::SetOverclockGPUFrequencyOffset(Dou
     ctl_result_t result;
     result = ctlOverclockGpuFrequencyOffsetSet(hDevices[0], *newGPUFrequencyOffset);
 
+    WriteLine(
+        "[GPUInterop]: GPU Frequency offset: " + newGPUFrequencyOffset->ToString()
+        + " with Status: " + gcnew String(DecodeRetCode(result).c_str()));
     if (CTL_RESULT_SUCCESS == result)
     {
         return true;
@@ -450,7 +456,7 @@ Exit:
     return gcnew Double(0.0);
 }
 
-Boolean^ ArcticControlGPUInterop::GPUInterop::SetOverclockVRAMVoltageOffset(Double^ newVRAMVoltageOffset)
+Boolean ArcticControlGPUInterop::GPUInterop::SetOverclockVRAMVoltageOffset(Double^ newVRAMVoltageOffset)
 {
     if (hAPIHandle == nullptr && (*adapterCount) < 1)
     {
@@ -460,7 +466,6 @@ Boolean^ ArcticControlGPUInterop::GPUInterop::SetOverclockVRAMVoltageOffset(Doub
     ctl_result_t result;
     result = ctlOverclockVramVoltageOffsetSet(hDevices[0], *newVRAMVoltageOffset);
 
-    WriteLine("Result: " + gcnew String(DecodeRetCode(result).c_str()));
     if (CTL_RESULT_SUCCESS == result)
     {
         return true;
@@ -490,7 +495,7 @@ Exit:
     return gcnew Double(0.0);
 }
 
-Boolean^ ArcticControlGPUInterop::GPUInterop::SetOverclockVRAMFrequencyOffset(Double^ newVRAMFrequencyOffset)
+Boolean ArcticControlGPUInterop::GPUInterop::SetOverclockVRAMFrequencyOffset(Double^ newVRAMFrequencyOffset)
 {
     if (hAPIHandle == nullptr && (*adapterCount) < 1)
     {
@@ -509,6 +514,121 @@ Exit:
     return false;
 }
 
+Boolean ArcticControlGPUInterop::GPUInterop::InitPowerDomains()
+{
+    if (hAPIHandle == nullptr || (*adapterCount) < 1)
+    {
+        goto Exit;
+    }
+
+    ctl_result_t result;
+    // TODO: maybe free memory before if handle != nullptr so this could cause memory leaks
+    hPwrHandle = nullptr;
+    pwrCount = (uint32_t*)malloc(sizeof(*pwrCount));
+    *pwrCount = 0;
+    result = ctlEnumPowerDomains(hDevices[0], pwrCount, nullptr);
+    if ((result != CTL_RESULT_SUCCESS) || pwrCount == 0)
+    {
+        WriteLine("Power component not supported. Error: " + gcnew String(DecodeRetCode(result).c_str()));
+        goto Exit;
+    }
+    else
+    {
+        WriteLine("[GPUInterop]: Number of Power Handles " + gcnew UInt32(*pwrCount));
+    }
+
+    hPwrHandle = new ctl_pwr_handle_t[*pwrCount];
+
+    result = ctlEnumPowerDomains(hDevices[0], pwrCount, hPwrHandle);
+
+    if (result != CTL_RESULT_SUCCESS)
+    {
+        WriteLine("Error: " + gcnew String(DecodeRetCode(result).c_str()) + " for Power handle.");
+
+        // cleanup mess
+        delete[] hPwrHandle;
+        hPwrHandle = nullptr;
+        return false;
+    }
+    else 
+    {
+        return true;
+    }
+
+Exit:
+    return false;
+}
+
+ArcticControlGPUInterop::PowerProperties^ ArcticControlGPUInterop::GPUInterop::GetPowerProperties()
+{
+    if (hAPIHandle == nullptr || (*adapterCount) < 1 || (*pwrCount) < 1 || hPwrHandle == nullptr)
+    {
+        goto Exit;
+    }
+
+    ctl_result_t result;
+    ctl_power_properties_t powerProperties{ 0 };
+    powerProperties.Size = sizeof(ctl_power_properties_t);
+    result = ctlPowerGetProperties(hPwrHandle[0], &powerProperties);
+
+    if (result == CTL_RESULT_SUCCESS)
+    {
+        PowerProperties^ pwrProperties = gcnew PowerProperties();
+        pwrProperties->CanControl = powerProperties.canControl;
+        pwrProperties->DefaultLimit = powerProperties.defaultLimit;
+        pwrProperties->MinLimit = powerProperties.minLimit;
+        pwrProperties->MaxLimit = powerProperties.maxLimit;
+
+        return pwrProperties;
+    }
+
+Exit:
+    return nullptr;
+}
+
+ArcticControlGPUInterop::PowerLimitsCombination^ ArcticControlGPUInterop::GPUInterop::GetPowerLimits()
+{
+    if (hAPIHandle == nullptr || (*adapterCount) < 1 || (*pwrCount) < 1 || hPwrHandle == nullptr)
+    {
+        goto Exit;
+    }
+
+    ctl_result_t result;
+    ctl_power_limits_t powerLimits{ 0 };
+    powerLimits.Size = sizeof(ctl_power_limits_t);
+    result = ctlPowerGetLimits(hPwrHandle[0], &powerLimits);
+
+    if (result == CTL_RESULT_SUCCESS)
+    {
+        // allocate result in GC and return
+
+        SustainedPowerLimit^ sutainedPwrLimit = gcnew SustainedPowerLimit();
+        sutainedPwrLimit->Enabled = powerLimits.sustainedPowerLimit.enabled;
+        sutainedPwrLimit->Power = powerLimits.sustainedPowerLimit.power;
+        sutainedPwrLimit->Interval = powerLimits.sustainedPowerLimit.interval;
+
+        BurstPowerLimit^ burstPwrLimit = gcnew BurstPowerLimit();
+        burstPwrLimit->Enabled = powerLimits.burstPowerLimit.enabled;
+        burstPwrLimit->Power = powerLimits.burstPowerLimit.power;
+
+        PeakPowerLimit^ peakPwrLimit = gcnew PeakPowerLimit();
+        peakPwrLimit->PowerAC = powerLimits.peakPowerLimits.powerAC;
+        peakPwrLimit->PowerDC = powerLimits.peakPowerLimits.powerDC;
+
+        // combine all
+        PowerLimitsCombination^ pwrLimitsCombi = gcnew PowerLimitsCombination();
+        pwrLimitsCombi->SustainedPowerLimit = sutainedPwrLimit;
+        pwrLimitsCombi->BurstPowerLimit = burstPwrLimit;
+        pwrLimitsCombi->PeakPowerLimit = peakPwrLimit;
+
+        return pwrLimitsCombi;
+    }
+
+Exit:
+    // TODO: maybe throw error because nullptr can cause problems here with GC and so
+    return nullptr;
+}
+
 ArcticControlGPUInterop::GPUInterop::!GPUInterop()
 {
     if (hAPIHandle != nullptr)
@@ -520,6 +640,8 @@ ArcticControlGPUInterop::GPUInterop::!GPUInterop()
     CTL_FREE_MEM(adapterCount);
     CTL_FREE_MEM(hFans);
     CTL_FREE_MEM(fansCount);
+    CTL_FREE_MEM(hPwrHandle);
+    CTL_FREE_MEM(pwrCount);
 }
 
 // Decoding the return code for the most common error codes.

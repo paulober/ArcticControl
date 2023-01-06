@@ -225,6 +225,15 @@
     <value>https://azure.microsoft.com/support/legal</value>
   </data>
   <data name="PrivacyConsentDialog_Content.Text" xml:space="preserve">
-    <value>This application has integrated App Center SDK to send data. The App does not store or share any personal data except what's collected by the App Center SDK to record crashes and analytics to help improving the App. Do you accept sending the App usage and crash data to App Center when using this application? Choose \"Accept\" to continue or \"Refuse\" to exit</value>
+    <value>This application has integrated App Center SDK to send data. The App does not store or share any personal data except what's collected by the App Center SDK to record crashes and analytics to help improving the App. Do you accept sending the App usage and crash data to App Center when using this application? Choose "Accept" to continue or "Refuse" to exit</value>
+  </data>
+  <data name="Settings_Advanced.Text" xml:space="preserve">
+    <value>Advanced (be aware these settings can damage your hardware, this is on your own risk)</value>
+  </data>
+  <data name="Settings_GPUPowerMaxLimit.Text" xml:space="preserve">
+    <value>GPU maximal Power Limit (does not work on any hardware for values over 228W)</value>
+  </data>
+  <data name="Settings_GPUPowerMaxLimit_InputError.Text" xml:space="preserve">
+    <value>Your input is invalid. It must be greater that 228 and smaller than 400.</value>
   </data>
 </root>

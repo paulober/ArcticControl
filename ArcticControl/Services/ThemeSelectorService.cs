@@ -1,4 +1,5 @@
 ﻿using ArcticControl.Contracts.Services;
+using ArcticControl.Core.Helpers;
 using ArcticControl.Helpers;
 
 using Microsoft.UI.Xaml;
@@ -7,8 +8,6 @@ namespace ArcticControl.Services;
 
 public class ThemeSelectorService : IThemeSelectorService
 {
-    private const string SettingsKey = "AppBackgroundRequestedTheme";
-
     public ElementTheme Theme { get; set; } = ElementTheme.Default;
 
     private readonly ILocalSettingsService _localSettingsService;
@@ -46,7 +45,7 @@ public class ThemeSelectorService : IThemeSelectorService
 
     private async Task<ElementTheme> LoadThemeFromSettingsAsync()
     {
-        var themeName = await _localSettingsService.ReadSettingAsync<string>(SettingsKey);
+        var themeName = await _localSettingsService.ReadSettingAsync<string>(LocalSettingsKeys.RequestedTheme);
 
         if (Enum.TryParse(themeName, out ElementTheme cacheTheme))
         {
@@ -58,6 +57,6 @@ public class ThemeSelectorService : IThemeSelectorService
 
     private async Task SaveThemeInSettingsAsync(ElementTheme theme)
     {
-        await _localSettingsService.SaveSettingAsync(SettingsKey, theme.ToString());
+        await _localSettingsService.SaveSettingAsync(LocalSettingsKeys.RequestedTheme, theme.ToString());
     }
 }

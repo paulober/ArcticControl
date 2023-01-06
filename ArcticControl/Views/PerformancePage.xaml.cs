@@ -1,13 +1,8 @@
-﻿using System.Diagnostics;
-using System.Linq;
-using ArcticControl.Core.Models;
-using ArcticControl.ViewModels;
+﻿using ArcticControl.ViewModels;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Windows.ApplicationModel;
 using Windows.Foundation.Metadata;
 
 namespace ArcticControl.Views;
@@ -124,6 +119,13 @@ public sealed partial class PerformancePage : Page
         await CheckWaiver();
     }*/
 
+    private async void GPUFrequencyOffsetSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
+    {
+        GPUFrequencyOffsetLabel.Text = $"+{Math.Round(e.NewValue, 2)} MHz";
+        EnableRevertButton();
+        await CheckWaiver();
+    }
+
     private async void GPUVoltageOffsetSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
     {
         GPUVoltageOffsetLabel.Text = $"+{e.NewValue} mV";
@@ -165,7 +167,15 @@ public sealed partial class PerformancePage : Page
         if (sender is MenuFlyoutItem mfi)
         {
             FanSpeedControlDropDownButton.Content = mfi.Text;
+            ViewModel.FanSpeedFixed = mfi.Text == "Fixed";
         }
+    }
+
+    private async void FanSpeedSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
+    {
+        FanSpeedLabel.Text = $"{e.NewValue}%";
+        EnableRevertButton();
+        await CheckWaiver();
     }
 
     private void GridView_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)

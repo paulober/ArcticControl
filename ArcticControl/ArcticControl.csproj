@@ -16,21 +16,23 @@
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <SupportedOSPlatformVersion>10.0.22000.0</SupportedOSPlatformVersion>
 	<LangVersion>10.0</LangVersion>
+	<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
   </PropertyGroup>
 
   <PropertyGroup>
 	<CsWinRTIncludes>ArcticControl.IGCLInterop</CsWinRTIncludes>
-	<PackageCertificateKeyFile>ArcticControl_TemporaryKey.pfx</PackageCertificateKeyFile>
-	<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
 	<UserSecretsId>224e2610-9556-43cb-b467-a50328f0654a</UserSecretsId>
 	<GenerateAppInstallerFile>False</GenerateAppInstallerFile>
 	<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
 	<AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
 	<AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
 	<GenerateTestArtifacts>True</GenerateTestArtifacts>
-	<AppxBundle>Auto</AppxBundle>
+	<AppxBundle>Always</AppxBundle>
 	<AppxBundlePlatforms>x64|arm64</AppxBundlePlatforms>
 	<GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
+	<PackageCertificateThumbprint>BE5FC4CC7F1784AC74E442CE3AB3D0003ED383F8</PackageCertificateThumbprint>
+	<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+	<AppxPackageSigningTimestampServerUrl>http://timestamp.digicert.com</AppxPackageSigningTimestampServerUrl>
   </PropertyGroup>
 
   <ItemGroup>
@@ -61,7 +63,7 @@
     <PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="2.0.9" />
     <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="7.0.0" />
     <PackageReference Include="System.Management" Version="7.0.0" />
-    <PackageReference Include="WinUIEx" Version="2.0.0" />
+    <PackageReference Include="WinUIEx" Version="2.1.0" />
   </ItemGroup>
 
   <ItemGroup>

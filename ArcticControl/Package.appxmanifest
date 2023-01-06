@@ -7,19 +7,16 @@
   xmlns:genTemplate="http://schemas.microsoft.com/appx/developer/templatestudio"
   xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
   xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
-  xmlns:iot="http://schemas.microsoft.com/appx/manifest/iot/windows10"
-  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
-  xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
-  IgnorableNamespaces="uap rescap genTemplate iot uap3 mp">
+  IgnorableNamespaces="uap rescap genTemplate">
 
   <Identity
-    Name="26580PaulOberosler.ArcticControl"
-    Publisher="CN=42BD3C1F-9B9E-4875-88FA-EA94684D36E4"
-    Version="0.1.0.0" />
+    Name="Paulober.ArcticControl"
+    Publisher="CN=paulober, C=DE"
+    Version="0.1.2.0" />
 
   <Properties>
     <DisplayName>Arctic Control</DisplayName>
-    <PublisherDisplayName>Paul Oberosler</PublisherDisplayName>
+    <PublisherDisplayName>paulober</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
@@ -61,9 +58,10 @@
     </Application>
   </Applications>
 
-  <Capabilities>
-	<rescap:Capability Name="broadFileSystemAccess" />
-  </Capabilities>
+	<Capabilities>
+		<rescap:Capability Name="broadFileSystemAccess" />
+		<Capability Name="internetClient"/>
+	</Capabilities>
 
   <genTemplate:Metadata>
     <genTemplate:Item Name="generator" Value="Template Studio"/>
