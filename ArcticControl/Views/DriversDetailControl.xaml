@@ -63,9 +63,9 @@
                             <Grid>
                                 <StackPanel x:Name="DownloadButtonDefaultContent" Orientation="Vertical">
                                     <StackPanel Orientation="Horizontal">
-                                        <!--<SymbolIcon Symbol="Download"/>-->
+                                        <SymbolIcon Symbol="Download"/>
                                         <TextBlock Margin="{StaticResource SmallRightMargin}" Text="Download"/>
-                                        <muxc:FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xe8a7;"/>
+                                        <!--<muxc:FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xe8a7;"/>-->
                                     </StackPanel>
                                     <muxc:ProgressBar
                                         x:Name="DownloadProgressBar"

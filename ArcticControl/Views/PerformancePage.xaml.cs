@@ -179,13 +179,13 @@ public sealed partial class PerformancePage : Page
         await CheckWaiver();
     }
 
-    private async void GridView_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private void GridView_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
         // The await causes the handler to return immediately.
         //Task.Run(() => StartBackgroundTickTimer());
         // Now update the UI with the results.
         // ...
-        await Task.Run(() => ViewModel.StartBackgroundTickTimer(DispatcherQueue.GetForCurrentThread()));
+        ViewModel.StartBackgroundTickTimer(DispatcherQueue.GetForCurrentThread());
         _waiverEnabled = true;
     }
 
