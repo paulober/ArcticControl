@@ -32,7 +32,7 @@
     <PackageCertificateThumbprint>BE5FC4CC7F1784AC74E442CE3AB3D0003ED383F8</PackageCertificateThumbprint>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <AppxPackageSigningTimestampServerUrl>http://timestamp.digicert.com</AppxPackageSigningTimestampServerUrl>
-    <AppInstallerUri>https://github.com/paulober/ArcticControl/releases/latest/download/ArcticControl.appinstaller</AppInstallerUri>
+    <AppInstallerUri>https://github.com/paulober/ArcticControl/releases/latest/download/</AppInstallerUri>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
   </PropertyGroup>
 
