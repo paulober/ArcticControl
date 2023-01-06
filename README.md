@@ -29,12 +29,12 @@ If you have feedback let me now in following thread on the Intel Insiders Commun
 - Microsoft [.NET 6 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
 
 ### First installation
-- If this is the first time you install this application, also download the .cer and .cmd file.
+- If this is the first time you install this application, Head over to the releases tab on the right and download the files ending with .cer and .cmd from the latest release.
 - Open your downloads folder and right click the "installCertificate.cmd" and select "Run as administrator"
 - Continue with steps in "Update" section
 
-### Update
-- If you already installed this application once, just duble click the .msix installer and click install/update.
+### Package installation
+- If you already installed this application once, just select one of the following appinstaller links: [Windows 11 x64](ms-appinstaller:?source=https://github.com/paulober/ArcticControl/releases/latest/download/ArcticControl_x64.appinstaller) or [Windows 11 arm64](ms-appinstaller:?source=https://github.com/paulober/ArcticControl/releases/latest/download/ArcticControl_arm64.appinstaller)
 
 ### Finally
 - You can now delete all downloaded files as they are no longer needed. You find the installed application in you start menu.
