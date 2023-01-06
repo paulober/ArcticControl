@@ -231,7 +231,7 @@
     <value>Advanced (be aware these settings can damage your hardware, this is on your own risk)</value>
   </data>
   <data name="Settings_GPUPowerMaxLimit.Text" xml:space="preserve">
-    <value>GPU maximal Power Limit (does not work on any hardware for values over 228W)</value>
+    <value>GPU maximal Power Limit (does not work on any hardware)</value>
   </data>
   <data name="Settings_GPUPowerMaxLimit_InputError.Text" xml:space="preserve">
     <value>Your input is invalid. It must be greater that 228 and smaller than 400.</value>

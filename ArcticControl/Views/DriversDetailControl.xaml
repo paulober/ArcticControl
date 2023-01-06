@@ -63,17 +63,18 @@
                             <Grid>
                                 <StackPanel x:Name="DownloadButtonDefaultContent" Orientation="Vertical">
                                     <StackPanel Orientation="Horizontal">
-                                        <SymbolIcon Symbol="Download"/>
-                                        <TextBlock Margin="{StaticResource SmallLeftMargin}" Text="Download"/>
+                                        <!--<SymbolIcon Symbol="Download"/>-->
+                                        <TextBlock Margin="{StaticResource SmallRightMargin}" Text="Download"/>
+                                        <muxc:FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xe8a7;"/>
                                     </StackPanel>
                                     <muxc:ProgressBar
-                                    x:Name="DownloadProgressBar"
-                                    Margin="{StaticResource SmallTopMargin}" 
-                                    HorizontalAlignment="Stretch" 
-                                    IsIndeterminate="True" 
-                                    ShowPaused="False" 
-                                    ShowError="False"
-                                    Visibility="Collapsed"/>
+                                        x:Name="DownloadProgressBar"
+                                        Margin="{StaticResource SmallTopMargin}" 
+                                        HorizontalAlignment="Stretch" 
+                                        IsIndeterminate="True" 
+                                        ShowPaused="False" 
+                                        ShowError="False"
+                                        Visibility="Collapsed"/>
                                 </StackPanel>
                                 <TextBlock x:Name="DownloadButtonInstalledText" Text="Installed" Visibility="Collapsed"/>
                             </Grid>

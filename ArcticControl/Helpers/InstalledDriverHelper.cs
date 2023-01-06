@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Management;
-using ArcticControlGPUInterop;
 
 namespace ArcticControl.Helpers;
 

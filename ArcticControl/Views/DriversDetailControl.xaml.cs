@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.IO.Compression;
 using ArcticControl.Contracts.Services;
 using ArcticControl.Helpers;
 using ArcticControl.IntelWebAPI.Models;
@@ -81,19 +82,32 @@ public sealed partial class DriversDetailControl : UserControl
     private async void DownloadDriverButton_Click(object sender, RoutedEventArgs e)
     {
         // TODO: move code into singleton service to don't interrupt on page change but sync with button progressbar or notification from service
+
         try
         {
             using var client = _httpClientFactory.CreateClient();
 
             DownloadProgressBar.Visibility = Visibility.Visible;
-            var downloadStream = await client.GetStreamAsync(ListDetailsMenuItem?.DownloadUri);
+            using var downloadStream = await client.GetStreamAsync(ListDetailsMenuItem?.DownloadUri);
 
             var localFile = await DownloadsFolder.CreateFileAsync(
-                ListDetailsMenuItem?.DownloadUri?.Segments.Last());
+                ListDetailsMenuItem?.DownloadUri?.Segments.Last()+".zip");
 
             // write
-            using var fsStream = await localFile.OpenStreamForWriteAsync();
-            await downloadStream.CopyToAsync(fsStream);
+            //using var fsStream = await localFile.OpenStreamForWriteAsync();
+            //await downloadStream.CopyToAsync(fsStream);
+
+            // workaround for microsoft store
+            using (var fsStream = await localFile.OpenStreamForWriteAsync())
+            {
+                fsStream.Seek(0, SeekOrigin.Begin);
+
+                using var archive = new ZipArchive(fsStream, ZipArchiveMode.Create, false);
+                var installerFile = archive.CreateEntry(ListDetailsMenuItem?.DownloadUri?.Segments.Last() ?? "Installer.exe");
+
+                using var entryStream = installerFile.Open();
+                await downloadStream.CopyToAsync(entryStream);
+            }
 
             DownloadProgressBar.Visibility = Visibility.Collapsed;
 

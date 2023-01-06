@@ -7,6 +7,8 @@
 #ifndef PCH_H
 #define PCH_H
 
+#define _CRTDBG_MAP_ALLOC
+
 // Fügen Sie hier Header hinzu, die vorkompiliert werden sollen.
 #include <windows.h>
 #include <crtdbg.h>

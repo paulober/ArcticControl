@@ -1,4 +1,5 @@
-﻿using ArcticControl.ViewModels;
+﻿using System.Diagnostics;
+using ArcticControl.ViewModels;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -86,7 +87,7 @@ public sealed partial class PerformancePage : Page
 
         ContentDialog dialog = new()
         {
-            Content = "The tuning of your GPU can cause instability or damage your components. You do all on your own risk. The author of this application does not take responsibility for any damage to your hardware. (It is required that you run this application as administrator if you want the settings to take effect!)",
+            Content = "The tuning of your GPU can cause instability or damage your components. You do all changes to these settings on your own risk. The author of this application does not take responsibility for any damage to your hardware. (It is required that you run this application as administrator if you want the settings to take effect!)",
             PrimaryButtonText = "Acept & Continue",
             CloseButtonText = "Cancel"
         };
@@ -178,13 +179,13 @@ public sealed partial class PerformancePage : Page
         await CheckWaiver();
     }
 
-    private void GridView_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private async void GridView_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
         // The await causes the handler to return immediately.
         //Task.Run(() => StartBackgroundTickTimer());
         // Now update the UI with the results.
         // ...
-        ViewModel.StartBackgroundTickTimer(DispatcherQueue.GetForCurrentThread());
+        await Task.Run(() => ViewModel.StartBackgroundTickTimer(DispatcherQueue.GetForCurrentThread()));
         _waiverEnabled = true;
     }
 

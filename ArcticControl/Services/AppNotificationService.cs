@@ -79,7 +79,6 @@ public class AppNotificationService : IAppNotificationService
     public bool ShowWithActionAndProgressBar(string payload, string filePath, string status, string title, double pbValue, string valueStringOverride)
     {
         var appNotification = new AppNotificationBuilder()
-            .AddButton(new AppNotificationButton("Install (under dev)").SetInvokeUri(new Uri(string.Concat("file://", filePath))))
             .AddButton(new AppNotificationButton("Open in explorer").SetInvokeUri(new Uri(string.Concat("file://", filePath.AsSpan(0, filePath.LastIndexOf("/"))))))
             .AddText(payload)
             .AddProgressBar(new AppNotificationProgressBar()

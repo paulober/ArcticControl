@@ -1,4 +1,3 @@
-#define _CRTDBG_MAP_ALLOC
 #include "pch.h"
 
 #include <stdio.h>
@@ -634,6 +633,8 @@ ArcticControlGPUInterop::GPUInterop::!GPUInterop()
     if (hAPIHandle != nullptr)
     {
         ctlClose(*hAPIHandle);
+        free(hAPIHandle);
+        hAPIHandle = nullptr;
     }
 
     CTL_FREE_MEM(hDevices);

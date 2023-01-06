@@ -1,4 +1,5 @@
-﻿using ArcticControl.Activation;
+﻿using System.Diagnostics;
+using ArcticControl.Activation;
 using ArcticControl.Contracts.Services;
 using ArcticControl.Core.Contracts.Services;
 using ArcticControl.Core.Services;
@@ -98,7 +99,8 @@ public partial class App : Application
             services.AddSingleton<IFileService, FileService>();
             services.AddSingleton<IGamesScannerService, GamesScannerService>();
 
-            // Intel Web Api Service
+            // Intel Services
+            services.AddSingleton<IIntelGraphicsControlService, IntelGraphicsControlService>();
             services.AddSingleton<IWebArcDriversService, WebArcDriversService>();
 
             // Views and ViewModels

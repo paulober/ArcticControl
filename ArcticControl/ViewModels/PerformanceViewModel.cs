@@ -31,7 +31,7 @@ internal static class SliderDefaultValues
     internal const ushort FanSpeed = 20;
 }
 
-public class PerformanceViewModel : ObservableRecipient, INavigationAware, IDisposable
+public class PerformanceViewModel : ObservableRecipient, INavigationAware
 {
     /// <summary>
     /// INOP at the moment cause no NotifyCollectionChangedAction available for indicating changes in an element.
@@ -134,16 +134,20 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware, IDisp
     }
     #endregion
 
-    public PerformanceViewModel(ILocalSettingsService localSettingsService)
+    public PerformanceViewModel(
+        ILocalSettingsService localSettingsService,
+        IIntelGraphicsControlService intelGraphicsControlService)
     {
         _localSettingsService = localSettingsService;
-        _gpuInterop = new GPUInterop();
+        // _gpuInterop = new GPUInterop();
+        _igcs = intelGraphicsControlService;
     }
 
     private DispatcherQueue? _dpq;
     private CancellationTokenSource? _tickTimerTaskCancelationTokenSource;
     private Task? _tickTimerTask;
-    private readonly GPUInterop _gpuInterop;
+    //private readonly GPUInterop _gpuInterop;
+    private readonly IIntelGraphicsControlService _igcs;
     private readonly ILocalSettingsService _localSettingsService;
 
     // framecounter, UI Binded Property, format, 
@@ -287,25 +291,25 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware, IDisp
             Debug.WriteLine(res);
         }*/
 
-        var result = (bool)_gpuInterop.InitCtlApi();
-        if (result)
+        //var result = (bool)_gpuInterop.InitCtlApi();
+        if (_igcs.IsInitialized())
         {
             GetOverclockingValues();
             // TODO: move somewhere
             // GPUPowerTest
-#if DEBUG
-            result = _gpuInterop.InitPowerDomains();
+
+            var result = _igcs.InitPowerDomains();
             if (result)
             {
                 Debug.WriteLine("PowerInit: Res true");
-                var powerProps = _gpuInterop.GetPowerProperties();
+                var powerProps = _igcs.GetPowerProperties();
                 if (powerProps != null)
                 {
                     Debug.WriteLine(
                         $"PowerProps: CanControl-{powerProps.CanControl} ; DefaultLimit-{powerProps.DefaultLimit} ;" +
                         $" MinLimit-{powerProps.MinLimit} ; MaxLimit-{powerProps.MaxLimit}");
                 }
-                var powerLimits = _gpuInterop.GetPowerLimits();
+                var powerLimits = _igcs.GetPowerLimits();
                 if (powerLimits != null)
                 {
                     Debug.WriteLine($"PowerLimits: " + Environment.NewLine +
@@ -314,7 +318,6 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware, IDisp
                         $"PeakPowerLimit: PowerDC-{powerLimits.PeakPowerLimit.PowerDC} ; PowerAC-{powerLimits.PeakPowerLimit.PowerAC}");
                 }
             }
-#endif
         }
 
         var settingsGPUPowerMaxLimit = await _localSettingsService.ReadSettingAsync<double>(LocalSettingsKeys.GPUPowerMaxLimit);
@@ -323,12 +326,12 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware, IDisp
 
     private void GetOverclockingValues(bool skipTempLimit = false)
     {
-        var powerLimit = (double)_gpuInterop.GetOverclockPowerLimit();
+        var powerLimit = _igcs.GetOverclockPowerLimit();
         var tempLimit = skipTempLimit 
             ? GPUTemperatureLimitSliderValue 
-            : (double)_gpuInterop.GetOverclockTemperatureLimit();
-        var gpuVoltageOffset = (double)_gpuInterop.GetOverclockGPUVoltageOffset();
-        var gpuFrequencyOffset = (double)_gpuInterop.GetOverclockGPUFrequencyOffset();
+            : _igcs.GetOverclockTemperatureLimit();
+        var gpuVoltageOffset = _igcs.GetOverclockGPUVoltageOffset();
+        var gpuFrequencyOffset = _igcs.GetOverclockGPUFrequencyOffset();
 
         GPUPowerLimitSliderValue = powerLimit;
         GPUTemperatureLimitSliderValue = tempLimit;
@@ -367,7 +370,7 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware, IDisp
         if (GPUPowerLimitSliderValue != CurrentActiveSliderValues[SliderValueDefaults.GPUPowerLimit])
         {
             // *1000 to convert W in mW
-            _gpuInterop.SetOverclockPowerLimit(GPUPowerLimitSliderValue*1000.0);
+            _igcs.SetOverclockPowerLimit(GPUPowerLimitSliderValue*1000.0);
         }
         if (GPUTemperatureLimitSliderValue != CurrentActiveSliderValues[SliderValueDefaults.GPUTemperatureLimit])
         {
@@ -375,7 +378,7 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware, IDisp
             {
                 return false;
             }
-            var result = (bool)_gpuInterop.SetOverclockTemperatureLimit(GPUTemperatureLimitSliderValue);
+            var result = _igcs.SetOverclockTemperatureLimit(GPUTemperatureLimitSliderValue);
             if (result)
             {
                 // skip temp limit check because the gpu needs time to refresh values so it would return old tempLimit
@@ -388,7 +391,7 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware, IDisp
             {
                 return false;
             }
-            _gpuInterop.SetOverclockGPUVoltageOffset(GPUVoltageOffsetSliderValue);
+            _igcs.SetOverclockGPUVoltageOffset(GPUVoltageOffsetSliderValue);
         }
         if (GPUFrequencyOffsetSliderValue != CurrentActiveSliderValues[SliderValueDefaults.GPUFrequencyOffset])
         {
@@ -396,7 +399,7 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware, IDisp
             {
                 return false;
             }
-            _gpuInterop.SetOverclockGPUFrequencyOffset(GPUFrequencyOffsetSliderValue);
+            _igcs.SetOverclockGPUFrequencyOffset(GPUFrequencyOffsetSliderValue);
         }
 
         // check if gpu driver acepted values or adjust some and also reset CurrentValues variable
@@ -407,7 +410,7 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware, IDisp
 
     public void SetOverclockWaiver()
     {
-        _gpuInterop.SetOverclockWaiver();
+        _igcs.SetOverclockWaiver();
     }
 
     public async void OnNavigatedFrom()
@@ -430,6 +433,4 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware, IDisp
             }
         }
     }
-
-    public void Dispose() => _gpuInterop.Dispose();
 }
