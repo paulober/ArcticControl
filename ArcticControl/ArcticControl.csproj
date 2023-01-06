@@ -9,30 +9,31 @@
     <Platforms>x64;arm64</Platforms>
     <RuntimeIdentifiers>win10-x64;win10-arm64</RuntimeIdentifiers>
     <PublishProfile>Properties\PublishProfiles\win10-$(Platform).pubxml</PublishProfile>
-	<ImplicitUsings>enable</ImplicitUsings>
-	<Nullable>enable</Nullable>
-	<UseWinUI>true</UseWinUI>
+	  <ImplicitUsings>enable</ImplicitUsings>
+	  <Nullable>enable</Nullable>
+	  <UseWinUI>true</UseWinUI>
     <EnableMsixTooling>true</EnableMsixTooling>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <SupportedOSPlatformVersion>10.0.22000.0</SupportedOSPlatformVersion>
-	<LangVersion>10.0</LangVersion>
-	<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+	  <LangVersion>10.0</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup>
-	<CsWinRTIncludes>ArcticControl.IGCLInterop</CsWinRTIncludes>
-	<UserSecretsId>224e2610-9556-43cb-b467-a50328f0654a</UserSecretsId>
-	<GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-	<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-	<AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
-	<AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
-	<GenerateTestArtifacts>True</GenerateTestArtifacts>
-	<AppxBundle>Always</AppxBundle>
-	<AppxBundlePlatforms>x64|arm64</AppxBundlePlatforms>
-	<GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
-	<PackageCertificateThumbprint>BE5FC4CC7F1784AC74E442CE3AB3D0003ED383F8</PackageCertificateThumbprint>
-	<AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
-	<AppxPackageSigningTimestampServerUrl>http://timestamp.digicert.com</AppxPackageSigningTimestampServerUrl>
+    <CsWinRTIncludes>ArcticControl.IGCLInterop</CsWinRTIncludes>
+    <UserSecretsId>224e2610-9556-43cb-b467-a50328f0654a</UserSecretsId>
+    <GenerateAppInstallerFile>True</GenerateAppInstallerFile>
+    <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+    <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
+    <GenerateTestArtifacts>True</GenerateTestArtifacts>
+    <AppxBundle>Never</AppxBundle>
+    <AppxBundlePlatforms>x64|arm64</AppxBundlePlatforms>
+    <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
+    <PackageCertificateThumbprint>BE5FC4CC7F1784AC74E442CE3AB3D0003ED383F8</PackageCertificateThumbprint>
+    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
+    <AppxPackageSigningTimestampServerUrl>http://timestamp.digicert.com</AppxPackageSigningTimestampServerUrl>
+    <AppInstallerUri>https://github.com/paulober/ArcticControl/releases/latest/download/ArcticControl.appinstaller</AppInstallerUri>
+    <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
   </PropertyGroup>
 
   <ItemGroup>
@@ -74,6 +75,9 @@
   <ItemGroup>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ArcticControl.appinstaller">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <Page Update="Views\Dialogs\PrivacyConsentDialog.xaml">
       <Generator>MSBuild:Compile</Generator>

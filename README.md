@@ -25,6 +25,9 @@ If you have feedback let me now in following thread on the Intel Insiders Commun
 
 - Head over to the releases tab on the right and download the file ending with .msix from the latest release.
 
+### Requirements
+- Microsoft [.NET 6 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
+
 ### First installation
 - If this is the first time you install this application, also download the .cer and .cmd file.
 - Open your downloads folder and right click the "installCertificate.cmd" and select "Run as administrator"
