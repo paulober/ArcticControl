@@ -36,7 +36,7 @@ If you have feedback let me now in following thread on the Intel Insiders Commun
 ### Package installation
 - If you already installed this application once, just open one of the following appinstaller links in your browser or download the .appinstaller file manually from the releases tab: 
 
-| -- OS --       | Installer link |
+| -- OS --       | Installer link (important: copy the hole text starting with ms-appinstaller) |
 |:--------------:|----------------|
 | Windows 11 x64 | ms-appinstaller:?source=https://github.com/paulober/ArcticControl/releases/latest/download/ArcticControl_x64.appinstaller |
 | Windows 11 arm64 | ms-appinstaller:?source=https://github.com/paulober/ArcticControl/releases/latest/download/ArcticControl_arm64.appinstaller |
