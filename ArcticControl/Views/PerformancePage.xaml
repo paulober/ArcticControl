@@ -84,7 +84,7 @@
                             </GridView.Resources>
                             <GridView.Items>
                                 <GridViewItem>
-                                    <local:PerformanceValueTemplate Obj="{x:Bind ViewModel.CPUUtilizationObj, Mode=OneWay}" />
+                                    <local:PerformanceValueTemplate Obj="{x:Bind ViewModel.CpuUtilizationObj, Mode=OneWay}" />
                                 </GridViewItem>
                                 <GridViewItem>
                                     <local:PerformanceValueTemplate Obj="{x:Bind ViewModel.MemoryUtilizationObj, Mode=OneWay}" />
@@ -264,7 +264,7 @@
                                         x:Name="GPUFrequencyOffsetSlider"
                                         Minimum="0"
                                         Maximum="800"
-                                        Value="{x:Bind ViewModel.GPUFrequencyOffsetSliderValue, Mode=TwoWay}"
+                                        Value="{x:Bind ViewModel.GpuFrequencyOffsetSliderValue, Mode=TwoWay}"
                                         Width="200"
                                         ValueChanged="GPUFrequencyOffsetSlider_ValueChanged"/>
                                     <RelativePanel HorizontalAlignment="Stretch">
@@ -298,7 +298,7 @@
                                         x:Name="GPUVoltageOffsetSlider"
                                         Minimum="0"
                                         Maximum="245"
-                                        Value="{x:Bind ViewModel.GPUVoltageOffsetSliderValue, Mode=TwoWay}"
+                                        Value="{x:Bind ViewModel.GpuVoltageOffsetSliderValue, Mode=TwoWay}"
                                         Width="200"
                                         ValueChanged="GPUVoltageOffsetSlider_ValueChanged"/>
                                     <RelativePanel HorizontalAlignment="Stretch">
@@ -332,15 +332,15 @@
                                         x:Name="GPUPowerLimitSlider"
                                         Minimum="95"
                                         StepFrequency="1"
-                                        Maximum="{x:Bind ViewModel.GPUPowerMaxLimit, Mode=OneWay}"
-                                        Value="{x:Bind ViewModel.GPUPowerLimitSliderValue, Mode=TwoWay}"
+                                        Maximum="{x:Bind ViewModel.GpuPowerMaxLimit, Mode=OneWay}"
+                                        Value="{x:Bind ViewModel.GpuPowerLimitSliderValue, Mode=TwoWay}"
                                         Width="200"
                                         ValueChanged="GPUPowerLimitSlider_ValueChanged"/>
                                     <RelativePanel HorizontalAlignment="Stretch">
                                         <TextBlock RelativePanel.AlignLeftWithPanel="True" Text="95"/>
                                         <TextBlock 
                                             RelativePanel.AlignRightWithPanel="True" 
-                                            Text="{x:Bind ViewModel.GPUPowerMaxLimit, Mode=OneWay}"/>
+                                            Text="{x:Bind ViewModel.GpuPowerMaxLimit, Mode=OneWay}"/>
                                     </RelativePanel>
                                 </StackPanel>
                             </RelativePanel>
@@ -369,7 +369,7 @@
                                         x:Name="GPUTemperatureLimitSlider"
                                         Minimum="60"
                                         Maximum="90"
-                                        Value="{x:Bind ViewModel.GPUTemperatureLimitSliderValue, Mode=TwoWay}"
+                                        Value="{x:Bind ViewModel.GpuTemperatureLimitSliderValue, Mode=TwoWay}"
                                         Width="200"
                                         ValueChanged="GPUTemperatureLimitSlider_ValueChanged"/>
                                     <RelativePanel HorizontalAlignment="Stretch">

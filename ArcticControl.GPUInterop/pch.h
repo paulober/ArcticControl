@@ -8,18 +8,19 @@
 #define PCH_H
 
 #define _CRTDBG_MAP_ALLOC
+#define CTL_APIEXPORT
 
-// Fügen Sie hier Header hinzu, die vorkompiliert werden sollen.
+// add all header which should be precompile here
 #include <windows.h>
 #include <crtdbg.h>
 #include <iostream>
 #include "igcl_api.h"
 
 #define CTL_FREE_MEM(ptr)	\
-	if (NULL != ptr)		\
+	if (nullptr != ptr)		\
 	{						\
 		free(ptr);			\
-		ptr = NULL;			\
+		ptr = nullptr;		    \
 	}						\
 
 #endif //PCH_H

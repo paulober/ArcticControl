@@ -21,10 +21,12 @@ public sealed partial class GamesPage : Page
         // TOOD: unter development
         return;
 
+/*
         if (ViewModel.ItemClickCommand.CanExecute(e.ClickedItem))
         {
             ViewModel.ItemClickCommand.Execute(e.ClickedItem);
         }
+*/
     }
 
     private void InstalledGame_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)

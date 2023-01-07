@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Globalization;
 using System.Management;
 using ArcticControl.Contracts.Services;
 using ArcticControl.Contracts.ViewModels;
@@ -15,19 +16,19 @@ namespace ArcticControl.ViewModels;
 
 internal enum SliderValueDefaults: ushort
 {
-    GPUVoltageOffset = 1,
-    GPUPowerLimit = 2,
-    GPUTemperatureLimit = 3,
-    GPUFrequencyOffset = 4,
+    GpuVoltageOffset = 1,
+    GpuPowerLimit = 2,
+    GpuTemperatureLimit = 3,
+    GpuFrequencyOffset = 4,
     FanSpeed = 5
 }
 
 internal static class SliderDefaultValues
 {
-    internal const ushort GPUFrequencyOffset = 0;
-    internal const ushort GPUVoltageOffset = 0;
-    internal const ushort GPUPowerLimit = 190;
-    internal const ushort GPUTemperatureLimit = 90;
+    internal const ushort GpuFrequencyOffset = 0;
+    internal const ushort GpuVoltageOffset = 0;
+    internal const ushort GpuPowerLimit = 190;
+    internal const ushort GpuTemperatureLimit = 90;
     internal const ushort FanSpeed = 20;
 }
 
@@ -42,51 +43,51 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
         get; init;
     } = new();
 
-    private readonly Dictionary<SliderValueDefaults, double> CurrentActiveSliderValues = new()
+    private readonly Dictionary<SliderValueDefaults, double> _currentActiveSliderValues = new()
     {
-        { SliderValueDefaults.GPUPowerLimit, Convert.ToDouble(SliderDefaultValues.GPUPowerLimit) },
-        { SliderValueDefaults.GPUTemperatureLimit, Convert.ToDouble(SliderDefaultValues.GPUTemperatureLimit) },
-        { SliderValueDefaults.GPUVoltageOffset, Convert.ToDouble(SliderDefaultValues.GPUVoltageOffset) },
-        { SliderValueDefaults.GPUFrequencyOffset, Convert.ToDouble(SliderDefaultValues.GPUFrequencyOffset) },
+        { SliderValueDefaults.GpuPowerLimit, Convert.ToDouble(SliderDefaultValues.GpuPowerLimit) },
+        { SliderValueDefaults.GpuTemperatureLimit, Convert.ToDouble(SliderDefaultValues.GpuTemperatureLimit) },
+        { SliderValueDefaults.GpuVoltageOffset, Convert.ToDouble(SliderDefaultValues.GpuVoltageOffset) },
+        { SliderValueDefaults.GpuFrequencyOffset, Convert.ToDouble(SliderDefaultValues.GpuFrequencyOffset) },
         { SliderValueDefaults.FanSpeed, Convert.ToDouble(SliderDefaultValues.FanSpeed) },
     };
 
     public bool WaiverSigned = false;
 
-    private double _gpuFrequencyOffsetSliderValue = Convert.ToDouble(SliderDefaultValues.GPUFrequencyOffset);
+    private double _gpuFrequencyOffsetSliderValue = Convert.ToDouble(SliderDefaultValues.GpuFrequencyOffset);
 
-    public double GPUFrequencyOffsetSliderValue
+    public double GpuFrequencyOffsetSliderValue
     {
         get => _gpuFrequencyOffsetSliderValue;
         set => SetProperty(ref _gpuFrequencyOffsetSliderValue, value);
     }
 
-    private double _gpuVoltageOffsetSliderValue = Convert.ToDouble(SliderDefaultValues.GPUVoltageOffset);
+    private double _gpuVoltageOffsetSliderValue = Convert.ToDouble(SliderDefaultValues.GpuVoltageOffset);
 
-    public double GPUVoltageOffsetSliderValue
+    public double GpuVoltageOffsetSliderValue
     {
         get => _gpuVoltageOffsetSliderValue;
         set => SetProperty(ref _gpuVoltageOffsetSliderValue, value); 
     }
 
     private double _gpuPowerMaxLimit = 228.0;
-    public double GPUPowerMaxLimit
+    public double GpuPowerMaxLimit
     {
         get => _gpuPowerMaxLimit;
-        set => SetProperty(ref _gpuPowerMaxLimit, value);
+        private set => SetProperty(ref _gpuPowerMaxLimit, value);
     }
 
-    private double _gpuPowerLimitSliderValue = Convert.ToDouble(SliderDefaultValues.GPUPowerLimit);
+    private double _gpuPowerLimitSliderValue = Convert.ToDouble(SliderDefaultValues.GpuPowerLimit);
 
-    public double GPUPowerLimitSliderValue
+    public double GpuPowerLimitSliderValue
     {
         get => _gpuPowerLimitSliderValue;
         set => SetProperty(ref _gpuPowerLimitSliderValue, value);
     }
 
-    private double _gpuTemperatureLimitSliderValue = Convert.ToDouble(SliderDefaultValues.GPUTemperatureLimit);
+    private double _gpuTemperatureLimitSliderValue = Convert.ToDouble(SliderDefaultValues.GpuTemperatureLimit);
 
-    public double GPUTemperatureLimitSliderValue
+    public double GpuTemperatureLimitSliderValue
     {
         get => _gpuTemperatureLimitSliderValue;
         set => SetProperty(ref _gpuTemperatureLimitSliderValue, value);
@@ -111,7 +112,7 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
     #region ValueDataObject properties to be able to update the values
     private PerformanceValueDataObject _cpuUtilizationObj 
         = new() { Title = "CPU Utilization", Value = "0.0", Unit = "%" };
-    public PerformanceValueDataObject CPUUtilizationObj
+    public PerformanceValueDataObject CpuUtilizationObj
     {
         get => _cpuUtilizationObj;
         set => SetProperty(ref _cpuUtilizationObj, value);
@@ -127,7 +128,7 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
 
     private PerformanceValueDataObject _gpuVolatageObj
         = new() { Title = "GPU Volatage", Value = "650", Unit = "mV" };
-    public PerformanceValueDataObject GPUVolatageObj
+    public PerformanceValueDataObject GpuVolatageObj
     {
         get => _gpuVolatageObj;
         set => SetProperty(ref _gpuVolatageObj, value);
@@ -144,13 +145,13 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
     }
 
     private DispatcherQueue? _dpq;
-    private CancellationTokenSource? _tickTimerTaskCancelationTokenSource;
+    private CancellationTokenSource? _tickTimerTaskCancellationTokenSource;
     private Task? _tickTimerTask;
-    //private readonly GPUInterop _gpuInterop;
+    // ReSharper disable once IdentifierTypo
     private readonly IIntelGraphicsControlService _igcs;
     private readonly ILocalSettingsService _localSettingsService;
 
-    // framecounter, UI Binded Property, format, 
+    // frame-counter, UI bound Property, format, 
     private readonly List<Tuple<PerformanceSource, string>> _performanceCounters = new()
     {
         // handles property access via reflections
@@ -160,7 +161,7 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
             Type = PerformanceSourceType.PerformanceCounter, 
             PerformanceCounterArgs = new string[] {"Processor Information", "% Processor Utility", "_Total"}, 
             Format = "0.0"
-        }), nameof(CPUUtilizationObj)),
+        }), nameof(CpuUtilizationObj)),
         Tuple.Create(new PerformanceSource(new PerformanceSourceArgs()
         {
             Type = PerformanceSourceType.ValueOffsetCallback,
@@ -180,7 +181,7 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
                     if (memoryValues != null)
                     {
                         var percent = ((memoryValues.TotalVisibleMemorySize - memoryValues.FreePhysicalMemory) / memoryValues.TotalVisibleMemorySize) * 100;
-                        return Math.Round(percent, 0).ToString();
+                        return Math.Round(percent, 0).ToString(CultureInfo.CurrentCulture);
                     }
                 }
                 catch (Exception ex)
@@ -236,16 +237,16 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
     {
         _dpq = dispatcherQueue;
 
-        _tickTimerTaskCancelationTokenSource = new();
-        var ct = _tickTimerTaskCancelationTokenSource.Token;
+        _tickTimerTaskCancellationTokenSource = new();
+        var ct = _tickTimerTaskCancellationTokenSource.Token;
         _tickTimerTask = Task.Run(async () =>
         {
             // Were we already canceled?
             ct.ThrowIfCancellationRequested();
 
             var tickTimer = new PeriodicTimer(TimeSpan.FromSeconds(0.5));
-            // TODO: don't know if checking for IsCancellationRequested in while condition is good when using an async condition paralell
-            while (await tickTimer.WaitForNextTickAsync() || ct.IsCancellationRequested)
+            // TODO: don't know if checking for IsCancellationRequested in while condition is good when using an async condition parallel
+            while (await tickTimer.WaitForNextTickAsync(ct) || ct.IsCancellationRequested)
             {
                 if (ct.IsCancellationRequested)
                 {
@@ -320,28 +321,28 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
             }
         }
 
-        var settingsGPUPowerMaxLimit = await _localSettingsService.ReadSettingAsync<double>(LocalSettingsKeys.GPUPowerMaxLimit);
-        GPUPowerMaxLimit = settingsGPUPowerMaxLimit < 228.0 ? 228.0 : settingsGPUPowerMaxLimit;
+        var settingsGpuPowerMaxLimit = await _localSettingsService.ReadSettingAsync<double>(LocalSettingsKeys.GPUPowerMaxLimit);
+        GpuPowerMaxLimit = settingsGpuPowerMaxLimit < 228.0 ? 228.0 : settingsGpuPowerMaxLimit;
     }
 
     private void GetOverclockingValues(bool skipTempLimit = false)
     {
         var powerLimit = _igcs.GetOverclockPowerLimit();
         var tempLimit = skipTempLimit 
-            ? GPUTemperatureLimitSliderValue 
+            ? GpuTemperatureLimitSliderValue 
             : _igcs.GetOverclockTemperatureLimit();
-        var gpuVoltageOffset = _igcs.GetOverclockGPUVoltageOffset();
-        var gpuFrequencyOffset = _igcs.GetOverclockGPUFrequencyOffset();
+        var gpuVoltageOffset = _igcs.GetOverclockGpuVoltageOffset();
+        var gpuFrequencyOffset = _igcs.GetOverclockGpuFrequencyOffset();
 
-        GPUPowerLimitSliderValue = powerLimit;
-        GPUTemperatureLimitSliderValue = tempLimit;
-        GPUVoltageOffsetSliderValue = gpuVoltageOffset;
-        GPUFrequencyOffsetSliderValue = gpuFrequencyOffset;
+        GpuPowerLimitSliderValue = powerLimit;
+        GpuTemperatureLimitSliderValue = tempLimit;
+        GpuVoltageOffsetSliderValue = gpuVoltageOffset;
+        GpuFrequencyOffsetSliderValue = gpuFrequencyOffset;
 
-        CurrentActiveSliderValues[SliderValueDefaults.GPUPowerLimit] = powerLimit;
-        CurrentActiveSliderValues[SliderValueDefaults.GPUTemperatureLimit] = tempLimit;
-        CurrentActiveSliderValues[SliderValueDefaults.GPUVoltageOffset] = gpuVoltageOffset;
-        CurrentActiveSliderValues[SliderValueDefaults.GPUFrequencyOffset] = gpuFrequencyOffset;
+        _currentActiveSliderValues[SliderValueDefaults.GpuPowerLimit] = powerLimit;
+        _currentActiveSliderValues[SliderValueDefaults.GpuTemperatureLimit] = tempLimit;
+        _currentActiveSliderValues[SliderValueDefaults.GpuVoltageOffset] = gpuVoltageOffset;
+        _currentActiveSliderValues[SliderValueDefaults.GpuFrequencyOffset] = gpuFrequencyOffset;
 
         // TODO: Fan stuff
         // if (FanSpeedFixed)...
@@ -349,57 +350,57 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
 
     public void ResetToDefaultSliderValues()
     {
-        GPUPowerLimitSliderValue = Convert.ToDouble(SliderDefaultValues.GPUPowerLimit);
-        GPUTemperatureLimitSliderValue = Convert.ToDouble(SliderDefaultValues.GPUTemperatureLimit);
-        GPUVoltageOffsetSliderValue = Convert.ToDouble(SliderDefaultValues.GPUVoltageOffset);
-        GPUFrequencyOffsetSliderValue = Convert.ToDouble(SliderDefaultValues.GPUFrequencyOffset);
+        GpuPowerLimitSliderValue = Convert.ToDouble(SliderDefaultValues.GpuPowerLimit);
+        GpuTemperatureLimitSliderValue = Convert.ToDouble(SliderDefaultValues.GpuTemperatureLimit);
+        GpuVoltageOffsetSliderValue = Convert.ToDouble(SliderDefaultValues.GpuVoltageOffset);
+        GpuFrequencyOffsetSliderValue = Convert.ToDouble(SliderDefaultValues.GpuFrequencyOffset);
     }
 
     public void RevertSliderChanges(object? sender, RoutedEventArgs? e)
     {
-        GPUPowerLimitSliderValue = CurrentActiveSliderValues[SliderValueDefaults.GPUPowerLimit];
-        GPUTemperatureLimitSliderValue = CurrentActiveSliderValues[SliderValueDefaults.GPUTemperatureLimit];
-        GPUVoltageOffsetSliderValue = CurrentActiveSliderValues[SliderValueDefaults.GPUVoltageOffset];
-        GPUFrequencyOffsetSliderValue = CurrentActiveSliderValues[SliderValueDefaults.GPUFrequencyOffset];
+        GpuPowerLimitSliderValue = _currentActiveSliderValues[SliderValueDefaults.GpuPowerLimit];
+        GpuTemperatureLimitSliderValue = _currentActiveSliderValues[SliderValueDefaults.GpuTemperatureLimit];
+        GpuVoltageOffsetSliderValue = _currentActiveSliderValues[SliderValueDefaults.GpuVoltageOffset];
+        GpuFrequencyOffsetSliderValue = _currentActiveSliderValues[SliderValueDefaults.GpuFrequencyOffset];
     }
 
     public bool ApplyChanges()
     {
         var doSkipTempLimit = false;
 
-        if (GPUPowerLimitSliderValue != CurrentActiveSliderValues[SliderValueDefaults.GPUPowerLimit])
+        if (GpuPowerLimitSliderValue != _currentActiveSliderValues[SliderValueDefaults.GpuPowerLimit])
         {
             // *1000 to convert W in mW
-            _igcs.SetOverclockPowerLimit(GPUPowerLimitSliderValue*1000.0);
+            _igcs.SetOverclockPowerLimit(GpuPowerLimitSliderValue*1000.0);
         }
-        if (GPUTemperatureLimitSliderValue != CurrentActiveSliderValues[SliderValueDefaults.GPUTemperatureLimit])
+        if (GpuTemperatureLimitSliderValue != _currentActiveSliderValues[SliderValueDefaults.GpuTemperatureLimit])
         {
             if (!WaiverSigned)
             {
                 return false;
             }
-            var result = _igcs.SetOverclockTemperatureLimit(GPUTemperatureLimitSliderValue);
+            var result = _igcs.SetOverclockTemperatureLimit(GpuTemperatureLimitSliderValue);
             if (result)
             {
                 // skip temp limit check because the gpu needs time to refresh values so it would return old tempLimit
                 doSkipTempLimit = true;
             }
         }
-        if (GPUVoltageOffsetSliderValue != CurrentActiveSliderValues[SliderValueDefaults.GPUVoltageOffset])
+        if (GpuVoltageOffsetSliderValue != _currentActiveSliderValues[SliderValueDefaults.GpuVoltageOffset])
         {
             if (!WaiverSigned)
             {
                 return false;
             }
-            _igcs.SetOverclockGPUVoltageOffset(GPUVoltageOffsetSliderValue);
+            _igcs.SetOverclockGpuVoltageOffset(GpuVoltageOffsetSliderValue);
         }
-        if (GPUFrequencyOffsetSliderValue != CurrentActiveSliderValues[SliderValueDefaults.GPUFrequencyOffset])
+        if (GpuFrequencyOffsetSliderValue != _currentActiveSliderValues[SliderValueDefaults.GpuFrequencyOffset])
         {
             if (!WaiverSigned)
             {
                 return false;
             }
-            _igcs.SetOverclockGPUFrequencyOffset(GPUFrequencyOffsetSliderValue);
+            _igcs.SetOverclockGpuFrequencyOffset(GpuFrequencyOffsetSliderValue);
         }
 
         // check if gpu driver acepted values or adjust some and also reset CurrentValues variable
@@ -415,22 +416,24 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
 
     public async void OnNavigatedFrom()
     {
-        if (_tickTimerTask != null && _tickTimerTaskCancelationTokenSource != null)
+        if (_tickTimerTask == null || _tickTimerTaskCancellationTokenSource == null)
         {
-            _tickTimerTaskCancelationTokenSource?.Cancel();
+            return;
+        }
 
-            try
-            {
-                await _tickTimerTask;
-            }
-            catch (OperationCanceledException ex)
-            {
-                Debug.WriteLine($"{nameof(OperationCanceledException)} thrown with message: {ex.Message}");
-            }
-            finally
-            {
-                _tickTimerTaskCancelationTokenSource?.Dispose();
-            }
+        _tickTimerTaskCancellationTokenSource?.Cancel();
+
+        try
+        {
+            await _tickTimerTask;
+        }
+        catch (OperationCanceledException ex)
+        {
+            Debug.WriteLine($"{nameof(OperationCanceledException)} thrown with message: {ex.Message}");
+        }
+        finally
+        {
+            _tickTimerTaskCancellationTokenSource?.Dispose();
         }
     }
 }

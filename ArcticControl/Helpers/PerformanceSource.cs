@@ -70,10 +70,14 @@ internal class PerformanceSource
             case PerformanceSourceType.ValueOffsetCallback:
                 if (_valueOffsetCallback == null)
                 {
-                    throw new ArgumentNullException("ValueOffsetCallback must be provided if type is set to PerformanceSourceType.ValueOffsetCallback!");
+                    Debug.WriteLine("ValueOffsetCallback must be provided if " +
+                                    "type is set to PerformanceSourceType.ValueOffsetCallback!");
+                    throw new ArgumentNullException(nameof(args.ValueOffsetCallback));
                 }
 
                 break;
+            default:
+                throw new ArgumentOutOfRangeException();
         }
     }
 

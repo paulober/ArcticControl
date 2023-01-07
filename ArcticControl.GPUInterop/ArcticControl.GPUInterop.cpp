@@ -1,15 +1,13 @@
 #include "pch.h"
 
-#include <stdio.h>
 #include <stdlib.h>
-#include <conio.h>
 #include <vector>
 #include <string>
 
 #include "ArcticControl.GPUInterop.h"
 
-std::string DecodeRetCode(ctl_result_t Res);
-#define WriteLine System::Diagnostics::Debug::WriteLine
+std::string decode_ret_code(ctl_result_t res);
+#define WRITE_LINE System::Diagnostics::Debug::WriteLine
 
 String^ ArcticControlGPUInterop::GPUInterop::GetMyName()
 {
@@ -18,58 +16,55 @@ String^ ArcticControlGPUInterop::GPUInterop::GetMyName()
     return "Hi there in CLR. I'm the real slim shady!";
 }
 
-Boolean ArcticControlGPUInterop::GPUInterop::initApi()
+Boolean ArcticControlGPUInterop::GPUInterop::init_api()
 {
-    if (hDevices != nullptr && adapterCount != nullptr && hAPIHandle != nullptr)
+    if (h_devices_ != nullptr && adapter_count_ != nullptr && h_api_handle_ != nullptr)
     {
         return true;
     }
 
-    ctl_result_t result = CTL_RESULT_SUCCESS;
-    hDevices = nullptr;
-    ctl_init_args_t ctlInitArgs{};
-    hAPIHandle = (ctl_api_handle_t*)malloc(sizeof(ctl_api_handle_t));
+    h_devices_ = nullptr;
+    ctl_init_args_t ctl_init_args{};
+    h_api_handle_ = static_cast<ctl_api_handle_t*>(malloc(sizeof(ctl_api_handle_t)));
     
-    adapterCount = (uint32_t*)malloc(sizeof(*adapterCount));
-    *adapterCount = 0;
+    adapter_count_ = static_cast<uint32_t*>(malloc(sizeof*adapter_count_));
+    *adapter_count_ = 0;
 
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
-    ctlInitArgs.AppVersion = CTL_MAKE_VERSION(CTL_IMPL_MAJOR_VERSION, CTL_IMPL_MINOR_VERSION);
-    ctlInitArgs.flags = CTL_INIT_FLAG_USE_LEVEL_ZERO;
-    ctlInitArgs.Size = sizeof(ctlInitArgs);
-    ctlInitArgs.Version = 0;
-    ZeroMemory(&ctlInitArgs.ApplicationUID, sizeof(ctl_application_id_t));
+    ctl_init_args.AppVersion = CTL_MAKE_VERSION(CTL_IMPL_MAJOR_VERSION, CTL_IMPL_MINOR_VERSION);
+    ctl_init_args.flags = CTL_INIT_FLAG_USE_LEVEL_ZERO;
+    ctl_init_args.Size = sizeof(ctl_init_args);
+    ctl_init_args.Version = 0;
+    ZeroMemory(&ctl_init_args.ApplicationUID, sizeof(ctl_application_id_t));
 
-    result = ctlInit(&ctlInitArgs, hAPIHandle);
-
-    if (CTL_RESULT_SUCCESS == result)
+    if (ctl_result_t result = ctlInit(&ctl_init_args, h_api_handle_); CTL_RESULT_SUCCESS == result)
     {
         // enumerate all devices to check if some are available
-        result = ctlEnumerateDevices(*hAPIHandle, adapterCount, hDevices);
+        result = ctlEnumerateDevices(*h_api_handle_, adapter_count_, h_devices_);
 
         if (CTL_RESULT_SUCCESS == result)
         {
-            hDevices = (ctl_device_adapter_handle_t*)malloc(sizeof(ctl_device_adapter_handle_t) * (*adapterCount));
+            h_devices_ = static_cast<ctl_device_adapter_handle_t*>(malloc(sizeof(ctl_device_adapter_handle_t) * *adapter_count_));
 
-            if (hDevices != NULL)
+            if (h_devices_ != nullptr)
             {
-                result = ctlEnumerateDevices(*hAPIHandle, adapterCount, hDevices);
+                result = ctlEnumerateDevices(*h_api_handle_, adapter_count_, h_devices_);
 
                 if (CTL_RESULT_SUCCESS == result)
                 {
-                    fansCount = (uint32_t*)malloc(sizeof(*fansCount));
-                    *fansCount = 0;
+                    fans_count_ = static_cast<uint32_t*>(malloc(sizeof(*fans_count_)));
+                    *fans_count_ = 0;
 
-                    result = ctlEnumFans(hDevices[0], fansCount, hFans);
+                    result = ctlEnumFans(h_devices_[0], fans_count_, h_fans_);
 
                     if (CTL_RESULT_SUCCESS == result)
                     {
-                        hFans = (ctl_fan_handle_t*)malloc(sizeof(ctl_fan_handle_t) * (*fansCount));
+                        h_fans_ = static_cast<ctl_fan_handle_t*>(malloc(sizeof(ctl_fan_handle_t) * (*fans_count_)));
 
-                        if (hFans != NULL)
+                        if (h_fans_ != nullptr)
                         {
-                            result = ctlEnumFans(hDevices[0], fansCount, hFans);
+                            result = ctlEnumFans(h_devices_[0], fans_count_, h_fans_);
 
                             if (CTL_RESULT_SUCCESS == result)
                             {
@@ -85,9 +80,9 @@ Boolean ArcticControlGPUInterop::GPUInterop::initApi()
     return false;
 }
 
-Boolean ArcticControlGPUInterop::GPUInterop::TestApi() 
+bool ArcticControlGPUInterop::GPUInterop::TestApi() 
 {
-    if (initApi())
+    if (init_api())
     {
         this->!GPUInterop();
 
@@ -97,125 +92,91 @@ Boolean ArcticControlGPUInterop::GPUInterop::TestApi()
     return false;
 }
 
-Boolean ArcticControlGPUInterop::GPUInterop::InitCtlApi()
+bool ArcticControlGPUInterop::GPUInterop::InitCtlApi()
 {
-    if (hAPIHandle != nullptr)
+    if (h_api_handle_ != nullptr)
     {
-        goto Exit;
+        return false;
     }
 
-    return initApi();
-
-Exit:
-    return false;
+    return init_api();
 }
 
 String^ ArcticControlGPUInterop::GPUInterop::GetAdapterName()
 {
-    if (hAPIHandle == nullptr && (*adapterCount) < 1)
+    if (h_api_handle_ == nullptr && (*adapter_count_) < 1)
     {
-        goto Exit;
+        return String::Empty;
     }
 
-    ctl_result_t result;
-    ctl_device_adapter_properties_t adapterProps{ 0 };
-    adapterProps.Size = sizeof(ctl_device_adapter_properties_t);
-    adapterProps.pDeviceID = malloc(sizeof(LUID));
-    adapterProps.device_id_size = sizeof(LUID);
+    ctl_device_adapter_properties_t adapter_props{ 0 };
+    adapter_props.Size = sizeof(ctl_device_adapter_properties_t);
+    adapter_props.pDeviceID = malloc(sizeof(LUID));
+    adapter_props.device_id_size = sizeof(LUID);
 
-    if (adapterProps.pDeviceID == NULL)
+    if (adapter_props.pDeviceID != nullptr)
     {
-        goto Exit;
+        if (const ctl_result_t result = ctlGetDeviceProperties(h_devices_[0], &adapter_props);
+            result == CTL_RESULT_SUCCESS)
+        {
+            auto str = gcnew String(adapter_props.name);
+            return str;
+        }
     }
 
-    result = ctlGetDeviceProperties(hDevices[0], &adapterProps);
-
-    if (result == CTL_RESULT_SUCCESS) 
-    {
-        String^ str = gcnew String(adapterProps.name);
-        return str;
-    }
-
-Exit:
     return String::Empty;
 }
 
-void ArcticControlGPUInterop::GPUInterop::SetFansToDefaultMode()
-{
-    if (hAPIHandle == nullptr && (*adapterCount) < 1)
-    {
-        return;
-    }
-
-    ctl_result_t result;
-    for (uint32_t i = 0; i < *fansCount; i++)
-    {
-        result = ctlFanSetDefaultMode(hFans[i]);
-
-        if (result != CTL_RESULT_SUCCESS)
-        {
-            WriteLine("GPUInterop: Error setting fans to default mode!");
-            return;
-        }
-    }
-}
-
-
 array<ArcticControlGPUInterop::TempSensor^>^ ArcticControlGPUInterop::GPUInterop::GetTemperatures()
 {
-    if (hAPIHandle == nullptr && (*adapterCount) < 1)
+    if (h_api_handle_ == nullptr && *adapter_count_ < 1)
     {
         return gcnew array<TempSensor^>{};
     }
 
-    ctl_result_t result;
-    uint32_t sensorsCount = 0;
-    ctl_temp_handle_t* hTempSensors;
+    uint32_t sensors_count = 0;
 
-    result = ctlEnumTemperatureSensors(hDevices[0], &sensorsCount, nullptr);
+    ctl_result_t result = ctlEnumTemperatureSensors(h_devices_[0], &sensors_count, nullptr);
 
-    if ((result != CTL_RESULT_SUCCESS) || sensorsCount == 0)
+    if ((result != CTL_RESULT_SUCCESS) || sensors_count == 0)
     {
-        WriteLine("\nTemperature component not supported. Error: %s" + (gcnew String(DecodeRetCode(result).c_str())));
+        WRITE_LINE("\nTemperature component not supported. Error: %s" + (gcnew String(decode_ret_code(result).c_str())));
         return gcnew array<TempSensor^>{};
     }
-    else
-    {
-        WriteLine("\nNumber of Temperature Handles [%u]", sensorsCount);
-    }
+    
+    WRITE_LINE("\nNumber of Temperature Handles [%u]", sensors_count);
 
     if (CTL_RESULT_SUCCESS == result)
     {
-        hTempSensors = new ctl_temp_handle_t[sensorsCount];
-
-        if (hTempSensors != NULL)
+        if (const auto h_temp_sensors = new ctl_temp_handle_t[sensors_count];
+            h_temp_sensors != nullptr)
         {
-            result = ctlEnumTemperatureSensors(hDevices[0], &sensorsCount, hTempSensors);
+            result = ctlEnumTemperatureSensors(h_devices_[0], &sensors_count, h_temp_sensors);
 
             if (CTL_RESULT_SUCCESS == result)
             {
-                List<TempSensor^>^ gcTempSensors 
+                auto gc_temp_sensors 
                     = gcnew List<TempSensor^>();
 
-                for (uint32_t i = 0; i < sensorsCount; i++)
+                for (uint32_t i = 0; i < sensors_count; i++)
                 {
-                    TempSensor^ ts = gcnew TempSensor;
+                    auto ts = gcnew TempSensor;
 
-                    WriteLine("\n\nFor Temperature Handle [%u]" + i.ToString());
-                    WriteLine("\n[Temperature] Get Temperature properties:");
+                    WRITE_LINE("\n\nFor Temperature Handle [%u]" + i.ToString());
+                    WRITE_LINE("\n[Temperature] Get Temperature properties:");
 
                     ctl_temp_properties_t tempProps{ 0 };
                     tempProps.Size = sizeof(ctl_temp_properties_t);
-                    result = ctlTemperatureGetProperties(hTempSensors[i], &tempProps);
+                    result = ctlTemperatureGetProperties(h_temp_sensors[i], &tempProps);
 
                     if (result != CTL_RESULT_SUCCESS)
                     {
-                        WriteLine("\nError: %s"+ gcnew String(DecodeRetCode(result).c_str()) +" from Temperature get properties.");
+                        WRITE_LINE("\nError: %s"+ gcnew String(decode_ret_code(result).c_str()) +" from Temperature get properties.");
                     }
                     else
                     {
-                        WriteLine("[Temperature] Max temp [%u]" + ((uint32_t)tempProps.maxTemperature).ToString());
-                        WriteLine("[Temperature] Sensor type [%s]" + ((tempProps.type == CTL_TEMP_SENSORS_GLOBAL) ? "Global" :
+                        WRITE_LINE("[Temperature] Max temp [%u]" + static_cast<uint32_t>(tempProps.maxTemperature).ToString());
+                        WRITE_LINE("[Temperature] Sensor type [%s]" + ((tempProps.type == CTL_TEMP_SENSORS_GLOBAL) ? "Global" :
                             (tempProps.type == CTL_TEMP_SENSORS_GPU) ? "Gpu" :
                             (tempProps.type == CTL_TEMP_SENSORS_MEMORY) ? "Memory" :
                             "Unknown"));
@@ -226,25 +187,25 @@ array<ArcticControlGPUInterop::TempSensor^>^ ArcticControlGPUInterop::GPUInterop
                             TempSensorType::Unknown);
                     }
 
-                    WriteLine("[Temperature] Get Temperature state:");
+                    WRITE_LINE("[Temperature] Get Temperature state:");
 
                     double temperature = 0;
-                    result = ctlTemperatureGetState(hTempSensors[i], &temperature);
+                    result = ctlTemperatureGetState(h_temp_sensors[i], &temperature);
 
                     if (result != CTL_RESULT_SUCCESS)
                     {
-                        WriteLine("\nError: %s"+ gcnew String(DecodeRetCode(result).c_str()) +"  from Temperature get state.");
+                        WRITE_LINE("\nError: %s"+ gcnew String(decode_ret_code(result).c_str()) +"  from Temperature get state.");
                     }
                     else
                     {
-                        WriteLine("[Temperature] Current Temperature [%f"+ temperature.ToString() + "] C degrees \n \n");
-                        ts->TemperatureInC = gcnew System::UInt16(temperature);
+                        WRITE_LINE("[Temperature] Current Temperature [%f"+ temperature.ToString() + "] C degrees \n \n");
+                        ts->TemperatureInC = static_cast<UInt16>(temperature);
                     }
 
-                    gcTempSensors->Add(ts);
+                    gc_temp_sensors->Add(ts);
                 }
 
-                return gcTempSensors->ToArray();
+                return gc_temp_sensors->ToArray();
             }
         }
     }
@@ -253,402 +214,461 @@ array<ArcticControlGPUInterop::TempSensor^>^ ArcticControlGPUInterop::GPUInterop
 }
 
 // !! DANGEROUS !!
-Boolean ArcticControlGPUInterop::GPUInterop::SetOverclockWaiver()
+bool ArcticControlGPUInterop::GPUInterop::SetOverclockWaiver()
 {
-    if (hAPIHandle == nullptr && (*adapterCount) < 1)
+    if (h_api_handle_ == nullptr && *adapter_count_ < 1)
     {
-        goto Exit;
+        return false;
     }
 
-    ctl_result_t result;
-    result = ctlOverclockWaiverSet(hDevices[0]);
-
-    if (CTL_RESULT_SUCCESS == result)
+    if (const ctl_result_t result = ctlOverclockWaiverSet(h_devices_[0]);
+        CTL_RESULT_SUCCESS == result)
     {
         return true;
     }
 
-Exit:
     return false;
 }
 
-Double^ ArcticControlGPUInterop::GPUInterop::GetOverclockTemperatureLimit()
+double ArcticControlGPUInterop::GPUInterop::GetOverclockTemperatureLimit()
 {
-    if (hAPIHandle == nullptr && (*adapterCount) < 1)
+    if (h_api_handle_ == nullptr && (*adapter_count_) < 1)
     {
-        goto Exit;
-    }
-
-    ctl_result_t result;
-    double tempLimit = 0.0;
-    result = ctlOverclockTemperatureLimitGet(hDevices[0], &tempLimit);
-
-    if (CTL_RESULT_SUCCESS == result)
-    {
-        return tempLimit;
-    }
-
-Exit:
-    return gcnew Double(0.0);;
-}
-
-Boolean ArcticControlGPUInterop::GPUInterop::SetOverclockTemperatureLimit(Double^ newTempLimit)
-{
-    if (hAPIHandle == nullptr && (*adapterCount) < 1)
-    {
-        goto Exit;
-    }
-
-    ctl_result_t result;
-    result = ctlOverclockTemperatureLimitSet(hDevices[0], *newTempLimit);
-
-    if (CTL_RESULT_SUCCESS == result)
-    {
-        return true;
-    }
-
-Exit:
-    return false;
-}
-
-Double^ ArcticControlGPUInterop::GPUInterop::GetOverclockPowerLimit()
-{
-    if (hAPIHandle == nullptr && (*adapterCount) < 1)
-    {
-        goto Exit;
-    }
-
-    ctl_result_t result;
-    double sustainedPowerLimit = 0.0;
-    result = ctlOverclockPowerLimitGet(hDevices[0], &sustainedPowerLimit);
-
-    if (CTL_RESULT_SUCCESS == result)
-    {
-        // mW in W -> /1000
-        return sustainedPowerLimit/1000;
-    }
-
-Exit:
-    return gcnew Double(0.0);
-}
-
-Boolean ArcticControlGPUInterop::GPUInterop::SetOverclockPowerLimit(Double^ newPowerLimit)
-{
-    if (hAPIHandle == nullptr && (*adapterCount) < 1)
-    {
-        goto Exit;
-    }
-
-    ctl_result_t result;
-    result = ctlOverclockPowerLimitSet(hDevices[0], *newPowerLimit);
-
-    WriteLine(
-        "[GPUInterop]: GPU PowerLimit overclock to " + newPowerLimit->ToString()
-        + " with Status: " + gcnew String(DecodeRetCode(result).c_str()));
-    if (CTL_RESULT_SUCCESS == result)
-    {
-        return true;
-    }
-
-Exit:
-    return false;
-}
-
-Double^ ArcticControlGPUInterop::GPUInterop::GetOverclockGPUVoltageOffset()
-{
-    if (hAPIHandle == nullptr && (*adapterCount) < 1)
-    {
-        goto Exit;
-    }
-
-    ctl_result_t result;
-    double voltageOffset;
-    result = ctlOverclockGpuVoltageOffsetGet(hDevices[0], &voltageOffset);
-
-    if (CTL_RESULT_SUCCESS == result)
-    {
-        return voltageOffset;
-    }
-
-Exit:
-    return gcnew Double(0.0);
-}
-
-Boolean ArcticControlGPUInterop::GPUInterop::SetOverclockGPUVoltageOffset(Double^ newGPUVoltageOffset)
-{
-    if (hAPIHandle == nullptr && (*adapterCount) < 1)
-    {
-        goto Exit;
-    }
-
-    ctl_result_t result;
-    result = ctlOverclockGpuVoltageOffsetSet(hDevices[0], *newGPUVoltageOffset);
-
-    if (CTL_RESULT_SUCCESS == result)
-    {
-        return true;
-    }
-
-Exit:
-    return false;
-}
-
-Double^ ArcticControlGPUInterop::GPUInterop::GetOverclockGPUFrequencyOffset()
-{
-    if (hAPIHandle == nullptr && (*adapterCount) < 1)
-    {
-        goto Exit;
-    }
-
-    ctl_result_t result;
-    double frequencyOffset;
-    result = ctlOverclockGpuFrequencyOffsetGet(hDevices[0], &frequencyOffset);
-
-    if (CTL_RESULT_SUCCESS == result)
-    {
-        return frequencyOffset;
-    }
-
-Exit:
-    return gcnew Double(0.0);
-}
-
-Boolean ArcticControlGPUInterop::GPUInterop::SetOverclockGPUFrequencyOffset(Double^ newGPUFrequencyOffset)
-{
-    if (hAPIHandle == nullptr && (*adapterCount) < 1)
-    {
-        goto Exit;
-    }
-
-    ctl_result_t result;
-    result = ctlOverclockGpuFrequencyOffsetSet(hDevices[0], *newGPUFrequencyOffset);
-
-    WriteLine(
-        "[GPUInterop]: GPU Frequency offset: " + newGPUFrequencyOffset->ToString()
-        + " with Status: " + gcnew String(DecodeRetCode(result).c_str()));
-    if (CTL_RESULT_SUCCESS == result)
-    {
-        return true;
-    }
-
-Exit:
-    return false;
-}
-
-Double^ ArcticControlGPUInterop::GPUInterop::GetOverclockVRAMVoltageOffset()
-{
-    if (hAPIHandle == nullptr && (*adapterCount) < 1)
-    {
-        goto Exit;
-    }
-
-    ctl_result_t result;
-    double voltageOffset;
-    result = ctlOverclockVramVoltageOffsetGet(hDevices[0], &voltageOffset);
-
-    if (CTL_RESULT_SUCCESS == result)
-    {
-        return voltageOffset;
-    }
-
-Exit:
-    return gcnew Double(0.0);
-}
-
-Boolean ArcticControlGPUInterop::GPUInterop::SetOverclockVRAMVoltageOffset(Double^ newVRAMVoltageOffset)
-{
-    if (hAPIHandle == nullptr && (*adapterCount) < 1)
-    {
-        goto Exit;
-    }
-
-    ctl_result_t result;
-    result = ctlOverclockVramVoltageOffsetSet(hDevices[0], *newVRAMVoltageOffset);
-
-    if (CTL_RESULT_SUCCESS == result)
-    {
-        return true;
-    }
-
-Exit:
-    return false;
-}
-
-Double^ ArcticControlGPUInterop::GPUInterop::GetOverclockVRAMFrequencyOffset()
-{
-    if (hAPIHandle == nullptr && (*adapterCount) < 1)
-    {
-        goto Exit;
-    }
-
-    ctl_result_t result;
-    double frequencyOffset;
-    result = ctlOverclockVramFrequencyOffsetGet(hDevices[0], &frequencyOffset);
-
-    if (CTL_RESULT_SUCCESS == result)
-    {
-        return frequencyOffset;
-    }
-
-Exit:
-    return gcnew Double(0.0);
-}
-
-Boolean ArcticControlGPUInterop::GPUInterop::SetOverclockVRAMFrequencyOffset(Double^ newVRAMFrequencyOffset)
-{
-    if (hAPIHandle == nullptr && (*adapterCount) < 1)
-    {
-        goto Exit;
-    }
-
-    ctl_result_t result;
-    result = ctlOverclockVramFrequencyOffsetSet(hDevices[0], *newVRAMFrequencyOffset);
-
-    if (CTL_RESULT_SUCCESS == result)
-    {
-        return true;
-    }
-
-Exit:
-    return false;
-}
-
-Boolean ArcticControlGPUInterop::GPUInterop::InitPowerDomains()
-{
-    if (hAPIHandle == nullptr || (*adapterCount) < 1)
-    {
-        goto Exit;
-    }
-
-    ctl_result_t result;
-    // TODO: maybe free memory before if handle != nullptr so this could cause memory leaks
-    hPwrHandle = nullptr;
-    pwrCount = (uint32_t*)malloc(sizeof(*pwrCount));
-    *pwrCount = 0;
-    result = ctlEnumPowerDomains(hDevices[0], pwrCount, nullptr);
-    if ((result != CTL_RESULT_SUCCESS) || pwrCount == 0)
-    {
-        WriteLine("Power component not supported. Error: " + gcnew String(DecodeRetCode(result).c_str()));
-        goto Exit;
+        return 0.0;
     }
     else
     {
-        WriteLine("[GPUInterop]: Number of Power Handles " + gcnew UInt32(*pwrCount));
+        double temp_limit = 0.0;
+
+        if (const ctl_result_t result = ctlOverclockTemperatureLimitGet(h_devices_[0], &temp_limit);
+            CTL_RESULT_SUCCESS == result)
+        {
+            return temp_limit;
+        }
     }
 
-    hPwrHandle = new ctl_pwr_handle_t[*pwrCount];
+    return 0.0;
+}
 
-    result = ctlEnumPowerDomains(hDevices[0], pwrCount, hPwrHandle);
-
-    if (result != CTL_RESULT_SUCCESS)
+bool ArcticControlGPUInterop::GPUInterop::SetOverclockTemperatureLimit(const double new_temp_limit)
+{
+    if (h_api_handle_ == nullptr && (*adapter_count_) < 1)
     {
-        WriteLine("Error: " + gcnew String(DecodeRetCode(result).c_str()) + " for Power handle.");
-
-        // cleanup mess
-        delete[] hPwrHandle;
-        hPwrHandle = nullptr;
         return false;
     }
-    else 
+    else
+    {
+        if (const ctl_result_t result = ctlOverclockTemperatureLimitSet(h_devices_[0], new_temp_limit);
+            CTL_RESULT_SUCCESS == result)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+double ArcticControlGPUInterop::GPUInterop::GetOverclockPowerLimit()
+{
+    if (h_api_handle_ == nullptr && (*adapter_count_) < 1)
+    {
+        return 0.0;
+    }
+    
+    double sustained_power_limit;
+
+    if (const ctl_result_t result = ctlOverclockPowerLimitGet(h_devices_[0], &sustained_power_limit); CTL_RESULT_SUCCESS == result)
+    {
+        // mW in W -> /1000
+        return sustained_power_limit / 1000;
+    }
+
+    return 0.0;
+}
+
+bool ArcticControlGPUInterop::GPUInterop::SetOverclockPowerLimit(double new_power_limit)
+{
+    if (h_api_handle_ == nullptr && *adapter_count_ < 1)
+    {
+        return false;
+    }
+    
+    const ctl_result_t result = ctlOverclockPowerLimitSet(h_devices_[0], new_power_limit);
+
+    WRITE_LINE(
+        "[GPUInterop]: GPU PowerLimit overclock to " + new_power_limit.ToString()
+        + " with Status: " + gcnew String(decode_ret_code(result).c_str()));
+    if (CTL_RESULT_SUCCESS == result)
     {
         return true;
     }
 
-Exit:
+    return false;
+}
+
+double ArcticControlGPUInterop::GPUInterop::GetOverclockGPUVoltageOffset()
+{
+    if (h_api_handle_ == nullptr && *adapter_count_ < 1)
+    {
+        return 0.0;
+    }
+    
+    double voltage_offset;
+
+    if (const ctl_result_t result = ctlOverclockGpuVoltageOffsetGet(h_devices_[0], &voltage_offset);
+        CTL_RESULT_SUCCESS == result)
+    {
+        return voltage_offset;
+    }
+
+    return 0.0;
+}
+
+bool ArcticControlGPUInterop::GPUInterop::SetOverclockGPUVoltageOffset(const double new_gpu_voltage_offset)
+{
+    if (h_api_handle_ == nullptr && *adapter_count_ < 1)
+    {
+        return false;
+    }
+    
+    if (const ctl_result_t result = ctlOverclockGpuVoltageOffsetSet(h_devices_[0], new_gpu_voltage_offset);
+        CTL_RESULT_SUCCESS == result)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+double ArcticControlGPUInterop::GPUInterop::GetOverclockGPUFrequencyOffset()
+{
+    if (h_api_handle_ == nullptr && (*adapter_count_) < 1)
+    {
+        return 0.0;
+    }
+    
+    double frequency_offset;
+
+    if (const ctl_result_t result = ctlOverclockGpuFrequencyOffsetGet(h_devices_[0], &frequency_offset);
+        CTL_RESULT_SUCCESS == result)
+    {
+        return frequency_offset;
+    }
+
+    return 0.0;
+}
+
+bool ArcticControlGPUInterop::GPUInterop::SetOverclockGPUFrequencyOffset(double new_gpu_frequency_offset)
+{
+    if (h_api_handle_ == nullptr && (*adapter_count_) < 1)
+    {
+        return false;
+    }
+    
+    const ctl_result_t result = ctlOverclockGpuFrequencyOffsetSet(h_devices_[0], new_gpu_frequency_offset);
+
+    WRITE_LINE(
+        "[GPUInterop]: GPU Frequency offset: " + new_gpu_frequency_offset.ToString()
+        + " with Status: " + gcnew String(decode_ret_code(result).c_str()));
+    if (CTL_RESULT_SUCCESS == result)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+double ArcticControlGPUInterop::GPUInterop::GetOverclockVRAMVoltageOffset()
+{
+    if (h_api_handle_ == nullptr && (*adapter_count_) < 1)
+    {
+        return 0.0;
+    }
+    
+    double voltage_offset;
+
+    if (const ctl_result_t result = ctlOverclockVramVoltageOffsetGet(h_devices_[0], &voltage_offset);
+        CTL_RESULT_SUCCESS == result)
+    {
+        return voltage_offset;
+    }
+
+    return 0.0;
+}
+
+bool ArcticControlGPUInterop::GPUInterop::SetOverclockVRAMVoltageOffset(const double new_vram_voltage_offset)
+{
+    if (h_api_handle_ == nullptr && (*adapter_count_) < 1)
+    {
+        return false;
+    }
+    
+    if (const ctl_result_t result = ctlOverclockVramVoltageOffsetSet(h_devices_[0], new_vram_voltage_offset);
+        CTL_RESULT_SUCCESS == result)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+double ArcticControlGPUInterop::GPUInterop::GetOverclockVRAMFrequencyOffset()
+{
+    if (h_api_handle_ == nullptr && *adapter_count_ < 1)
+    {
+        return 0.0;
+    }
+    
+    double frequency_offset;
+
+    if (const ctl_result_t result = ctlOverclockVramFrequencyOffsetGet(h_devices_[0], &frequency_offset);
+        CTL_RESULT_SUCCESS == result)
+    {
+        return frequency_offset;
+    }
+
+    return 0.0;
+}
+
+bool ArcticControlGPUInterop::GPUInterop::SetOverclockVRAMFrequencyOffset(const double new_vram_frequency_offset)
+{
+    if (h_api_handle_ == nullptr && (*adapter_count_) < 1)
+    {
+        return false;
+    }
+    
+    if (const ctl_result_t result = ctlOverclockVramFrequencyOffsetSet(h_devices_[0], new_vram_frequency_offset);
+        CTL_RESULT_SUCCESS == result)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool ArcticControlGPUInterop::GPUInterop::InitPowerDomains()
+{
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    {
+        return false;
+    }
+
+    if (h_pwr_handle_ != nullptr)
+    {
+        CTL_FREE_MEM(h_pwr_handle_);
+    }
+    if (pwr_count_ != nullptr)
+    {
+        CTL_FREE_MEM(pwr_count_);
+    }
+
+    pwr_count_ = static_cast<uint32_t*>(malloc(sizeof*pwr_count_));
+    *pwr_count_ = 0;
+
+    ctl_result_t result = ctlEnumPowerDomains(h_devices_[0], pwr_count_, nullptr);
+    if (result != CTL_RESULT_SUCCESS || pwr_count_ == nullptr)
+    {
+        WRITE_LINE("Power component not supported. Error: " + gcnew String(decode_ret_code(result).c_str()));
+        return false;
+    }
+    WRITE_LINE("[GPUInterop]: Number of Power Handles " + gcnew UInt32(*pwr_count_));
+
+    h_pwr_handle_ = new ctl_pwr_handle_t[*pwr_count_];
+
+    result = ctlEnumPowerDomains(h_devices_[0], pwr_count_, h_pwr_handle_);
+
+    if (result == CTL_RESULT_SUCCESS)
+    {
+        return true;
+    }
+    
+    WRITE_LINE("Error: " + gcnew String(decode_ret_code(result).c_str()) + " for Power handle.");
+
+    // cleanup the mess
+    //delete[] hPwrHandle;
+    //hPwrHandle = nullptr;
+    CTL_FREE_MEM(h_pwr_handle_);
+    
     return false;
 }
 
 ArcticControlGPUInterop::PowerProperties^ ArcticControlGPUInterop::GPUInterop::GetPowerProperties()
 {
-    if (hAPIHandle == nullptr || (*adapterCount) < 1 || (*pwrCount) < 1 || hPwrHandle == nullptr)
+    if (h_api_handle_ == nullptr || (*adapter_count_) < 1 || (*pwr_count_) < 1 || h_pwr_handle_ == nullptr)
     {
-        goto Exit;
+        return nullptr;
     }
 
-    ctl_result_t result;
-    ctl_power_properties_t powerProperties{ 0 };
-    powerProperties.Size = sizeof(ctl_power_properties_t);
-    result = ctlPowerGetProperties(hPwrHandle[0], &powerProperties);
+    ctl_power_properties_t power_properties{0};
+    power_properties.Size = sizeof(ctl_power_properties_t);
 
-    if (result == CTL_RESULT_SUCCESS)
+    if (const ctl_result_t result = ctlPowerGetProperties(h_pwr_handle_[0], &power_properties);
+        result == CTL_RESULT_SUCCESS)
     {
-        PowerProperties^ pwrProperties = gcnew PowerProperties();
-        pwrProperties->CanControl = powerProperties.canControl;
-        pwrProperties->DefaultLimit = powerProperties.defaultLimit;
-        pwrProperties->MinLimit = powerProperties.minLimit;
-        pwrProperties->MaxLimit = powerProperties.maxLimit;
+        PowerProperties^ pwr_properties = PowerProperties::create(&power_properties);
 
-        return pwrProperties;
+        return pwr_properties;
     }
 
-Exit:
     return nullptr;
 }
 
 ArcticControlGPUInterop::PowerLimitsCombination^ ArcticControlGPUInterop::GPUInterop::GetPowerLimits()
 {
-    if (hAPIHandle == nullptr || (*adapterCount) < 1 || (*pwrCount) < 1 || hPwrHandle == nullptr)
+    if (h_api_handle_ == nullptr 
+        || (*adapter_count_) < 1 
+        || (*pwr_count_) < 1 
+        || h_pwr_handle_ == nullptr)
     {
-        goto Exit;
+        return nullptr;
     }
 
-    ctl_result_t result;
-    ctl_power_limits_t powerLimits{ 0 };
-    powerLimits.Size = sizeof(ctl_power_limits_t);
-    result = ctlPowerGetLimits(hPwrHandle[0], &powerLimits);
+    ctl_power_limits_t power_limits{ 0 };
+    power_limits.Size = sizeof(ctl_power_limits_t);
 
-    if (result == CTL_RESULT_SUCCESS)
+    if (const ctl_result_t result = ctlPowerGetLimits(h_pwr_handle_[0], &power_limits); result == CTL_RESULT_SUCCESS)
     {
         // allocate result in GC and return
 
-        SustainedPowerLimit^ sutainedPwrLimit = gcnew SustainedPowerLimit();
-        sutainedPwrLimit->Enabled = powerLimits.sustainedPowerLimit.enabled;
-        sutainedPwrLimit->Power = powerLimits.sustainedPowerLimit.power;
-        sutainedPwrLimit->Interval = powerLimits.sustainedPowerLimit.interval;
+        SustainedPowerLimit^ sustained_pwr_limit = SustainedPowerLimit::create(&power_limits.sustainedPowerLimit);
 
-        BurstPowerLimit^ burstPwrLimit = gcnew BurstPowerLimit();
-        burstPwrLimit->Enabled = powerLimits.burstPowerLimit.enabled;
-        burstPwrLimit->Power = powerLimits.burstPowerLimit.power;
+        BurstPowerLimit^ burst_pwr_limit = BurstPowerLimit::create(&power_limits.burstPowerLimit);
 
-        PeakPowerLimit^ peakPwrLimit = gcnew PeakPowerLimit();
-        peakPwrLimit->PowerAC = powerLimits.peakPowerLimits.powerAC;
-        peakPwrLimit->PowerDC = powerLimits.peakPowerLimits.powerDC;
+        PeakPowerLimit^ peak_pwr_limit = PeakPowerLimit::create(&power_limits.peakPowerLimits);
 
         // combine all
-        PowerLimitsCombination^ pwrLimitsCombi = gcnew PowerLimitsCombination();
-        pwrLimitsCombi->SustainedPowerLimit = sutainedPwrLimit;
-        pwrLimitsCombi->BurstPowerLimit = burstPwrLimit;
-        pwrLimitsCombi->PeakPowerLimit = peakPwrLimit;
+        auto pwr_limits_combo = gcnew PowerLimitsCombination;
+        pwr_limits_combo->SustainedPowerLimit = sustained_pwr_limit;
+        pwr_limits_combo->BurstPowerLimit = burst_pwr_limit;
+        pwr_limits_combo->PeakPowerLimit = peak_pwr_limit;
 
-        return pwrLimitsCombi;
+        return pwr_limits_combo;
     }
 
-Exit:
-    // TODO: maybe throw error because nullptr can cause problems here with GC and so
     return nullptr;
+}
+
+
+
+bool ArcticControlGPUInterop::GPUInterop::InitFansHandles()
+{
+    if (h_api_handle_ == nullptr || (*adapter_count_) < 1)
+    {
+        return false;
+    }
+
+    if (fans_count_ != nullptr)
+    {
+        free(fans_count_);
+        fans_count_ = nullptr;
+    }
+
+    fans_count_ = static_cast<uint32_t*>(malloc(sizeof(*fans_count_)));
+    *fans_count_ = 0;
+
+    if (ctl_result_t result = ctlEnumFans(h_devices_[0], fans_count_, h_fans_); CTL_RESULT_SUCCESS == result)
+    {
+        h_fans_ = static_cast<ctl_fan_handle_t*>(malloc(sizeof(ctl_fan_handle_t) * (*fans_count_)));
+
+        if (h_fans_ != nullptr)
+        {
+            result = ctlEnumFans(h_devices_[0], fans_count_, h_fans_);
+
+            if (CTL_RESULT_SUCCESS == result)
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+ArcticControlGPUInterop::FanProperties^ ArcticControlGPUInterop::GPUInterop::GetFanProperties()
+{
+    if (h_api_handle_ == nullptr || (*adapter_count_) < 1 || h_fans_ == nullptr || (*fans_count_) < 1)
+    {
+        return nullptr;
+    }
+
+    ctl_fan_properties_t fan_properties{};
+    fan_properties.Size = sizeof(ctl_fan_properties_t);
+    const ctl_result_t result = ctlFanGetProperties(h_fans_[0], &fan_properties);
+
+    if (result == CTL_RESULT_SUCCESS)
+    {
+        return FanProperties::create(&fan_properties);
+    }
+    
+    WRITE_LINE(
+"[GPUInterop]: GetFanProperties failed with result: " + gcnew String(decode_ret_code(result).c_str()));
+
+    return nullptr;
+}
+
+ArcticControlGPUInterop::FanConfig^ ArcticControlGPUInterop::GPUInterop::GetFanConfig()
+{
+    if (h_api_handle_ == nullptr || (*adapter_count_) < 1 || h_fans_ == nullptr || (*fans_count_) < 1)
+    {
+        return nullptr;
+    }
+
+    ctl_fan_config_t fan_config{};
+    fan_config.Size = sizeof(ctl_fan_config_t);
+
+    if (const ctl_result_t result = ctlFanGetConfig(h_fans_[0], &fan_config); result == CTL_RESULT_SUCCESS)
+    {
+        return FanConfig::create(&fan_config);
+    }
+
+    return nullptr;
+}
+
+Boolean ArcticControlGPUInterop::GPUInterop::SetFansToDefaultMode()
+{
+    if (h_api_handle_ == nullptr && (*adapter_count_) < 1)
+    {
+        return false;
+    }
+
+    for (uint32_t i = 0; i < *fans_count_; i++)
+    {
+        const ctl_result_t result = ctlFanSetDefaultMode(h_fans_[i]);
+
+        if (result == CTL_RESULT_SUCCESS)
+        {
+            return true;
+        }
+        
+        WRITE_LINE(
+            "[GPUInterop]: Error setting fans to default mode! "+ 
+            "Fans count : " + (*fans_count_).ToString() +
+            "Result: " + gcnew String(decode_ret_code(result).c_str()));
+    }
+
+    return false;
 }
 
 ArcticControlGPUInterop::GPUInterop::!GPUInterop()
 {
-    if (hAPIHandle != nullptr)
+    if (h_api_handle_ != nullptr)
     {
-        ctlClose(*hAPIHandle);
-        free(hAPIHandle);
-        hAPIHandle = nullptr;
+        ctlClose(*h_api_handle_);
+        CTL_FREE_MEM(h_api_handle_);
     }
 
-    CTL_FREE_MEM(hDevices);
-    CTL_FREE_MEM(adapterCount);
-    CTL_FREE_MEM(hFans);
-    CTL_FREE_MEM(fansCount);
-    CTL_FREE_MEM(hPwrHandle);
-    CTL_FREE_MEM(pwrCount);
+    CTL_FREE_MEM(h_devices_);
+    CTL_FREE_MEM(adapter_count_);
+    CTL_FREE_MEM(h_fans_);
+    CTL_FREE_MEM(fans_count_);
+    CTL_FREE_MEM(h_pwr_handle_);
+    CTL_FREE_MEM(pwr_count_);
 }
 
 // Decoding the return code for the most common error codes.
-std::string DecodeRetCode(ctl_result_t Res)
+std::string decode_ret_code(const ctl_result_t res)
 {
-    switch (Res)
+    switch (res)
     {
     case CTL_RESULT_SUCCESS:
     {

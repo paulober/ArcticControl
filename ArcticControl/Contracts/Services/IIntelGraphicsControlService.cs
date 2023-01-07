@@ -7,13 +7,15 @@ public interface IIntelGraphicsControlService : IDisposable
     public bool SetOverclockWaiver();
     public double GetOverclockPowerLimit();
     public double GetOverclockTemperatureLimit();
-    public double GetOverclockGPUVoltageOffset();
-    public double GetOverclockGPUFrequencyOffset();
+    public double GetOverclockGpuVoltageOffset();
+    public double GetOverclockGpuFrequencyOffset();
     public bool SetOverclockPowerLimit(double newPowerLimit);
-    public bool SetOverclockTemperatureLimit(double newGPUTemperatureLimit);
-    public bool SetOverclockGPUVoltageOffset(double newGPUVoltageOffset);
-    public bool SetOverclockGPUFrequencyOffset(double newGPUFrequencyOffset);
+    public bool SetOverclockTemperatureLimit(double newGpuTemperatureLimit);
+    public bool SetOverclockGpuVoltageOffset(double newGpuVoltageOffset);
+    public bool SetOverclockGpuFrequencyOffset(double newGpuFrequencyOffset);
     public bool InitPowerDomains();
     public PowerProperties? GetPowerProperties();
     public PowerLimitsCombination? GetPowerLimits();
+
+    public bool InitFansHandles();
 }

@@ -48,10 +48,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService, IDisposa
         try
         {
             var powerLimit = _gpuInterop.GetOverclockPowerLimit();
-            if (powerLimit != null)
-            {
-                return (double)powerLimit;
-            }
+            return powerLimit;
         }
         catch (Exception ex)
         {
@@ -72,10 +69,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService, IDisposa
         try
         {
             var overclockTempLimit = _gpuInterop.GetOverclockTemperatureLimit();
-            if (overclockTempLimit != null)
-            {
-                return (double)overclockTempLimit;
-            }
+            return overclockTempLimit;
         }
         catch (Exception ex)
         {
@@ -86,7 +80,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService, IDisposa
         return 0.0;
     }
 
-    public double GetOverclockGPUVoltageOffset()
+    public double GetOverclockGpuVoltageOffset()
     {
         if (!_initialized)
         {
@@ -96,10 +90,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService, IDisposa
         try
         {
             var gpuVoltageOffset = _gpuInterop.GetOverclockGPUVoltageOffset();
-            if (gpuVoltageOffset != null)
-            {
-                return (double)gpuVoltageOffset;
-            }
+            return gpuVoltageOffset;
         }
         catch (Exception ex)
         {
@@ -110,7 +101,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService, IDisposa
         return 0.0;
     }
 
-    public double GetOverclockGPUFrequencyOffset()
+    public double GetOverclockGpuFrequencyOffset()
     {
         if (!_initialized)
         {
@@ -120,10 +111,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService, IDisposa
         try
         {
             var gpuFrequencyOffset = _gpuInterop.GetOverclockGPUFrequencyOffset();
-            if (gpuFrequencyOffset != null)
-            {
-                return (double)gpuFrequencyOffset;
-            }
+            return gpuFrequencyOffset;
         }
         catch (Exception ex)
         {
@@ -155,7 +143,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService, IDisposa
         return false;
     }
 
-    public bool SetOverclockTemperatureLimit(double newGPUTemperatureLimit)
+    public bool SetOverclockTemperatureLimit(double newGpuTemperatureLimit)
     {
         if (!_initialized)
         {
@@ -164,7 +152,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService, IDisposa
 
         try
         {
-            var result = _gpuInterop.SetOverclockTemperatureLimit(newGPUTemperatureLimit);
+            var result = _gpuInterop.SetOverclockTemperatureLimit(newGpuTemperatureLimit);
             return result;
         }
         catch (Exception ex)
@@ -176,7 +164,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService, IDisposa
         return false;
     }
 
-    public bool SetOverclockGPUVoltageOffset(double newGPUVoltageOffset)
+    public bool SetOverclockGpuVoltageOffset(double newGpuVoltageOffset)
     {
         if (!_initialized)
         {
@@ -185,7 +173,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService, IDisposa
 
         try
         {
-            var result = _gpuInterop.SetOverclockGPUVoltageOffset(newGPUVoltageOffset);
+            var result = _gpuInterop.SetOverclockGPUVoltageOffset(newGpuVoltageOffset);
             return result;
         }
         catch (Exception ex)
@@ -197,7 +185,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService, IDisposa
         return false;
     }
 
-    public bool SetOverclockGPUFrequencyOffset(double newGPUFrequencyOffset)
+    public bool SetOverclockGpuFrequencyOffset(double newGpuFrequencyOffset)
     {
         if (!_initialized)
         {
@@ -206,7 +194,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService, IDisposa
 
         try
         {
-            var result = _gpuInterop.SetOverclockGPUVoltageOffset(newGPUFrequencyOffset);
+            var result = _gpuInterop.SetOverclockGPUVoltageOffset(newGpuFrequencyOffset);
             return result;
         }
         catch (Exception ex)
@@ -248,11 +236,8 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService, IDisposa
 
         try
         {
-            PowerProperties? result = _gpuInterop.GetPowerProperties();
-            if (result != null)
-            {
-                return result;
-            }
+            var result = _gpuInterop.GetPowerProperties();
+            return result;
         }
         catch (Exception ex)
         {
@@ -272,15 +257,55 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService, IDisposa
 
         try
         {
-            PowerLimitsCombination? result = _gpuInterop.GetPowerLimits();
-            if (result != null)
-            {
-                return result;
-            }
+            var result = _gpuInterop.GetPowerLimits();
+            return result;
         }
         catch (Exception ex)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - GetPowerLimits");
+            Crashes.TrackError(ex);
+        }
+
+        return default;
+    }
+
+    public bool InitFansHandles()
+    {
+        if (!_initialized)
+        {
+            return false;
+        }
+
+        try
+        {
+            var result = _gpuInterop.InitFansHandles();
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[IntelGraphicsControlService]: Error - InitFansHandles");
+            Crashes.TrackError(ex);
+        }
+
+        return false;
+    }
+
+    public FanProperties? GetFanProperties()
+    {
+        if (!_initialized)
+        {
+            return default;
+        }
+
+        try
+        {
+            var fanProps = _gpuInterop.GetFanProperties();
+            return fanProps;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[IntelGraphicsControlService]: Error - GetFanProperties");
             Crashes.TrackError(ex);
         }
 
