@@ -18,4 +18,13 @@ public interface IIntelGraphicsControlService : IDisposable
     public PowerLimitsCombination? GetPowerLimits();
 
     public bool InitFansHandles();
+
+    public GamingFlipMode GetGamingFlipMode();
+    public bool SetGamingFlipMode(GamingFlipMode gamingFlipMode);
+    public AnisotropicFilteringMode GetAnisotropicFilteringMode();
+    public bool SetAnisotropicFilteringMode(AnisotropicFilteringMode anisotropicMode);
+    public CmaaMode GetCmaaMode();
+    public bool SetCmaaMode(CmaaMode cmaaMode);
+    public bool IsSharpeningFilterActive();
+    public bool SetSharpeningFilter(bool on);
 }

@@ -193,10 +193,10 @@
     <value>Work in progress...</value>
   </data>
   <data name="SettingsPage_PrivacyTermsLink.Content" xml:space="preserve">
-    <value>AppCenter Privacy Statement</value>
+    <value>Privacy Policy</value>
   </data>
   <data name="SettingsPage_PrivacyTermsLink.NavigateUri" xml:space="preserve">
-    <value>https://aka.ms/appcenterprivacy</value>
+    <value>https://arcticcontrol.paulober.dev/privacypolicy</value>
   </data>
   <data name="AppNotificationSamplePayload" xml:space="preserve">
     <value>&lt;toast launch="action=ToastClick"&gt;
@@ -225,7 +225,7 @@
     <value>https://azure.microsoft.com/support/legal</value>
   </data>
   <data name="PrivacyConsentDialog_Content.Text" xml:space="preserve">
-    <value>This application has integrated App Center SDK to send data. The App does not store or share any personal data except what's collected by the App Center SDK to record crashes and analytics to help improving the App. Do you accept sending the App usage and crash data to App Center when using this application? Choose "Accept" to continue or "Refuse" to exit</value>
+    <value>This application has integrated App Center SDK to send data. The App does not store or share any personal data except what's collected by the App Center SDK to record crashes and analytics to help improving the App. The author does not take any responsiblity for damage to your hardware thoght overclocking. You confirm that you use this application overclocking feature at your own risk. Do you accept the Privacy Policy and all listed terms? Choose "Accept" to continue or "Refuse" to exit</value>
   </data>
   <data name="Settings_Advanced.Text" xml:space="preserve">
     <value>Advanced (be aware these settings can damage your hardware, this is on your own risk)</value>
@@ -235,5 +235,29 @@
   </data>
   <data name="Settings_GPUPowerMaxLimit_InputError.Text" xml:space="preserve">
     <value>Your input is invalid. It must be greater that 228 and smaller than 400.</value>
+  </data>
+  <data name="Games_GlobalSettings_Btn.Content" xml:space="preserve">
+    <value>Global settings</value>
+  </data>
+  <data name="GamesGlobalSettings_TearingEffectMitigation.Text" xml:space="preserve">
+    <value>Tearing Mitigation Modes</value>
+  </data>
+  <data name="GamesGlobalSettings_FrameDelivery.Text" xml:space="preserve">
+    <value>Frame Delivery</value>
+  </data>
+  <data name="GamesGlobalSettings_3DControl.Text" xml:space="preserve">
+    <value>3D Overrides</value>
+  </data>
+  <data name="GamesGlobalSettings_AnisotropicFiltering.Text" xml:space="preserve">
+    <value>Anisotropic filtering</value>
+  </data>
+  <data name="GamesGlobalSettings_AntiAliasing.Text" xml:space="preserve">
+    <value>Anti-Aliasing (CMAA)</value>
+  </data>
+  <data name="GamesGlobalSettings_PostProcessing.Text" xml:space="preserve">
+    <value>Post-Processing</value>
+  </data>
+  <data name="GamesGlobalSettings_SharpeningFilter.Text" xml:space="preserve">
+    <value>Sharpening-Filter</value>
   </data>
 </root>

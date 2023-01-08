@@ -312,6 +312,175 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService, IDisposa
         return default;
     }
 
+    public GamingFlipMode GetGamingFlipMode()
+    {
+        if (!_initialized)
+        {
+            return GamingFlipMode.Unknown;
+        }
+
+        try
+        {
+            var gamingFlipMode = _gpuInterop.GetGamingFlipMode();
+            return gamingFlipMode;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[IntelGraphicsControlService]: Error - GetGamingFlipMode");
+            Crashes.TrackError(ex);
+        }
+
+        return GamingFlipMode.Unknown;
+    }
+
+    public bool SetGamingFlipMode(GamingFlipMode gamingFlipMode)
+    {
+        if (!_initialized)
+        {
+            return false;
+        }
+
+        try
+        {
+            var result = _gpuInterop.SetGamingFlipMode(gamingFlipMode);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[IntelGraphicsControlService]: Error - SetGamingFlipMode");
+            Crashes.TrackError(ex);
+        }
+        
+        return false;
+    }
+    
+    public AnisotropicFilteringMode GetAnisotropicFilteringMode()
+    {
+        if (!_initialized)
+        {
+            return AnisotropicFilteringMode.Unknown;
+        }
+
+        try
+        {
+            var anisotropicMode = _gpuInterop.GetAnisotropicFilteringMode();
+            return anisotropicMode;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[IntelGraphicsControlService]: Error - GetAnisotropicFilteringMode");
+            Crashes.TrackError(ex);
+        }
+
+        return AnisotropicFilteringMode.Unknown;
+    }
+
+    public bool SetAnisotropicFilteringMode(AnisotropicFilteringMode anisotropicMode)
+    {
+        if (!_initialized)
+        {
+            return false;
+        }
+
+        try
+        {
+            var result = _gpuInterop.SetAnisotropicFilteringMode(anisotropicMode);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[IntelGraphicsControlService]: Error - SetAnisotropicFilteringMode");
+            Crashes.TrackError(ex);
+        }
+        
+        return false;
+    }
+    
+    public CmaaMode GetCmaaMode()
+    {
+        if (!_initialized)
+        {
+            return CmaaMode.Unknown;
+        }
+
+        try
+        {
+            var cmaaMode = _gpuInterop.GetCmaaMode();
+            return cmaaMode;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[IntelGraphicsControlService]: Error - GetCmaaMode");
+            Crashes.TrackError(ex);
+        }
+
+        return CmaaMode.Unknown;
+    }
+
+    public bool SetCmaaMode(CmaaMode cmaaMode)
+    {
+        if (!_initialized)
+        {
+            return false;
+        }
+
+        try
+        {
+            var result = _gpuInterop.SetCmaaMode(cmaaMode);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[IntelGraphicsControlService]: Error - SetCmaaMode");
+            Crashes.TrackError(ex);
+        }
+        
+        return false;
+    }
+
+    public bool IsSharpeningFilterActive()
+    {
+        if (!_initialized)
+        {
+            return false;
+        }
+        
+        try
+        {
+            var state = _gpuInterop.IsSharpeningFilterActive();
+            return state;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[IntelGraphicsControlService]: Error - IsSharpeningFilterActive");
+            // TODO: check each tracked exception in this file if really needed to track
+            //Crashes.TrackError(ex);
+        }
+        
+        return false;
+    }
+
+    public bool SetSharpeningFilter(bool on)
+    {
+        if (!_initialized)
+        {
+            return false;
+        }
+        
+        try
+        {
+            var result = _gpuInterop.SetSharpeningFilter(on);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[IntelGraphicsControlService]: Error - SetSharpeningFilter");
+            //Crashes.TrackError(ex);
+        }
+        
+        return false;
+    }
+
     /// <summary>
     /// DON'T CALL THIS METHOD MANUALLY.
     /// </summary>

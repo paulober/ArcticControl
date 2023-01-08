@@ -103,7 +103,7 @@ public partial class App : Application
             services.AddSingleton<IIntelGraphicsControlService, IntelGraphicsControlService>();
             services.AddSingleton<IWebArcDriversService, WebArcDriversService>();
 
-            // Views and ViewModels
+            // Views and ViewModels (changes here must be reflected in PagesService.cs)
             services.AddTransient<SettingsViewModel>();
             services.AddTransient<SettingsPage>();
             services.AddTransient<NewsViewModel>();
@@ -113,6 +113,7 @@ public partial class App : Application
             services.AddTransient<GamesViewModel>();
             services.AddTransient<GamesPage>();
             services.AddTransient<GamesDetailViewModel>();
+            services.AddTransient<GamesSettingsViewModel>();
             services.AddTransient<DriversViewModel>();
             services.AddTransient<DriversPage>();
             services.AddTransient<GamesDetailPage>();

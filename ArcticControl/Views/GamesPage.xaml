@@ -10,6 +10,15 @@
     mc:Ignorable="d">
 
     <Grid x:Name="ContentArea">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
         <!--<controls:AdaptiveGridView
             animations:Connected.ListItemElementName="itemThumbnail"
             animations:Connected.ListItemKey="animationKeyContentGrid"
@@ -41,7 +50,16 @@
                 </DataTemplate>
             </controls:AdaptiveGridView.ItemTemplate>
         </controls:AdaptiveGridView>-->
+        <Button 
+            Grid.Row="0"
+            Grid.Column="2"
+            x:Uid="Games_GlobalSettings_Btn" 
+            Click="{x:Bind ViewModel.GlobalSettingsButton_OnClick, Mode=OneTime}"/>
         <GridView
+            Grid.Row="1"
+            Grid.Column="0"
+            Grid.ColumnSpan="3"
+            Margin="{StaticResource LargeTopMargin}"
             animations:Connected.ListItemElementName="itemThumbnail"
             animations:Connected.ListItemKey="animationKeyContentGrid"
             IsItemClickEnabled="True"

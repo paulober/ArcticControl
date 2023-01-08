@@ -624,9 +624,9 @@ ArcticControlGPUInterop::FanConfig^ ArcticControlGPUInterop::GPUInterop::GetFanC
     return nullptr;
 }
 
-Boolean ArcticControlGPUInterop::GPUInterop::SetFansToDefaultMode()
+bool ArcticControlGPUInterop::GPUInterop::SetFansToDefaultMode()
 {
-    if (h_api_handle_ == nullptr && (*adapter_count_) < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
     {
         return false;
     }
@@ -647,6 +647,297 @@ Boolean ArcticControlGPUInterop::GPUInterop::SetFansToDefaultMode()
     }
 
     return false;
+}
+
+ArcticControlGPUInterop::GamingFlipMode ArcticControlGPUInterop::GPUInterop::GetGamingFlipMode()
+{
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    {
+        return GamingFlipMode::Unknown;
+    }
+
+    ctl_3d_feature_getset_t get_3d_property{0};
+    get_3d_property.Size = sizeof(ctl_3d_feature_getset_t);
+
+    get_3d_property.FeatureType = CTL_3D_FEATURE_GAMING_FLIP_MODES;
+    get_3d_property.bSet = false;
+    get_3d_property.CustomValueSize = 0;
+    get_3d_property.pCustomValue = nullptr;
+    get_3d_property.ValueType = CTL_PROPERTY_VALUE_TYPE_ENUM;
+    get_3d_property.Version = 0;
+
+    if (h_devices_ != nullptr)
+    {
+        if (const ctl_result_t result = ctlGetSet3DFeature(h_devices_[0], &get_3d_property);
+            result == CTL_RESULT_SUCCESS)
+        {
+            WRITE_LINE("[GPUInterop]: EnableType: " + get_3d_property.Value.EnumType.EnableType.ToString());
+            const auto gfm = static_cast<GamingFlipMode>(get_3d_property.Value.EnumType.EnableType);
+            return gfm;
+        }
+        else
+        {
+            WRITE_LINE("[GPUInterop]: error reading global gaming flip mode! Result: "
+                + gcnew String(decode_ret_code(result).c_str()));
+        }
+    }
+
+    return GamingFlipMode::Unknown;
+}
+
+bool ArcticControlGPUInterop::GPUInterop::SetGamingFlipMode(GamingFlipMode flip_mode)
+{
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    {
+        return false;
+    }
+
+    ctl_3d_feature_getset_t set_3d_property{ 0 };
+    set_3d_property.Size = sizeof(ctl_3d_feature_getset_t);
+
+    set_3d_property.FeatureType = CTL_3D_FEATURE_GAMING_FLIP_MODES;
+    set_3d_property.bSet = true;
+    set_3d_property.CustomValueSize = 0;
+    set_3d_property.pCustomValue = nullptr;
+    set_3d_property.ValueType = CTL_PROPERTY_VALUE_TYPE_ENUM;
+    set_3d_property.Value.EnumType.EnableType = static_cast<ctl_gaming_flip_mode_flag_t>(flip_mode);
+    set_3d_property.Version = 0;
+
+    if (h_devices_ != nullptr)
+    {
+        WRITE_LINE("[GPUInterop]: trying to set CTL_3D_FEATURE_GAMING_FLIP_MODES to "
+            + set_3d_property.Value.EnumType.EnableType);
+        
+        if (const ctl_result_t result = ctlGetSet3DFeature(h_devices_[0], &set_3d_property);
+            result == CTL_RESULT_SUCCESS)
+        {
+            return true;
+        }
+
+        WRITE_LINE("[GPUInterop]: failed to set 3d feature of type CTL_3D_FEATURE_GAMING_FLIP_MODES.");
+    }
+
+    return false;
+}
+
+ArcticControlGPUInterop::AnisotropicFilteringMode ArcticControlGPUInterop::GPUInterop::GetAnisotropicFilteringMode()
+{
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    {
+        return AnisotropicFilteringMode::Unknown;
+    }
+
+    ctl_3d_feature_getset_t get_3d_property{0};
+    get_3d_property.Size = sizeof(ctl_3d_feature_getset_t);
+
+    get_3d_property.FeatureType = CTL_3D_FEATURE_ANISOTROPIC;
+    get_3d_property.bSet = false;
+    get_3d_property.CustomValueSize = 0;
+    get_3d_property.pCustomValue = nullptr;
+    get_3d_property.ValueType = CTL_PROPERTY_VALUE_TYPE_ENUM;
+    get_3d_property.Version = 0;
+
+    if (h_devices_ != nullptr)
+    {
+        if (const ctl_result_t result = ctlGetSet3DFeature(h_devices_[0], &get_3d_property);
+            result == CTL_RESULT_SUCCESS)
+        {
+            WRITE_LINE("[GPUInterop]: EnableType: " + get_3d_property.Value.EnumType.EnableType.ToString());
+            const auto afm = static_cast<AnisotropicFilteringMode>(get_3d_property.Value.EnumType.EnableType);
+            return afm;
+        }
+        else
+        {
+            WRITE_LINE("[GPUInterop]: error reading anisotropic filtering mode! Result: "
+                + gcnew String(decode_ret_code(result).c_str()));
+            // TODO: !IMPORTANT! change this in the future as it's a very bad solution to ctlGetSet3DFeature
+            // crashing when set to AppChoice in Arc Control
+            //return AnisotropicFilteringMode::AppChoice;
+        }
+    }
+    
+    return AnisotropicFilteringMode::Unknown;
+}
+
+bool ArcticControlGPUInterop::GPUInterop::SetAnisotropicFilteringMode(AnisotropicFilteringMode anisotropic_mode)
+{
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    {
+        return false;
+    }
+
+    ctl_3d_feature_getset_t set_3d_property{ 0 };
+    set_3d_property.Size = sizeof(ctl_3d_feature_getset_t);
+
+    set_3d_property.FeatureType = CTL_3D_FEATURE_ANISOTROPIC;
+    set_3d_property.bSet = true;
+    set_3d_property.CustomValueSize = 0;
+    set_3d_property.pCustomValue = nullptr;
+    set_3d_property.ValueType = CTL_PROPERTY_VALUE_TYPE_ENUM;
+    set_3d_property.Value.EnumType.EnableType = static_cast<ctl_3d_anisotropic_types_t>(anisotropic_mode);
+    set_3d_property.Version = 0;
+
+    if (h_devices_ != nullptr)
+    {
+        WRITE_LINE("[GPUInterop]: trying to set CTL_3D_FEATURE_ANISOTROPIC to "
+            + set_3d_property.Value.EnumType.EnableType);
+        
+        if (const ctl_result_t result = ctlGetSet3DFeature(h_devices_[0], &set_3d_property);
+            result == CTL_RESULT_SUCCESS)
+        {
+            return true;
+        }
+
+        WRITE_LINE("[GPUInterop]: failed to set 3d feature of type CTL_3D_FEATURE_ANISOTROPIC.");
+    }
+
+    return false;
+}
+
+ArcticControlGPUInterop::CmaaMode ArcticControlGPUInterop::GPUInterop::GetCmaaMode()
+{
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    {
+        return CmaaMode::Unknown;
+    }
+
+    ctl_3d_feature_getset_t get_3d_property{0};
+    get_3d_property.Size = sizeof(ctl_3d_feature_getset_t);
+
+    get_3d_property.FeatureType = CTL_3D_FEATURE_CMAA;
+    get_3d_property.bSet = false;
+    get_3d_property.CustomValueSize = 0;
+    get_3d_property.pCustomValue = nullptr;
+    get_3d_property.ValueType = CTL_PROPERTY_VALUE_TYPE_ENUM;
+    get_3d_property.Version = 0;
+
+    if (h_devices_ != nullptr)
+    {
+        if (const ctl_result_t result = ctlGetSet3DFeature(h_devices_[0], &get_3d_property);
+            result == CTL_RESULT_SUCCESS)
+        {
+            WRITE_LINE("[GPUInterop]: EnableType: " + get_3d_property.Value.EnumType.EnableType.ToString());
+            const auto cm = static_cast<CmaaMode>(get_3d_property.Value.EnumType.EnableType);
+            return cm;
+        }
+        else
+        {
+            WRITE_LINE("[GPUInterop]: error reading cmaa mode! Result: "
+                + gcnew String(decode_ret_code(result).c_str()));
+        }
+    }
+    
+    return CmaaMode::Unknown;
+}
+
+bool ArcticControlGPUInterop::GPUInterop::SetCmaaMode(CmaaMode cmaa_mode)
+{
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    {
+        return false;
+    }
+
+    ctl_3d_feature_getset_t set_3d_property{ 0 };
+    set_3d_property.Size = sizeof(ctl_3d_feature_getset_t);
+
+    set_3d_property.FeatureType = CTL_3D_FEATURE_CMAA;
+    set_3d_property.bSet = true;
+    set_3d_property.CustomValueSize = 0;
+    set_3d_property.pCustomValue = nullptr;
+    set_3d_property.ValueType = CTL_PROPERTY_VALUE_TYPE_ENUM;
+    set_3d_property.Value.EnumType.EnableType = static_cast<ctl_3d_anisotropic_types_t>(cmaa_mode);
+    set_3d_property.Version = 0;
+
+    if (h_devices_ != nullptr)
+    {
+        WRITE_LINE("[GPUInterop]: trying to set CTL_3D_FEATURE_CMAA to "
+            + set_3d_property.Value.EnumType.EnableType);
+        
+        if (const ctl_result_t result = ctlGetSet3DFeature(h_devices_[0], &set_3d_property);
+            result == CTL_RESULT_SUCCESS)
+        {
+            return true;
+        }
+
+        WRITE_LINE("[GPUInterop]: failed to set 3d feature of type CTL_3D_FEATURE_CMAA.");
+    }
+
+    return false;
+}
+
+bool ArcticControlGPUInterop::GPUInterop::IsSharpeningFilterActive()
+{
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    {
+        // TODO: search for a better exception type
+        // forbidden exception types:
+        // https://learn.microsoft.com/en-us/dotnet/standard/design-guidelines/using-standard-exception-types
+        throw gcnew PlatformNotSupportedException;
+    }
+
+    ctl_3d_feature_getset_t get_3d_property{0};
+    get_3d_property.Size = sizeof(ctl_3d_feature_getset_t);
+
+    get_3d_property.FeatureType = CTL_3D_FEATURE_SHARPENING_FILTER;
+    get_3d_property.bSet = false;
+    get_3d_property.CustomValueSize = 0;
+    get_3d_property.pCustomValue = nullptr;
+    get_3d_property.ValueType = CTL_PROPERTY_VALUE_TYPE_ENUM;
+    get_3d_property.Version = 0;
+
+    if (h_devices_ != nullptr)
+    {
+        if (const ctl_result_t result = ctlGetSet3DFeature(h_devices_[0], &get_3d_property);
+            result == CTL_RESULT_SUCCESS)
+        {
+            WRITE_LINE("[GPUInterop]: EnableType: " + get_3d_property.Value.EnumType.EnableType.ToString());
+            const auto sf = static_cast<ctl_3d_sharpening_filter_types_t>(get_3d_property.Value.EnumType.EnableType);
+            return sf == CTL_3D_SHARPENING_FILTER_TYPES_TURN_ON;
+        }
+        else
+        {
+            WRITE_LINE("[GPUInterop]: error reading sharpening filter state! Result: "
+                + gcnew String(decode_ret_code(result).c_str()));
+        }
+    }
+
+    throw gcnew PlatformNotSupportedException;
+}
+
+bool ArcticControlGPUInterop::GPUInterop::SetSharpeningFilter(const bool on)
+{
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    {
+        throw gcnew PlatformNotSupportedException;
+    }
+
+    ctl_3d_feature_getset_t set_3d_property{ 0 };
+    set_3d_property.Size = sizeof(ctl_3d_feature_getset_t);
+
+    set_3d_property.FeatureType = CTL_3D_FEATURE_SHARPENING_FILTER;
+    set_3d_property.bSet = true;
+    set_3d_property.CustomValueSize = 0;
+    set_3d_property.pCustomValue = nullptr;
+    set_3d_property.ValueType = CTL_PROPERTY_VALUE_TYPE_ENUM;
+    set_3d_property.Value.EnumType.EnableType
+    = on ? CTL_3D_SHARPENING_FILTER_TYPES_TURN_ON : CTL_3D_SHARPENING_FILTER_TYPES_TURN_OFF;
+    set_3d_property.Version = 0;
+
+    if (h_devices_ != nullptr)
+    {
+        WRITE_LINE("[GPUInterop]: trying to set CTL_3D_FEATURE_SHARPENING_FILTER to "
+            + set_3d_property.Value.EnumType.EnableType);
+        
+        if (const ctl_result_t result = ctlGetSet3DFeature(h_devices_[0], &set_3d_property);
+            result == CTL_RESULT_SUCCESS)
+        {
+            return true;
+        }
+
+        WRITE_LINE("[GPUInterop]: failed to set 3d feature of type CTL_3D_FEATURE_CMAA.");
+    }
+
+    throw gcnew PlatformNotSupportedException;
 }
 
 ArcticControlGPUInterop::GPUInterop::!GPUInterop()

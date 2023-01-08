@@ -6,11 +6,9 @@ using ArcticControl.Contracts.ViewModels;
 using ArcticControl.Core.Helpers;
 using ArcticControl.Core.Models;
 using ArcticControl.Helpers;
-using ArcticControlGPUInterop;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
-using Windows.ApplicationModel;
 
 namespace ArcticControl.ViewModels;
 
@@ -403,7 +401,7 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
             _igcs.SetOverclockGpuFrequencyOffset(GpuFrequencyOffsetSliderValue);
         }
 
-        // check if gpu driver acepted values or adjust some and also reset CurrentValues variable
+        // check if gpu driver accepted values or adjust some and also reset CurrentValues variable
         GetOverclockingValues(skipTempLimit: doSkipTempLimit);
 
         return true;

@@ -8,6 +8,7 @@ using ArcticControl.Core.Models;
 using ArcticControl.IntelWebAPI.Contracts.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 
@@ -48,9 +49,9 @@ public class GamesViewModel : ObservableRecipient, INavigationAware
         {
             Source.Add(item);
         }*/
-        IEnumerable<InstalledGame> data = _gamesScannerService.GetInstalledGames();
+        var data = _gamesScannerService.GetInstalledGames();
 
-        foreach (InstalledGame game in data)
+        foreach (var game in data)
         {
             Source.Add(game);
         }
@@ -62,11 +63,13 @@ public class GamesViewModel : ObservableRecipient, INavigationAware
 
     private void OnItemClick(InstalledGame? clickedItem)
     {
-        if (clickedItem != null)
+        if (clickedItem == null)
         {
-            _navigationService.SetListDataItemForNextConnectedAnimation(clickedItem);
-            _navigationService.NavigateTo(typeof(GamesDetailViewModel).FullName!, clickedItem.Name);
+            return;
         }
+
+        _navigationService.SetListDataItemForNextConnectedAnimation(clickedItem);
+        _navigationService.NavigateTo(typeof(GamesDetailViewModel).FullName!, clickedItem.Name);
     }
 
     public void InstalledGame_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
@@ -75,21 +78,30 @@ public class GamesViewModel : ObservableRecipient, INavigationAware
         {
             g.RenderTransform = new CompositeTransform() { ScaleX = 1.1, ScaleY = 1.1 };
         } */
-        if (sender is Image img)
+        if (sender is not Image img)
         {
-            //img.RenderTransform = new CompositeTransform() { ScaleX = 1.1, ScaleY = 1.1 };
-            img.RenderTransformOrigin = new Windows.Foundation.Point(0.5,0.5);
-            img.RenderTransform = new ScaleTransform() { ScaleX = 1.1, ScaleY = 1.1};
+            return;
         }
+
+        //img.RenderTransform = new CompositeTransform() { ScaleX = 1.1, ScaleY = 1.1 };
+        img.RenderTransformOrigin = new Windows.Foundation.Point(0.5,0.5);
+        img.RenderTransform = new ScaleTransform() { ScaleX = 1.1, ScaleY = 1.1};
     }
 
     public void InstalledGame_PointerExited(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
     {
-        if (sender is Image img)
+        if (sender is not Image img)
         {
-            //img.RenderTransform = new CompositeTransform() { ScaleX = 1, ScaleY = 1 };
-            img.RenderTransformOrigin = new Windows.Foundation.Point(0, 0);
-            img.RenderTransform = new ScaleTransform() { ScaleX = 1, ScaleY = 1, CenterX = 1, CenterY = 1 };
+            return;
         }
+
+        //img.RenderTransform = new CompositeTransform() { ScaleX = 1, ScaleY = 1 };
+        img.RenderTransformOrigin = new Windows.Foundation.Point(0, 0);
+        img.RenderTransform = new ScaleTransform() { ScaleX = 1, ScaleY = 1, CenterX = 1, CenterY = 1 };
+    }
+    
+    public void GlobalSettingsButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        _navigationService.NavigateTo(typeof(GamesSettingsViewModel).FullName!);
     }
 }

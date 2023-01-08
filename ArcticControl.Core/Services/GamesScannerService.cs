@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics;
 using System.Text.RegularExpressions;
 using ArcticControl.Core.Models;
-using ArcticControl.IntelWebAPI.Contracts.Services;
+using ArcticControl.Core.Contracts.Services;
 
-namespace ArcticControl.Services;
+namespace ArcticControl.Core.Services;
 public class GamesScannerService : IGamesScannerService
 {
     private const string STEAM_LIBRARIES_CONFIG_PATH = "C:\\Program Files (x86)\\Steam\\steamapps\\libraryfolders.vdf";
@@ -58,17 +58,10 @@ public class GamesScannerService : IGamesScannerService
 
             if (steamAppIds != null && steamAppIds.Any())
             {
-                var result = new List<InstalledGame>();
-                foreach (var appId in steamAppIds)
-                {
-                    var imagePath = Path.Combine(STEAM_LIBRARY_CACHE_PATH, appId + "_library_600x900.jpg");
-                    if (File.Exists(imagePath))
-                    {
-                        result.Add(new InstalledGame("Name", imagePath, "version"));
-                    }
-                }
-
-                return result;
+                return (from appId in steamAppIds 
+                    select Path.Combine(STEAM_LIBRARY_CACHE_PATH, appId + "_library_600x900.jpg") 
+                    into imagePath where File.Exists(imagePath) 
+                    select new InstalledGame("Name", imagePath, "version")).ToList();
             }
         }
         catch (Exception ex)

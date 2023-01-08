@@ -16,10 +16,17 @@ public class InstalledGame
         get; set;
     }
 
-    public InstalledGame(string name, string imagePath, string? version)
+    public string? ExePath
+    {
+        get;
+        set;
+    }
+
+    public InstalledGame(string name, string imagePath, string? version = null, string? exePath = null)
     {
         Name = name;
         Version = version;
         ImagePath = imagePath;
+        ExePath = exePath;
     }
 }
