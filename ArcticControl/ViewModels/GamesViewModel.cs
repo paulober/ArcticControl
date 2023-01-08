@@ -4,8 +4,8 @@ using System.Windows.Input;
 using ArcticControl.Contracts.Services;
 using ArcticControl.Contracts.ViewModels;
 using ArcticControl.Core.Contracts.Services;
-using ArcticControl.Core.Models;
 using ArcticControl.IntelWebAPI.Contracts.Services;
+using ArcticControl.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml;
@@ -39,17 +39,11 @@ public class GamesViewModel : ObservableRecipient, INavigationAware
         ItemClickCommand = new RelayCommand<InstalledGame>(OnItemClick);
     }
 
-    public void OnNavigatedTo(object parameter)
+    public async void OnNavigatedTo(object parameter)
     {
         Source.Clear();
 
-        // TODO: Replace with real data.
-        /*var data = await _sampleDataService.GetContentGridDataAsync();
-        foreach (var item in data)
-        {
-            Source.Add(item);
-        }*/
-        var data = _gamesScannerService.GetInstalledGames();
+        var data = await _gamesScannerService.GetInstalledGames();
 
         foreach (var game in data)
         {
@@ -69,7 +63,12 @@ public class GamesViewModel : ObservableRecipient, INavigationAware
         }
 
         _navigationService.SetListDataItemForNextConnectedAnimation(clickedItem);
-        _navigationService.NavigateTo(typeof(GamesDetailViewModel).FullName!, clickedItem.Name);
+        _navigationService.NavigateTo(typeof(GamesSettingsViewModel).FullName!, new GamesSettingsParameter
+        {
+            IsGame = true,
+            ImagePath = clickedItem.ImagePath,
+            InstalledGame = clickedItem
+        });
     }
 
     public void InstalledGame_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
@@ -102,6 +101,8 @@ public class GamesViewModel : ObservableRecipient, INavigationAware
     
     public void GlobalSettingsButton_OnClick(object sender, RoutedEventArgs e)
     {
-        _navigationService.NavigateTo(typeof(GamesSettingsViewModel).FullName!);
+        _navigationService.NavigateTo(
+            typeof(GamesSettingsViewModel).FullName!, 
+            new GamesSettingsParameter{ IsGame = false});
     }
 }

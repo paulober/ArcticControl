@@ -1,0 +1,2 @@
+﻿Move from Newtonsoft to System.Text.Json
+https://learn.microsoft.com/de-de/dotnet/standard/serialization/system-text-json/overview

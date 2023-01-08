@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using ArcticControl.Activation;
+﻿using ArcticControl.Activation;
 using ArcticControl.Contracts.Services;
 using ArcticControl.Core.Contracts.Services;
 using ArcticControl.Core.Services;

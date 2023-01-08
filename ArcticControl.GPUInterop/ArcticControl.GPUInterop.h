@@ -143,12 +143,12 @@ namespace ArcticControlGPUInterop {
 		}
 		
 		/// <summary>
-		/// Power limit in milliwatts for 
+		/// Power limit in milli-watts for 
 		/// the AC power source.
 		/// </summary>
 		Int32 PowerAC;
 		/// <summary>
-		/// Power limit in milliwatts for the DC 
+		/// Power limit in milli-watts for the DC 
 		/// power source. On input, this is ignored 
 		/// if the product does not have a battery. 
 		/// On output, this will be -1 if the 

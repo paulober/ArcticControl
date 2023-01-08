@@ -6,7 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:animations="using:CommunityToolkit.WinUI.UI.Animations"
     xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
-    xmlns:models="using:ArcticControl.Core.Models"
+    xmlns:models="using:ArcticControl.Models"
     mc:Ignorable="d">
 
     <Grid x:Name="ContentArea">
@@ -54,7 +54,7 @@
             Grid.Row="0"
             Grid.Column="2"
             x:Uid="Games_GlobalSettings_Btn" 
-            Click="{x:Bind ViewModel.GlobalSettingsButton_OnClick, Mode=OneTime}"/>
+            Click="{x:Bind ViewModel.GlobalSettingsButton_OnClick}"/>
         <GridView
             Grid.Row="1"
             Grid.Column="0"

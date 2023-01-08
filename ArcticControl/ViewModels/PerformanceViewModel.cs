@@ -6,6 +6,7 @@ using ArcticControl.Contracts.ViewModels;
 using ArcticControl.Core.Helpers;
 using ArcticControl.Core.Models;
 using ArcticControl.Helpers;
+using ArcticControl.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;

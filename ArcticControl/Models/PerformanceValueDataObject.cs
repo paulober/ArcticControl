@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 
-namespace ArcticControl.Core.Models;
+namespace ArcticControl.Models;
 public class PerformanceValueDataObject : ObservableObject
 {
     private string _title;

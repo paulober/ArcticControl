@@ -1,6 +1,3 @@
-<!-- Copyright (c) Microsoft Corporation and Contributors. -->
-<!-- Licensed under the MIT License. -->
-
 <Page
     x:Class="ArcticControl.Views.GamesSettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -10,152 +7,213 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <StackPanel x:Name="ContentArea" Margin="{StaticResource SmallTopMargin}" HorizontalAlignment="Stretch">
-        <TextBlock 
-            x:Uid="GamesGlobalSettings_FrameDelivery" 
-            Margin="{StaticResource MediumBottomMargin}"
-            Style="{ThemeResource SubtitleTextBlockStyle}"/>
-        
-        <!-- Tearing Effect mitigation setting -->
-        <Grid 
-            HorizontalAlignment="Stretch" 
-            BorderBrush="SlateGray" 
-            BorderThickness="0,0,0,1"
-            Padding="0,0,0,15">
+    <ScrollViewer>
+        <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            
-            <TextBlock 
-                Grid.Column="0"
-                x:Uid="GamesGlobalSettings_TearingEffectMitigation" 
-                TextWrapping="Wrap"
-                Margin="{StaticResource MediumRightMargin}"/>
-            <DropDownButton 
-                Grid.Column="2" 
-                Content="Application Choice" 
-                x:Name="TearingEffectMitigationDropdownBtn"
-                IsEnabled="{x:Bind ViewModel.InputControlsEnabled, Mode=OneWay}">
-                <DropDownButton.Flyout>
-                    <MenuFlyout Placement="Bottom" x:Name="TearingEffectMitigationMenuFlyout">
-                        <!-- Index 0 -->
-                        <MenuFlyoutItem Text="Application Choice" Click="{x:Bind ViewModel.TearingEffectReductionFlyoutItem_OnClick}"/>
-                        <!-- Index 1 -->
-                        <MenuFlyoutItem Text="VSync" Click="{x:Bind ViewModel.TearingEffectReductionFlyoutItem_OnClick}"/>
-                        <!-- Index 2 -->
-                        <MenuFlyoutItem Text="Smooth Sync" Click="{x:Bind ViewModel.TearingEffectReductionFlyoutItem_OnClick}"/>
-                        <!-- Index 3 -->
-                        <MenuFlyoutItem Text="Smart VSync" Click="{x:Bind ViewModel.TearingEffectReductionFlyoutItem_OnClick}"/>
-                    </MenuFlyout>
-                </DropDownButton.Flyout>
-            </DropDownButton>
-        </Grid>
-        
-        <TextBlock 
-            x:Uid="GamesGlobalSettings_PostProcessing" 
-            Margin="{StaticResource MediumTopBottomMargin}"
-            Style="{ThemeResource SubtitleTextBlockStyle}"/>
-        
-        <Grid 
-            HorizontalAlignment="Stretch" 
-            BorderBrush="SlateGray" 
-            BorderThickness="0,0,0,1"
-            Padding="0,0,0,15">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            
-            <TextBlock 
-                Grid.Column="0"
-                x:Uid="GamesGlobalSettings_SharpeningFilter" 
-                TextWrapping="Wrap"
-                Margin="{StaticResource MediumRightMargin}"/>
-            
-            <!-- Sharpening filter setting -->
-            <ToggleSwitch
-                HorizontalAlignment="Center"
-                Grid.Column="2"
-                IsEnabled="{x:Bind ViewModel.SharpeningFilterSwitchEnabled, Mode=OneWay}"
-                IsOn="{x:Bind ViewModel.IsSharpeningFilterActive, Mode=TwoWay}"
-                Toggled="{x:Bind ViewModel.SharpeningFilter_ToggleSwitch_OnToggled}"/>
-        </Grid>
-        
-        <TextBlock 
-            x:Uid="GamesGlobalSettings_3DControl" 
-            Margin="{StaticResource MediumTopBottomMargin}"
-            Style="{ThemeResource SubtitleTextBlockStyle}"/>
 
-        <!-- Tearing Effect mitigation setting -->
-        <Grid 
-            HorizontalAlignment="Stretch" 
-            BorderBrush="SlateGray" 
-            BorderThickness="0,0,0,1"
-            Padding="0,0,0,15">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+            <Border
+                Grid.Column="0"
+                BorderThickness="0"
+                CornerRadius="20"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Visibility="{x:Bind ViewModel.GameDetailElementsVisibility, Mode=OneWay}"
+                Margin="{StaticResource MediumRightMargin}">
+                <Image 
+                    x:Name="GameDetailImage"
+                    Source="{x:Bind ViewModel.ImagePath, Mode=OneWay}"
+                    MaxHeight="300"
+                    MaxWidth="200"
+                    Visibility="{x:Bind ViewModel.GameDetailElementsVisibility, Mode=OneWay}"/>
+            </Border>
 
-            <TextBlock 
-                Grid.Row="0" Grid.Column="0"
-                x:Uid="GamesGlobalSettings_AnisotropicFiltering" 
-                TextWrapping="Wrap"/>
-            <DropDownButton
-                Grid.Row="0"
-                Grid.Column="2"
-                Content="Application Choice" 
-                x:Name="AnisotropicFilteringDropdownBtn"
-                IsEnabled="{x:Bind ViewModel.InputControlsEnabled, Mode=OneWay}">
-                <DropDownButton.Flyout>
-                    <MenuFlyout Placement="Bottom" x:Name="AnisotropicFilteringMenuFlyout">
-                        <!-- Index 0 -->
-                        <MenuFlyoutItem Text="Application Choice" Click="{x:Bind ViewModel.AnisotropicFilteringFlyoutItem_OnClick}"/>
-                        <!-- Index 1 -->
-                        <MenuFlyoutItem Text="2x" Click="{x:Bind ViewModel.AnisotropicFilteringFlyoutItem_OnClick}"/>
-                        <!-- Index 2 -->
-                        <MenuFlyoutItem Text="4x" Click="{x:Bind ViewModel.AnisotropicFilteringFlyoutItem_OnClick}"/>
-                        <!-- Index 3 -->
-                        <MenuFlyoutItem Text="8x" Click="{x:Bind ViewModel.AnisotropicFilteringFlyoutItem_OnClick}"/>
-                        <!-- Index 4 -->
-                        <MenuFlyoutItem Text="16x" Click="{x:Bind ViewModel.AnisotropicFilteringFlyoutItem_OnClick}"/>
-                    </MenuFlyout>
-                </DropDownButton.Flyout>
-            </DropDownButton>
-            
-            <TextBlock 
-                Grid.Row="1" Grid.Column="0"
-                x:Uid="GamesGlobalSettings_AntiAliasing" 
-                TextWrapping="Wrap"
-                Margin="{StaticResource MediumTopMargin}"/>
-            <DropDownButton 
-                Grid.Row="1" 
-                Grid.Column="2" 
-                Content="Force Off" 
-                x:Name="AntiAliasingDropdownBtn"
-                Margin="{StaticResource MediumTopMargin}"
-                IsEnabled="{x:Bind ViewModel.InputControlsEnabled, Mode=OneWay}">
-                <DropDownButton.Flyout>
-                    <MenuFlyout Placement="Bottom" x:Name="AntiAliasingMenuFlyout">
-                        <!-- Index 0 - does not exist -->
-                        <!--<MenuFlyoutItem Text="Application Choice" Click="{x:Bind ViewModel.AntiAliasingFlyoutItem_OnClick}"/>-->
-                        <!-- Index 1 -->
-                        <MenuFlyoutItem Text="Force Off" Click="{x:Bind ViewModel.AntiAliasingFlyoutItem_OnClick}"/>
-                        <!-- Index 2 -->
-                        <MenuFlyoutItem Text="Force On" Click="{x:Bind ViewModel.AntiAliasingFlyoutItem_OnClick}"/>
-                        <!-- Index 3 -->
-                        <MenuFlyoutItem Text="Enhance Application" Click="{x:Bind ViewModel.AntiAliasingFlyoutItem_OnClick}"/>
-                    </MenuFlyout>
-                </DropDownButton.Flyout>
-            </DropDownButton>
+            <StackPanel
+                Grid.Column="1"
+                x:Name="ContentArea"
+                Margin="{StaticResource SmallTopMargin}"
+                HorizontalAlignment="Stretch">
+
+                <Grid 
+                    HorizontalAlignment="Stretch" 
+                    Margin="{StaticResource LargeBottomMargin}"
+                    Visibility="{x:Bind ViewModel.GameDetailElementsVisibility, Mode=OneWay}"  >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Button 
+                        Grid.Column="1"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top"
+                        ToolTipService.Placement="Left"
+                        ToolTipService.ToolTip="Currently you can only edit game specific settings when launching the game via the Launch button first. This will change in a future release."
+                        Style="{ThemeResource AccentButtonStyle}"
+                        FontSize="{StaticResource LargeFontSize}"
+                        Click="{x:Bind ViewModel.LaunchButton_OnClick}">
+                        <Button.Content>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="Launch"/>
+                                <FontIcon Grid.Column="1" Margin="{StaticResource SmallLeftMargin}" FontFamily="Segoe Fluent Icons" Glyph="&#xe8a7;"/>
+                            </Grid>
+                        </Button.Content>
+                    </Button>
+                </Grid>
+
+                <TextBlock 
+                    x:Uid="GamesGlobalSettings_FrameDelivery" 
+                    Margin="{StaticResource MediumBottomMargin}"
+                    Style="{ThemeResource SubtitleTextBlockStyle}"/>
+
+                <!-- Tearing Effect mitigation setting -->
+                <Grid 
+                    HorizontalAlignment="Stretch" 
+                    BorderBrush="SlateGray" 
+                    BorderThickness="0,0,0,1"
+                    Padding="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock 
+                        Grid.Column="0"
+                        x:Uid="GamesGlobalSettings_TearingEffectMitigation" 
+                        TextWrapping="Wrap"
+                        Margin="{StaticResource MediumRightMargin}"/>
+                    <DropDownButton 
+                        Grid.Column="2" 
+                        Content="Application Choice" 
+                        x:Name="TearingEffectMitigationDropdownBtn"
+                        IsEnabled="{x:Bind ViewModel.InputControlsEnabled, Mode=OneWay}">
+                        <DropDownButton.Flyout>
+                            <MenuFlyout Placement="Bottom" x:Name="TearingEffectMitigationMenuFlyout">
+                                <!-- Index 0 -->
+                                <MenuFlyoutItem Text="Application Choice" Click="{x:Bind ViewModel.TearingEffectReductionFlyoutItem_OnClick}"/>
+                                <!-- Index 1 -->
+                                <MenuFlyoutItem Text="VSync" Click="{x:Bind ViewModel.TearingEffectReductionFlyoutItem_OnClick}"/>
+                                <!-- Index 2 -->
+                                <MenuFlyoutItem Text="Smooth Sync" Click="{x:Bind ViewModel.TearingEffectReductionFlyoutItem_OnClick}"/>
+                                <!-- Index 3 -->
+                                <MenuFlyoutItem Text="Smart VSync" Click="{x:Bind ViewModel.TearingEffectReductionFlyoutItem_OnClick}"/>
+                            </MenuFlyout>
+                        </DropDownButton.Flyout>
+                    </DropDownButton>
+                </Grid>
+
+                <TextBlock 
+                    x:Uid="GamesGlobalSettings_PostProcessing" 
+                    Margin="{StaticResource MediumTopBottomMargin}"
+                    Style="{ThemeResource SubtitleTextBlockStyle}"/>
+
+                <Grid 
+                    HorizontalAlignment="Stretch" 
+                    BorderBrush="SlateGray" 
+                    BorderThickness="0,0,0,1"
+                    Padding="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock 
+                        Grid.Column="0"
+                        x:Uid="GamesGlobalSettings_SharpeningFilter" 
+                        TextWrapping="Wrap"
+                        Margin="{StaticResource MediumRightMargin}"/>
+
+                    <!-- Sharpening filter setting -->
+                    <ToggleSwitch
+                        HorizontalAlignment="Center"
+                        Grid.Column="2"
+                        IsEnabled="{x:Bind ViewModel.SharpeningFilterSwitchEnabled, Mode=OneWay}"
+                        IsOn="{x:Bind ViewModel.IsSharpeningFilterActive, Mode=TwoWay}"
+                        Toggled="{x:Bind ViewModel.SharpeningFilter_ToggleSwitch_OnToggled}"/>
+                </Grid>
+
+                <TextBlock 
+                    x:Uid="GamesGlobalSettings_3DControl" 
+                    Margin="{StaticResource MediumTopBottomMargin}"
+                    Style="{ThemeResource SubtitleTextBlockStyle}"/>
+
+                <!-- Tearing Effect mitigation setting -->
+                <Grid 
+                    HorizontalAlignment="Stretch" 
+                    BorderBrush="SlateGray" 
+                    BorderThickness="0,0,0,1"
+                    Padding="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock 
+                        Grid.Row="0" Grid.Column="0"
+                        x:Uid="GamesGlobalSettings_AnisotropicFiltering" 
+                        TextWrapping="Wrap"/>
+                    <DropDownButton
+                        Grid.Row="0"
+                        Grid.Column="2"
+                        Content="Application Choice" 
+                        x:Name="AnisotropicFilteringDropdownBtn"
+                        IsEnabled="{x:Bind ViewModel.InputControlsEnabled, Mode=OneWay}">
+                        <DropDownButton.Flyout>
+                            <MenuFlyout Placement="Bottom" x:Name="AnisotropicFilteringMenuFlyout">
+                                <!-- Index 0 -->
+                                <MenuFlyoutItem Text="Application Choice" Click="{x:Bind ViewModel.AnisotropicFilteringFlyoutItem_OnClick}"/>
+                                <!-- Index 1 -->
+                                <MenuFlyoutItem Text="2x" Click="{x:Bind ViewModel.AnisotropicFilteringFlyoutItem_OnClick}"/>
+                                <!-- Index 2 -->
+                                <MenuFlyoutItem Text="4x" Click="{x:Bind ViewModel.AnisotropicFilteringFlyoutItem_OnClick}"/>
+                                <!-- Index 3 -->
+                                <MenuFlyoutItem Text="8x" Click="{x:Bind ViewModel.AnisotropicFilteringFlyoutItem_OnClick}"/>
+                                <!-- Index 4 -->
+                                <MenuFlyoutItem Text="16x" Click="{x:Bind ViewModel.AnisotropicFilteringFlyoutItem_OnClick}"/>
+                            </MenuFlyout>
+                        </DropDownButton.Flyout>
+                    </DropDownButton>
+
+                    <TextBlock 
+                        Grid.Row="1" Grid.Column="0"
+                        x:Uid="GamesGlobalSettings_AntiAliasing" 
+                        TextWrapping="Wrap"
+                        Margin="{StaticResource MediumTopMargin}"/>
+                    <DropDownButton 
+                        Grid.Row="1" 
+                        Grid.Column="2" 
+                        Content="Force Off" 
+                        x:Name="AntiAliasingDropdownBtn"
+                        Margin="{StaticResource MediumTopMargin}"
+                        IsEnabled="{x:Bind ViewModel.InputControlsEnabled, Mode=OneWay}">
+                        <DropDownButton.Flyout>
+                            <MenuFlyout Placement="Bottom" x:Name="AntiAliasingMenuFlyout">
+                                <!-- Index 0 - does not exist -->
+                                <!--<MenuFlyoutItem Text="Application Choice" Click="{x:Bind ViewModel.AntiAliasingFlyoutItem_OnClick}"/>-->
+                                <!-- Index 1 -->
+                                <MenuFlyoutItem Text="Force Off" Click="{x:Bind ViewModel.AntiAliasingFlyoutItem_OnClick}"/>
+                                <!-- Index 2 -->
+                                <MenuFlyoutItem Text="Force On" Click="{x:Bind ViewModel.AntiAliasingFlyoutItem_OnClick}"/>
+                                <!-- Index 3 -->
+                                <MenuFlyoutItem Text="Enhance Application" Click="{x:Bind ViewModel.AntiAliasingFlyoutItem_OnClick}"/>
+                            </MenuFlyout>
+                        </DropDownButton.Flyout>
+                    </DropDownButton>
+                </Grid>
+            </StackPanel>
         </Grid>
-    </StackPanel>
+    </ScrollViewer>
 </Page>

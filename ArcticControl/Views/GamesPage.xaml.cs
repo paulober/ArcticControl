@@ -19,15 +19,10 @@ public sealed partial class GamesPage : Page
 
     private void GridView_ItemClick(object sender, ItemClickEventArgs e)
     {
-        // TOOD: unter development
-        return;
-
-/*
         if (ViewModel.ItemClickCommand.CanExecute(e.ClickedItem))
         {
             ViewModel.ItemClickCommand.Execute(e.ClickedItem);
         }
-*/
     }
 
     private void InstalledGame_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
