@@ -202,7 +202,7 @@
                             </muxc:Expander.Content>
                         </muxc:Expander>
                     </Grid>
-
+                    
                     <StackPanel 
                         Grid.Row="1" 
                         Margin="{StaticResource MediumTopBottomMargin}" 
