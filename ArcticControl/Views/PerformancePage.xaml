@@ -152,6 +152,7 @@
             VerticalAlignment="Stretch"
             Padding="40,0,0,0" 
             BorderThickness="2,0,0,0" 
+            Margin="{StaticResource SmallBottomMargin}"
             BorderBrush="SlateGray">
             
             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -166,7 +167,13 @@
                     Margin="0,0,0,15" FontSize="20" 
                     Style="{ThemeResource BodyStrongTextBlockStyle}"/>
 
-                <ScrollViewer Grid.Row="1" HorizontalAlignment="Stretch" Padding="0,0,5,0">
+                <ScrollViewer 
+                    Grid.Row="1" 
+                    HorizontalAlignment="Stretch" 
+                    Padding="0,0,5,0"
+                    x:Name="PerformanceSlidersScrollViewer"
+                    x:Load="{x:Bind ViewModel.LoadOverclockSliders, Mode=OneWay}">
+                    
                     <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Margin="0,0,8,0">
                         <RelativePanel 
                             BorderBrush="SlateGray" 
@@ -229,7 +236,7 @@
                             </RelativePanel>-->
 
                             <!-- GPU Frequency Offset (slider) -->
-                            <Grid HorizontalAlignment="Stretch" Margin="{StaticResource MediumTopMargin}">
+                            <Grid HorizontalAlignment="Stretch" Margin="{StaticResource SmallTopMargin}">
                                 <Grid.RowDefinitions>
                                     <RowDefinition/>
                                 </Grid.RowDefinitions>

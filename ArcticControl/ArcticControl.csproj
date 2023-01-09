@@ -14,6 +14,8 @@
 	<UseWinUI>true</UseWinUI>
     <EnableMsixTooling>true</EnableMsixTooling>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+	<!-- 'SupportedOSPlatformVersion' property indicates the minimum OS version required to run your app -->
+	<!-- if not set it defaults to platform version set by the TFM (net7.0-windows...) -->
 	<SupportedOSPlatformVersion>10.0.22000.0</SupportedOSPlatformVersion>
 	<LangVersion>11.0</LangVersion>
   </PropertyGroup>

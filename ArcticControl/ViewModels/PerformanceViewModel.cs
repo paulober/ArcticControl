@@ -52,6 +52,13 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
     };
 
     public bool WaiverSigned = false;
+    private bool _loadOverclockSliders = false;
+
+    public bool LoadOverclockSliders
+    {
+        get => _loadOverclockSliders;
+        set => SetProperty(ref _loadOverclockSliders, value);
+    }
 
     private double _gpuFrequencyOffsetSliderValue = Convert.ToDouble(SliderDefaultValues.GpuFrequencyOffset);
 

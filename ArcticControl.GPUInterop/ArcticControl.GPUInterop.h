@@ -462,8 +462,11 @@ namespace ArcticControlGPUInterop {
 
 	public ref class GPUInterop
 	{
+		array<uint32_t>^ supported_device_ids;
+
 		uint32_t* adapter_count_;
 		ctl_device_adapter_handle_t* h_devices_;
+		int selected_device_=-1;
 		uint32_t* fans_count_;
 		ctl_fan_handle_t* h_fans_;
 		ctl_api_handle_t* h_api_handle_;
@@ -477,6 +480,22 @@ namespace ArcticControlGPUInterop {
 		bool init_api();
 
 	public:
+		GPUInterop() {
+			supported_device_ids = gcnew array<UInt32>(11) {
+				0x5690, // <-- Arc A77M
+				0x56A0, // <-- Arc A770
+				0x5691, // <-- Arc A730M
+				0x56A1, // <-- Arc A750
+				0x5692, // <-- Arc A550M
+				0x56A5, // <-- Arc A380
+				0x5693, // <-- Arc A370M
+				0x5694, // <-- Arc A350M
+				0x56A6, // <-- Arc A310
+				0x56C1, // <-- Data Center GPU Flex 140
+				0x56C0  // <-- Data Center GPU Flex 170
+			};
+		};
+
 		!GPUInterop();
 		~GPUInterop() { this->!GPUInterop(); };
 

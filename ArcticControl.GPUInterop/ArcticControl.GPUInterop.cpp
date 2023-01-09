@@ -16,9 +16,9 @@ String^ ArcticControlGPUInterop::GPUInterop::GetMyName()
     return "Hi there in CLR. I'm the real slim shady!";
 }
 
-Boolean ArcticControlGPUInterop::GPUInterop::init_api()
+bool ArcticControlGPUInterop::GPUInterop::init_api()
 {
-    if (h_devices_ != nullptr && adapter_count_ != nullptr && h_api_handle_ != nullptr)
+    if (h_devices_ != nullptr || adapter_count_ != nullptr || h_api_handle_ != nullptr)
     {
         return true;
     }
@@ -53,6 +53,75 @@ Boolean ArcticControlGPUInterop::GPUInterop::init_api()
 
                 if (CTL_RESULT_SUCCESS == result)
                 {
+                    // check for compatibility (only Arc A-Series dGPUs)
+                    ctl_device_adapter_properties_t dev_adapter_props{0};
+                    dev_adapter_props.Size = sizeof(ctl_device_adapter_properties_t);
+                    dev_adapter_props.pDeviceID = malloc(sizeof(LUID));
+                    dev_adapter_props.device_id_size = sizeof(LUID);
+                    dev_adapter_props.Version = 1;
+
+                    if (dev_adapter_props.pDeviceID == nullptr)
+                    {
+                        return false;
+                    }
+
+                    for (uint32_t idx = 0; idx < *adapter_count_; idx++)
+                    {
+                        if (h_devices_[idx] != nullptr)
+                        {
+                            result = ctlGetDeviceProperties(h_devices_[idx], &dev_adapter_props);
+
+                            if (result == CTL_RESULT_ERROR_UNSUPPORTED_VERSION)
+                            {
+                                WRITE_LINE("[GPUInterop]: init_api - ctlGetDeviceProperties version " +
+                                           "mismatch - reducing version to 0 and retrying");
+                                dev_adapter_props.Version = 0;
+                                result = ctlGetDeviceProperties(h_devices_[idx], &dev_adapter_props);
+                            }
+
+                            if (result != CTL_RESULT_SUCCESS)
+                            {
+                                WRITE_LINE("[GPUInterop]: init_api - ctlGetDeviceProperties result: "
+                                    + gcnew String(decode_ret_code(result).c_str()));
+                                continue;
+                            }
+
+                            if (dev_adapter_props.device_type != CTL_DEVICE_TYPE_GRAPHICS)
+                            {
+                                WRITE_LINE("[GPUInterop]: init_api - Not a graphics device");
+                                continue;
+                            }
+
+                            // if device vendor is not Intel
+                            if (0x8086 != dev_adapter_props.pci_vendor_id)
+                                continue;
+
+                            if (array<uint32_t>::IndexOf(supported_device_ids, dev_adapter_props.pci_device_id) > -1)
+                            {
+                                WRITE_LINE("[GPUInterop]: init_api - found supported device");
+                                
+                                // device is supported -> set it as selected
+                                selected_device_ = idx;
+                                break;
+                            }
+                        }
+                    }
+
+                    // return if not supported device was found
+                    if (selected_device_==-1)
+                    {
+                        WRITE_LINE("[GPUInterop]: init_api - no supported device found");
+
+                        // free unmanaged resources as they wouldn't be needed anymore
+                        CTL_FREE_MEM(h_devices_);
+                        CTL_FREE_MEM(adapter_count_);
+
+                        throw gcnew PlatformNotSupportedException;
+                    }
+                    // end check for compatibility
+
+                    // TODO: maybe move this into separate method
+                    // get fan handles for later
                     fans_count_ = static_cast<uint32_t*>(malloc(sizeof(*fans_count_)));
                     *fans_count_ = 0;
 
@@ -94,6 +163,11 @@ bool ArcticControlGPUInterop::GPUInterop::TestApi()
 
 bool ArcticControlGPUInterop::GPUInterop::InitCtlApi()
 {
+    // avoid multiple init
+    // be aware that this could also be the case when
+    // init fails with PlatformNotSupportedException
+    // so this stops people from hot-swapping their GPUs if
+    // its needed to support this :))
     if (h_api_handle_ != nullptr)
     {
         return false;
@@ -104,7 +178,7 @@ bool ArcticControlGPUInterop::GPUInterop::InitCtlApi()
 
 String^ ArcticControlGPUInterop::GPUInterop::GetAdapterName()
 {
-    if (h_api_handle_ == nullptr && (*adapter_count_) < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
     {
         return String::Empty;
     }
@@ -129,7 +203,7 @@ String^ ArcticControlGPUInterop::GPUInterop::GetAdapterName()
 
 array<ArcticControlGPUInterop::TempSensor^>^ ArcticControlGPUInterop::GPUInterop::GetTemperatures()
 {
-    if (h_api_handle_ == nullptr && *adapter_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
     {
         return gcnew array<TempSensor^>{};
     }
@@ -216,7 +290,7 @@ array<ArcticControlGPUInterop::TempSensor^>^ ArcticControlGPUInterop::GPUInterop
 // !! DANGEROUS !!
 bool ArcticControlGPUInterop::GPUInterop::SetOverclockWaiver()
 {
-    if (h_api_handle_ == nullptr && *adapter_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
     {
         return false;
     }
@@ -232,7 +306,7 @@ bool ArcticControlGPUInterop::GPUInterop::SetOverclockWaiver()
 
 double ArcticControlGPUInterop::GPUInterop::GetOverclockTemperatureLimit()
 {
-    if (h_api_handle_ == nullptr && (*adapter_count_) < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
     {
         return 0.0;
     }
@@ -252,7 +326,7 @@ double ArcticControlGPUInterop::GPUInterop::GetOverclockTemperatureLimit()
 
 bool ArcticControlGPUInterop::GPUInterop::SetOverclockTemperatureLimit(const double new_temp_limit)
 {
-    if (h_api_handle_ == nullptr && (*adapter_count_) < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
     {
         return false;
     }
@@ -270,7 +344,7 @@ bool ArcticControlGPUInterop::GPUInterop::SetOverclockTemperatureLimit(const dou
 
 double ArcticControlGPUInterop::GPUInterop::GetOverclockPowerLimit()
 {
-    if (h_api_handle_ == nullptr && (*adapter_count_) < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
     {
         return 0.0;
     }
@@ -308,7 +382,7 @@ bool ArcticControlGPUInterop::GPUInterop::SetOverclockPowerLimit(double new_powe
 
 double ArcticControlGPUInterop::GPUInterop::GetOverclockGPUVoltageOffset()
 {
-    if (h_api_handle_ == nullptr && *adapter_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
         return 0.0;
     }
@@ -326,7 +400,7 @@ double ArcticControlGPUInterop::GPUInterop::GetOverclockGPUVoltageOffset()
 
 bool ArcticControlGPUInterop::GPUInterop::SetOverclockGPUVoltageOffset(const double new_gpu_voltage_offset)
 {
-    if (h_api_handle_ == nullptr && *adapter_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
     {
         return false;
     }
@@ -342,7 +416,7 @@ bool ArcticControlGPUInterop::GPUInterop::SetOverclockGPUVoltageOffset(const dou
 
 double ArcticControlGPUInterop::GPUInterop::GetOverclockGPUFrequencyOffset()
 {
-    if (h_api_handle_ == nullptr && (*adapter_count_) < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
     {
         return 0.0;
     }
@@ -360,7 +434,7 @@ double ArcticControlGPUInterop::GPUInterop::GetOverclockGPUFrequencyOffset()
 
 bool ArcticControlGPUInterop::GPUInterop::SetOverclockGPUFrequencyOffset(double new_gpu_frequency_offset)
 {
-    if (h_api_handle_ == nullptr && (*adapter_count_) < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
     {
         return false;
     }
@@ -380,7 +454,7 @@ bool ArcticControlGPUInterop::GPUInterop::SetOverclockGPUFrequencyOffset(double 
 
 double ArcticControlGPUInterop::GPUInterop::GetOverclockVRAMVoltageOffset()
 {
-    if (h_api_handle_ == nullptr && (*adapter_count_) < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
     {
         return 0.0;
     }
@@ -398,7 +472,7 @@ double ArcticControlGPUInterop::GPUInterop::GetOverclockVRAMVoltageOffset()
 
 bool ArcticControlGPUInterop::GPUInterop::SetOverclockVRAMVoltageOffset(const double new_vram_voltage_offset)
 {
-    if (h_api_handle_ == nullptr && (*adapter_count_) < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
     {
         return false;
     }
@@ -414,7 +488,7 @@ bool ArcticControlGPUInterop::GPUInterop::SetOverclockVRAMVoltageOffset(const do
 
 double ArcticControlGPUInterop::GPUInterop::GetOverclockVRAMFrequencyOffset()
 {
-    if (h_api_handle_ == nullptr && *adapter_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
     {
         return 0.0;
     }
@@ -432,7 +506,7 @@ double ArcticControlGPUInterop::GPUInterop::GetOverclockVRAMFrequencyOffset()
 
 bool ArcticControlGPUInterop::GPUInterop::SetOverclockVRAMFrequencyOffset(const double new_vram_frequency_offset)
 {
-    if (h_api_handle_ == nullptr && (*adapter_count_) < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
     {
         return false;
     }
@@ -494,7 +568,7 @@ bool ArcticControlGPUInterop::GPUInterop::InitPowerDomains()
 
 ArcticControlGPUInterop::PowerProperties^ ArcticControlGPUInterop::GPUInterop::GetPowerProperties()
 {
-    if (h_api_handle_ == nullptr || (*adapter_count_) < 1 || (*pwr_count_) < 1 || h_pwr_handle_ == nullptr)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || *pwr_count_ < 1 || h_pwr_handle_ == nullptr)
     {
         return nullptr;
     }
@@ -516,8 +590,8 @@ ArcticControlGPUInterop::PowerProperties^ ArcticControlGPUInterop::GPUInterop::G
 ArcticControlGPUInterop::PowerLimitsCombination^ ArcticControlGPUInterop::GPUInterop::GetPowerLimits()
 {
     if (h_api_handle_ == nullptr 
-        || (*adapter_count_) < 1 
-        || (*pwr_count_) < 1 
+        || *adapter_count_ < 1 
+        || *pwr_count_ < 1 
         || h_pwr_handle_ == nullptr)
     {
         return nullptr;
@@ -552,7 +626,7 @@ ArcticControlGPUInterop::PowerLimitsCombination^ ArcticControlGPUInterop::GPUInt
 
 bool ArcticControlGPUInterop::GPUInterop::InitFansHandles()
 {
-    if (h_api_handle_ == nullptr || (*adapter_count_) < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
     {
         return false;
     }
@@ -586,7 +660,7 @@ bool ArcticControlGPUInterop::GPUInterop::InitFansHandles()
 
 ArcticControlGPUInterop::FanProperties^ ArcticControlGPUInterop::GPUInterop::GetFanProperties()
 {
-    if (h_api_handle_ == nullptr || (*adapter_count_) < 1 || h_fans_ == nullptr || (*fans_count_) < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || h_fans_ == nullptr || *fans_count_ < 1)
     {
         return nullptr;
     }
@@ -608,7 +682,7 @@ ArcticControlGPUInterop::FanProperties^ ArcticControlGPUInterop::GPUInterop::Get
 
 ArcticControlGPUInterop::FanConfig^ ArcticControlGPUInterop::GPUInterop::GetFanConfig()
 {
-    if (h_api_handle_ == nullptr || (*adapter_count_) < 1 || h_fans_ == nullptr || (*fans_count_) < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || h_fans_ == nullptr || *fans_count_ < 1)
     {
         return nullptr;
     }

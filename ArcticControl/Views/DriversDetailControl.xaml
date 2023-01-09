@@ -64,7 +64,7 @@
                                 <StackPanel x:Name="DownloadButtonDefaultContent" Orientation="Vertical">
                                     <StackPanel Orientation="Horizontal">
                                         <SymbolIcon Symbol="Download"/>
-                                        <TextBlock Margin="{StaticResource SmallRightMargin}" Text="Download"/>
+                                        <TextBlock Margin="{StaticResource SmallLeftMargin}" Text="Download"/>
                                         <!--<muxc:FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xe8a7;"/>-->
                                     </StackPanel>
                                     <muxc:ProgressBar

@@ -4,15 +4,24 @@ using ArcticControlGPUInterop;
 using Microsoft.AppCenter.Crashes;
 
 namespace ArcticControl.Services;
-public class IntelGraphicsControlService: IIntelGraphicsControlService, IDisposable
+public class IntelGraphicsControlService: IIntelGraphicsControlService
 {
     private readonly bool _initialized;
     private readonly GPUInterop _gpuInterop;
 
     public IntelGraphicsControlService()
     {
-        _gpuInterop = new();
-        _initialized = _gpuInterop.InitCtlApi();
+        _gpuInterop = new GPUInterop();
+
+        try
+        {
+            _initialized = _gpuInterop.InitCtlApi();
+        }
+        catch (PlatformNotSupportedException)
+        {
+            Debug.WriteLine("[IntelGraphicsControlService]: error setting up service " +
+                            "as platform is not supported");
+        }
     }
 
     public bool IsInitialized() => _initialized;
