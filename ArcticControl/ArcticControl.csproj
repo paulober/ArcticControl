@@ -21,7 +21,7 @@
   <PropertyGroup>
     <CsWinRTIncludes>ArcticControl.IGCLInterop</CsWinRTIncludes>
     <UserSecretsId>224e2610-9556-43cb-b467-a50328f0654a</UserSecretsId>
-    <GenerateAppInstallerFile>True</GenerateAppInstallerFile>
+    <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>

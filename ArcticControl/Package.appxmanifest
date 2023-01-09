@@ -14,11 +14,11 @@
   <Identity
     Name="PaulOberosler.ArcticControl"
     Publisher="CN=42BD3C1F-9B9E-4875-88FA-EA94684D36E4"
-    Version="0.1.4.0" />
+    Version="0.1.9.0" />
 
   <Properties>
     <DisplayName>Arctic Control</DisplayName>
-    <PublisherDisplayName>paulober</PublisherDisplayName>
+    <PublisherDisplayName>Paul Oberosler</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
