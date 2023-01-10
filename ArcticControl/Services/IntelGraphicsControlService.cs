@@ -460,7 +460,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
             var state = _gpuInterop.IsSharpeningFilterActive(app);
             return state;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - IsSharpeningFilterActive");
             // TODO: check each tracked exception in this file if really needed to track
@@ -482,7 +482,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
             var result = _gpuInterop.SetSharpeningFilter(on, app);
             return result;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - SetSharpeningFilter");
             //Crashes.TrackError(ex);

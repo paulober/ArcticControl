@@ -226,11 +226,11 @@ public class GamesScannerService : IGamesScannerService
                             }
                         }
                     }
-                    catch (Win32Exception ex)
+                    catch (Win32Exception)
                     {
                         Debug.WriteLine("Could not enum modules for: " + p.ProcessName);
                     }
-                    catch (InvalidOperationException ex)
+                    catch (InvalidOperationException)
                     {
                         Debug.WriteLine("Could not enum modules for: " + p.ProcessName);
                     }

@@ -23,12 +23,12 @@ public class SampleOrder
         get; set;
     }
 
-    public string ShipperName
+    public string? ShipperName
     {
         get; set;
     }
 
-    public string ShipperPhone
+    public string? ShipperPhone
     {
         get; set;
     }
@@ -38,12 +38,12 @@ public class SampleOrder
         get; set;
     }
 
-    public string Company
+    public string? Company
     {
         get; set;
     }
 
-    public string ShipTo
+    public string? ShipTo
     {
         get; set;
     }
@@ -53,7 +53,7 @@ public class SampleOrder
         get; set;
     }
 
-    public string Status
+    public string? Status
     {
         get; set;
     }
@@ -63,14 +63,14 @@ public class SampleOrder
         get; set;
     }
 
-    public string SymbolName
+    public string? SymbolName
     {
         get; set;
     }
 
     public char Symbol => (char)SymbolCode;
 
-    public ICollection<SampleOrderDetail> Details
+    public ICollection<SampleOrderDetail>? Details
     {
         get; set;
     }

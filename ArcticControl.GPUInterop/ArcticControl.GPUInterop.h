@@ -493,7 +493,7 @@ namespace ArcticControlGPUInterop {
 		double HardwareMax;
 	};
 
-	public enum class FrequencyCap : UInt16
+	public enum class FrequencyCap : UInt32
 	{
 		AveragePowerCap = 1,
 		BurstPowerCap = 2,

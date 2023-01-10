@@ -18,6 +18,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.AppCenter;
 using Windows.Globalization;
 #endif
+using System.Diagnostics;
 
 namespace ArcticControl;
 
@@ -63,7 +64,7 @@ public partial class App : Application
             //await Analytics.SetEnabledAsync(false);
             //await Crashes.SetEnabledAsync(false);
             AppCenter.SetCountryCode(new GeographicRegion().CodeTwoLetter);
-            AppCenter.Configure(context.Configuration["AppCenter:Secret"]);
+            AppCenter.Configure(context.Configuration["AppCenterSecret"]);
             //await AppCenter.SetEnabledAsync(false);
 #endif
 

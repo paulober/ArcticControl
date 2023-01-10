@@ -16,6 +16,7 @@ public class SampleDataService : ISampleDataService
 
     public SampleDataService()
     {
+        _allOrders = new List<SampleOrder>();
     }
 
     private static IEnumerable<SampleOrder> AllOrders()
@@ -511,7 +512,7 @@ public class SampleDataService : ISampleDataService
     {
         if (_allOrders == null)
         {
-            _allOrders = new List<SampleOrder>(AllOrders());
+            _allOrders?.AddRange(AllOrders());
         }
 
         await Task.CompletedTask;

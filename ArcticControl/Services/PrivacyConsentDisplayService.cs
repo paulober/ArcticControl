@@ -27,12 +27,12 @@ internal class PrivacyConsentDisplayService : IPrivacyConsentDisplayService
 
     public async Task ShowIfAppropriateAsync()
     {
-        
+
         if (
-            !shown && 
-            (System.Diagnostics.Debugger.IsAttached 
-            || SystemInformation.Instance.IsFirstRun 
-            || SystemInformation.Instance.IsAppUpdated 
+            !shown &&
+            (System.Diagnostics.Debugger.IsAttached
+            || SystemInformation.Instance.IsFirstRun
+            || SystemInformation.Instance.IsAppUpdated
             || await CheckIfPrivacyPolicyDenied()))
         {
             var dialog = new ContentDialog
@@ -77,6 +77,14 @@ internal class PrivacyConsentDisplayService : IPrivacyConsentDisplayService
                     await _localSettingsService.SaveSettingAsync(LocalSettingsKeys.PrivacyPolicyConsented, false);
                     Application.Current.Exit();
                     break;
+            }
+        }
+        else if (!await CheckIfPrivacyPolicyDenied())
+        {
+            if (AppCenter.Configured)
+            {
+                AppCenter.Start(typeof(Analytics));
+                AppCenter.Start(typeof(Crashes));
             }
         }
 
