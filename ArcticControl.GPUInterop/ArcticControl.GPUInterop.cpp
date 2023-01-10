@@ -4,6 +4,10 @@
 #include <vector>
 #include <string>
 
+// available from Visual C++ 2008 => (if _MSC_VER > 1499)
+#include <msclr/marshal.h>
+using namespace msclr::interop;
+
 #include "ArcticControl.GPUInterop.h"
 
 std::string decode_ret_code(ctl_result_t res);
@@ -96,7 +100,7 @@ bool ArcticControlGPUInterop::GPUInterop::init_api()
                             if (0x8086 != dev_adapter_props.pci_vendor_id)
                                 continue;
 
-                            if (array<uint32_t>::IndexOf(supported_device_ids, dev_adapter_props.pci_device_id) > -1)
+                            if (array<uint32_t>::IndexOf(supported_device_ids_, dev_adapter_props.pci_device_id) > -1)
                             {
                                 WRITE_LINE("[GPUInterop]: init_api - found supported device");
                                 
@@ -105,6 +109,10 @@ bool ArcticControlGPUInterop::GPUInterop::init_api()
                                 break;
                             }
                         }
+                    }
+                    if (dev_adapter_props.pDeviceID != nullptr)
+                    {
+                        CTL_FREE_MEM(dev_adapter_props.pDeviceID);
                     }
 
                     // return if not supported device was found
@@ -118,6 +126,7 @@ bool ArcticControlGPUInterop::GPUInterop::init_api()
 
                         throw gcnew PlatformNotSupportedException;
                     }
+                    // TODO: maybe remove all h_devices_ handles which are not needed
                     // end check for compatibility
 
                     // TODO: maybe move this into separate method
@@ -125,7 +134,7 @@ bool ArcticControlGPUInterop::GPUInterop::init_api()
                     fans_count_ = static_cast<uint32_t*>(malloc(sizeof(*fans_count_)));
                     *fans_count_ = 0;
 
-                    result = ctlEnumFans(h_devices_[0], fans_count_, h_fans_);
+                    result = ctlEnumFans(h_devices_[selected_device_], fans_count_, h_fans_);
 
                     if (CTL_RESULT_SUCCESS == result)
                     {
@@ -133,7 +142,7 @@ bool ArcticControlGPUInterop::GPUInterop::init_api()
 
                         if (h_fans_ != nullptr)
                         {
-                            result = ctlEnumFans(h_devices_[0], fans_count_, h_fans_);
+                            result = ctlEnumFans(h_devices_[selected_device_], fans_count_, h_fans_);
 
                             if (CTL_RESULT_SUCCESS == result)
                             {
@@ -178,7 +187,7 @@ bool ArcticControlGPUInterop::GPUInterop::InitCtlApi()
 
 String^ ArcticControlGPUInterop::GPUInterop::GetAdapterName()
 {
-    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
         return String::Empty;
     }
@@ -190,7 +199,7 @@ String^ ArcticControlGPUInterop::GPUInterop::GetAdapterName()
 
     if (adapter_props.pDeviceID != nullptr)
     {
-        if (const ctl_result_t result = ctlGetDeviceProperties(h_devices_[0], &adapter_props);
+        if (const ctl_result_t result = ctlGetDeviceProperties(h_devices_[selected_device_], &adapter_props);
             result == CTL_RESULT_SUCCESS)
         {
             auto str = gcnew String(adapter_props.name);
@@ -203,14 +212,14 @@ String^ ArcticControlGPUInterop::GPUInterop::GetAdapterName()
 
 array<ArcticControlGPUInterop::TempSensor^>^ ArcticControlGPUInterop::GPUInterop::GetTemperatures()
 {
-    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
         return gcnew array<TempSensor^>{};
     }
 
     uint32_t sensors_count = 0;
 
-    ctl_result_t result = ctlEnumTemperatureSensors(h_devices_[0], &sensors_count, nullptr);
+    ctl_result_t result = ctlEnumTemperatureSensors(h_devices_[selected_device_], &sensors_count, nullptr);
 
     if ((result != CTL_RESULT_SUCCESS) || sensors_count == 0)
     {
@@ -225,7 +234,7 @@ array<ArcticControlGPUInterop::TempSensor^>^ ArcticControlGPUInterop::GPUInterop
         if (const auto h_temp_sensors = new ctl_temp_handle_t[sensors_count];
             h_temp_sensors != nullptr)
         {
-            result = ctlEnumTemperatureSensors(h_devices_[0], &sensors_count, h_temp_sensors);
+            result = ctlEnumTemperatureSensors(h_devices_[selected_device_], &sensors_count, h_temp_sensors);
 
             if (CTL_RESULT_SUCCESS == result)
             {
@@ -290,12 +299,12 @@ array<ArcticControlGPUInterop::TempSensor^>^ ArcticControlGPUInterop::GPUInterop
 // !! DANGEROUS !!
 bool ArcticControlGPUInterop::GPUInterop::SetOverclockWaiver()
 {
-    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
         return false;
     }
 
-    if (const ctl_result_t result = ctlOverclockWaiverSet(h_devices_[0]);
+    if (const ctl_result_t result = ctlOverclockWaiverSet(h_devices_[selected_device_]);
         CTL_RESULT_SUCCESS == result)
     {
         return true;
@@ -306,7 +315,7 @@ bool ArcticControlGPUInterop::GPUInterop::SetOverclockWaiver()
 
 double ArcticControlGPUInterop::GPUInterop::GetOverclockTemperatureLimit()
 {
-    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
         return 0.0;
     }
@@ -314,7 +323,7 @@ double ArcticControlGPUInterop::GPUInterop::GetOverclockTemperatureLimit()
     {
         double temp_limit = 0.0;
 
-        if (const ctl_result_t result = ctlOverclockTemperatureLimitGet(h_devices_[0], &temp_limit);
+        if (const ctl_result_t result = ctlOverclockTemperatureLimitGet(h_devices_[selected_device_], &temp_limit);
             CTL_RESULT_SUCCESS == result)
         {
             return temp_limit;
@@ -326,13 +335,13 @@ double ArcticControlGPUInterop::GPUInterop::GetOverclockTemperatureLimit()
 
 bool ArcticControlGPUInterop::GPUInterop::SetOverclockTemperatureLimit(const double new_temp_limit)
 {
-    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
         return false;
     }
     else
     {
-        if (const ctl_result_t result = ctlOverclockTemperatureLimitSet(h_devices_[0], new_temp_limit);
+        if (const ctl_result_t result = ctlOverclockTemperatureLimitSet(h_devices_[selected_device_], new_temp_limit);
             CTL_RESULT_SUCCESS == result)
         {
             return true;
@@ -344,14 +353,14 @@ bool ArcticControlGPUInterop::GPUInterop::SetOverclockTemperatureLimit(const dou
 
 double ArcticControlGPUInterop::GPUInterop::GetOverclockPowerLimit()
 {
-    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
         return 0.0;
     }
     
     double sustained_power_limit;
 
-    if (const ctl_result_t result = ctlOverclockPowerLimitGet(h_devices_[0], &sustained_power_limit); CTL_RESULT_SUCCESS == result)
+    if (const ctl_result_t result = ctlOverclockPowerLimitGet(h_devices_[selected_device_], &sustained_power_limit); CTL_RESULT_SUCCESS == result)
     {
         // mW in W -> /1000
         return sustained_power_limit / 1000;
@@ -362,12 +371,12 @@ double ArcticControlGPUInterop::GPUInterop::GetOverclockPowerLimit()
 
 bool ArcticControlGPUInterop::GPUInterop::SetOverclockPowerLimit(double new_power_limit)
 {
-    if (h_api_handle_ == nullptr && *adapter_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
         return false;
     }
     
-    const ctl_result_t result = ctlOverclockPowerLimitSet(h_devices_[0], new_power_limit);
+    const ctl_result_t result = ctlOverclockPowerLimitSet(h_devices_[selected_device_], new_power_limit);
 
     WRITE_LINE(
         "[GPUInterop]: GPU PowerLimit overclock to " + new_power_limit.ToString()
@@ -389,7 +398,7 @@ double ArcticControlGPUInterop::GPUInterop::GetOverclockGPUVoltageOffset()
     
     double voltage_offset;
 
-    if (const ctl_result_t result = ctlOverclockGpuVoltageOffsetGet(h_devices_[0], &voltage_offset);
+    if (const ctl_result_t result = ctlOverclockGpuVoltageOffsetGet(h_devices_[selected_device_], &voltage_offset);
         CTL_RESULT_SUCCESS == result)
     {
         return voltage_offset;
@@ -405,7 +414,7 @@ bool ArcticControlGPUInterop::GPUInterop::SetOverclockGPUVoltageOffset(const dou
         return false;
     }
     
-    if (const ctl_result_t result = ctlOverclockGpuVoltageOffsetSet(h_devices_[0], new_gpu_voltage_offset);
+    if (const ctl_result_t result = ctlOverclockGpuVoltageOffsetSet(h_devices_[selected_device_], new_gpu_voltage_offset);
         CTL_RESULT_SUCCESS == result)
     {
         return true;
@@ -423,7 +432,7 @@ double ArcticControlGPUInterop::GPUInterop::GetOverclockGPUFrequencyOffset()
     
     double frequency_offset;
 
-    if (const ctl_result_t result = ctlOverclockGpuFrequencyOffsetGet(h_devices_[0], &frequency_offset);
+    if (const ctl_result_t result = ctlOverclockGpuFrequencyOffsetGet(h_devices_[selected_device_], &frequency_offset);
         CTL_RESULT_SUCCESS == result)
     {
         return frequency_offset;
@@ -434,12 +443,12 @@ double ArcticControlGPUInterop::GPUInterop::GetOverclockGPUFrequencyOffset()
 
 bool ArcticControlGPUInterop::GPUInterop::SetOverclockGPUFrequencyOffset(double new_gpu_frequency_offset)
 {
-    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
         return false;
     }
     
-    const ctl_result_t result = ctlOverclockGpuFrequencyOffsetSet(h_devices_[0], new_gpu_frequency_offset);
+    const ctl_result_t result = ctlOverclockGpuFrequencyOffsetSet(h_devices_[selected_device_], new_gpu_frequency_offset);
 
     WRITE_LINE(
         "[GPUInterop]: GPU Frequency offset: " + new_gpu_frequency_offset.ToString()
@@ -454,14 +463,14 @@ bool ArcticControlGPUInterop::GPUInterop::SetOverclockGPUFrequencyOffset(double 
 
 double ArcticControlGPUInterop::GPUInterop::GetOverclockVRAMVoltageOffset()
 {
-    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
         return 0.0;
     }
     
     double voltage_offset;
 
-    if (const ctl_result_t result = ctlOverclockVramVoltageOffsetGet(h_devices_[0], &voltage_offset);
+    if (const ctl_result_t result = ctlOverclockVramVoltageOffsetGet(h_devices_[selected_device_], &voltage_offset);
         CTL_RESULT_SUCCESS == result)
     {
         return voltage_offset;
@@ -472,12 +481,12 @@ double ArcticControlGPUInterop::GPUInterop::GetOverclockVRAMVoltageOffset()
 
 bool ArcticControlGPUInterop::GPUInterop::SetOverclockVRAMVoltageOffset(const double new_vram_voltage_offset)
 {
-    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
         return false;
     }
     
-    if (const ctl_result_t result = ctlOverclockVramVoltageOffsetSet(h_devices_[0], new_vram_voltage_offset);
+    if (const ctl_result_t result = ctlOverclockVramVoltageOffsetSet(h_devices_[selected_device_], new_vram_voltage_offset);
         CTL_RESULT_SUCCESS == result)
     {
         return true;
@@ -488,14 +497,14 @@ bool ArcticControlGPUInterop::GPUInterop::SetOverclockVRAMVoltageOffset(const do
 
 double ArcticControlGPUInterop::GPUInterop::GetOverclockVRAMFrequencyOffset()
 {
-    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
         return 0.0;
     }
     
     double frequency_offset;
 
-    if (const ctl_result_t result = ctlOverclockVramFrequencyOffsetGet(h_devices_[0], &frequency_offset);
+    if (const ctl_result_t result = ctlOverclockVramFrequencyOffsetGet(h_devices_[selected_device_], &frequency_offset);
         CTL_RESULT_SUCCESS == result)
     {
         return frequency_offset;
@@ -506,12 +515,12 @@ double ArcticControlGPUInterop::GPUInterop::GetOverclockVRAMFrequencyOffset()
 
 bool ArcticControlGPUInterop::GPUInterop::SetOverclockVRAMFrequencyOffset(const double new_vram_frequency_offset)
 {
-    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
         return false;
     }
     
-    if (const ctl_result_t result = ctlOverclockVramFrequencyOffsetSet(h_devices_[0], new_vram_frequency_offset);
+    if (const ctl_result_t result = ctlOverclockVramFrequencyOffsetSet(h_devices_[selected_device_], new_vram_frequency_offset);
         CTL_RESULT_SUCCESS == result)
     {
         return true;
@@ -522,24 +531,19 @@ bool ArcticControlGPUInterop::GPUInterop::SetOverclockVRAMFrequencyOffset(const 
 
 bool ArcticControlGPUInterop::GPUInterop::InitPowerDomains()
 {
-    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    if (h_api_handle_ == nullptr
+        || *adapter_count_ < 1
+        || selected_device_ < 0
+        || pwr_count_ != nullptr
+        || h_pwr_handle_ != nullptr)
     {
         return false;
-    }
-
-    if (h_pwr_handle_ != nullptr)
-    {
-        CTL_FREE_MEM(h_pwr_handle_);
-    }
-    if (pwr_count_ != nullptr)
-    {
-        CTL_FREE_MEM(pwr_count_);
     }
 
     pwr_count_ = static_cast<uint32_t*>(malloc(sizeof*pwr_count_));
     *pwr_count_ = 0;
 
-    ctl_result_t result = ctlEnumPowerDomains(h_devices_[0], pwr_count_, nullptr);
+    ctl_result_t result = ctlEnumPowerDomains(h_devices_[selected_device_], pwr_count_, nullptr);
     if (result != CTL_RESULT_SUCCESS || pwr_count_ == nullptr)
     {
         WRITE_LINE("Power component not supported. Error: " + gcnew String(decode_ret_code(result).c_str()));
@@ -549,7 +553,7 @@ bool ArcticControlGPUInterop::GPUInterop::InitPowerDomains()
 
     h_pwr_handle_ = new ctl_pwr_handle_t[*pwr_count_];
 
-    result = ctlEnumPowerDomains(h_devices_[0], pwr_count_, h_pwr_handle_);
+    result = ctlEnumPowerDomains(h_devices_[selected_device_], pwr_count_, h_pwr_handle_);
 
     if (result == CTL_RESULT_SUCCESS)
     {
@@ -568,7 +572,11 @@ bool ArcticControlGPUInterop::GPUInterop::InitPowerDomains()
 
 ArcticControlGPUInterop::PowerProperties^ ArcticControlGPUInterop::GPUInterop::GetPowerProperties()
 {
-    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || *pwr_count_ < 1 || h_pwr_handle_ == nullptr)
+    if (h_api_handle_ == nullptr
+        || *adapter_count_ < 1
+        || selected_device_ < 0
+        || *pwr_count_ < 1
+        || h_pwr_handle_ == nullptr)
     {
         return nullptr;
     }
@@ -626,7 +634,7 @@ ArcticControlGPUInterop::PowerLimitsCombination^ ArcticControlGPUInterop::GPUInt
 
 bool ArcticControlGPUInterop::GPUInterop::InitFansHandles()
 {
-    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0 || selected_device_ < 0)
     {
         return false;
     }
@@ -640,13 +648,13 @@ bool ArcticControlGPUInterop::GPUInterop::InitFansHandles()
     fans_count_ = static_cast<uint32_t*>(malloc(sizeof(*fans_count_)));
     *fans_count_ = 0;
 
-    if (ctl_result_t result = ctlEnumFans(h_devices_[0], fans_count_, h_fans_); CTL_RESULT_SUCCESS == result)
+    if (ctl_result_t result = ctlEnumFans(h_devices_[selected_device_], fans_count_, h_fans_); CTL_RESULT_SUCCESS == result)
     {
         h_fans_ = static_cast<ctl_fan_handle_t*>(malloc(sizeof(ctl_fan_handle_t) * (*fans_count_)));
 
         if (h_fans_ != nullptr)
         {
-            result = ctlEnumFans(h_devices_[0], fans_count_, h_fans_);
+            result = ctlEnumFans(h_devices_[selected_device_], fans_count_, h_fans_);
 
             if (CTL_RESULT_SUCCESS == result)
             {
@@ -660,7 +668,7 @@ bool ArcticControlGPUInterop::GPUInterop::InitFansHandles()
 
 ArcticControlGPUInterop::FanProperties^ ArcticControlGPUInterop::GPUInterop::GetFanProperties()
 {
-    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || h_fans_ == nullptr || *fans_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0 || h_fans_ == nullptr || *fans_count_ < 1)
     {
         return nullptr;
     }
@@ -682,7 +690,7 @@ ArcticControlGPUInterop::FanProperties^ ArcticControlGPUInterop::GPUInterop::Get
 
 ArcticControlGPUInterop::FanConfig^ ArcticControlGPUInterop::GPUInterop::GetFanConfig()
 {
-    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || h_fans_ == nullptr || *fans_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0 || h_fans_ == nullptr || *fans_count_ < 1)
     {
         return nullptr;
     }
@@ -700,7 +708,7 @@ ArcticControlGPUInterop::FanConfig^ ArcticControlGPUInterop::GPUInterop::GetFanC
 
 bool ArcticControlGPUInterop::GPUInterop::SetFansToDefaultMode()
 {
-    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
         return false;
     }
@@ -723,9 +731,9 @@ bool ArcticControlGPUInterop::GPUInterop::SetFansToDefaultMode()
     return false;
 }
 
-ArcticControlGPUInterop::GamingFlipMode ArcticControlGPUInterop::GPUInterop::GetGamingFlipMode()
+ArcticControlGPUInterop::GamingFlipMode ArcticControlGPUInterop::GPUInterop::GetGamingFlipMode(String^ application)
 {
-    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
         return GamingFlipMode::Unknown;
     }
@@ -737,12 +745,21 @@ ArcticControlGPUInterop::GamingFlipMode ArcticControlGPUInterop::GPUInterop::Get
     get_3d_property.bSet = false;
     get_3d_property.CustomValueSize = 0;
     get_3d_property.pCustomValue = nullptr;
+    // application specify
+    if (application != nullptr)
+    {
+        marshal_context^ context = gcnew marshal_context();
+        const char* app_name = context->marshal_as<const char*>(application);
+        get_3d_property.ApplicationName = const_cast<char*>(app_name);
+        get_3d_property.ApplicationNameLength = static_cast<int8_t>(strlen(app_name));
+        delete context;
+    }
     get_3d_property.ValueType = CTL_PROPERTY_VALUE_TYPE_ENUM;
     get_3d_property.Version = 0;
 
     if (h_devices_ != nullptr)
     {
-        if (const ctl_result_t result = ctlGetSet3DFeature(h_devices_[0], &get_3d_property);
+        if (const ctl_result_t result = ctlGetSet3DFeature(h_devices_[selected_device_], &get_3d_property);
             result == CTL_RESULT_SUCCESS)
         {
             WRITE_LINE("[GPUInterop]: EnableType: " + get_3d_property.Value.EnumType.EnableType.ToString());
@@ -759,9 +776,9 @@ ArcticControlGPUInterop::GamingFlipMode ArcticControlGPUInterop::GPUInterop::Get
     return GamingFlipMode::Unknown;
 }
 
-bool ArcticControlGPUInterop::GPUInterop::SetGamingFlipMode(GamingFlipMode flip_mode)
+bool ArcticControlGPUInterop::GPUInterop::SetGamingFlipMode(GamingFlipMode flip_mode, String^ application)
 {
-    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
         return false;
     }
@@ -773,6 +790,17 @@ bool ArcticControlGPUInterop::GPUInterop::SetGamingFlipMode(GamingFlipMode flip_
     set_3d_property.bSet = true;
     set_3d_property.CustomValueSize = 0;
     set_3d_property.pCustomValue = nullptr;
+
+    // application specify
+    if (application != nullptr)
+    {
+        marshal_context^ context = gcnew marshal_context();
+        const char* app_name = context->marshal_as<const char*>(application);
+        set_3d_property.ApplicationName = const_cast<char*>(app_name);
+        set_3d_property.ApplicationNameLength = static_cast<int8_t>(strlen(app_name));
+        delete context;
+    }
+    
     set_3d_property.ValueType = CTL_PROPERTY_VALUE_TYPE_ENUM;
     set_3d_property.Value.EnumType.EnableType = static_cast<ctl_gaming_flip_mode_flag_t>(flip_mode);
     set_3d_property.Version = 0;
@@ -782,7 +810,7 @@ bool ArcticControlGPUInterop::GPUInterop::SetGamingFlipMode(GamingFlipMode flip_
         WRITE_LINE("[GPUInterop]: trying to set CTL_3D_FEATURE_GAMING_FLIP_MODES to "
             + set_3d_property.Value.EnumType.EnableType);
         
-        if (const ctl_result_t result = ctlGetSet3DFeature(h_devices_[0], &set_3d_property);
+        if (const ctl_result_t result = ctlGetSet3DFeature(h_devices_[selected_device_], &set_3d_property);
             result == CTL_RESULT_SUCCESS)
         {
             return true;
@@ -794,9 +822,9 @@ bool ArcticControlGPUInterop::GPUInterop::SetGamingFlipMode(GamingFlipMode flip_
     return false;
 }
 
-ArcticControlGPUInterop::AnisotropicFilteringMode ArcticControlGPUInterop::GPUInterop::GetAnisotropicFilteringMode()
+ArcticControlGPUInterop::AnisotropicFilteringMode ArcticControlGPUInterop::GPUInterop::GetAnisotropicFilteringMode(String^ application)
 {
-    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
         return AnisotropicFilteringMode::Unknown;
     }
@@ -808,15 +836,25 @@ ArcticControlGPUInterop::AnisotropicFilteringMode ArcticControlGPUInterop::GPUIn
     get_3d_property.bSet = false;
     get_3d_property.CustomValueSize = 0;
     get_3d_property.pCustomValue = nullptr;
+    // application specify
+    if (application != nullptr)
+    {
+        marshal_context^ context = gcnew marshal_context();
+        const char* app_name = context->marshal_as<const char*>(application);
+        get_3d_property.ApplicationName = const_cast<char*>(app_name);
+        get_3d_property.ApplicationNameLength = static_cast<int8_t>(strlen(app_name));
+        delete context;
+    }
     get_3d_property.ValueType = CTL_PROPERTY_VALUE_TYPE_ENUM;
     get_3d_property.Version = 0;
 
     if (h_devices_ != nullptr)
     {
-        if (const ctl_result_t result = ctlGetSet3DFeature(h_devices_[0], &get_3d_property);
+        if (const ctl_result_t result = ctlGetSet3DFeature(h_devices_[selected_device_], &get_3d_property);
             result == CTL_RESULT_SUCCESS)
         {
-            WRITE_LINE("[GPUInterop]: EnableType: " + get_3d_property.Value.EnumType.EnableType.ToString());
+            WRITE_LINE("[GPUInterop]: GetAnisotropicFilteringMode - EnableType: "
+                + get_3d_property.Value.EnumType.EnableType.ToString());
             const auto afm = static_cast<AnisotropicFilteringMode>(get_3d_property.Value.EnumType.EnableType);
             return afm;
         }
@@ -833,9 +871,9 @@ ArcticControlGPUInterop::AnisotropicFilteringMode ArcticControlGPUInterop::GPUIn
     return AnisotropicFilteringMode::Unknown;
 }
 
-bool ArcticControlGPUInterop::GPUInterop::SetAnisotropicFilteringMode(AnisotropicFilteringMode anisotropic_mode)
+bool ArcticControlGPUInterop::GPUInterop::SetAnisotropicFilteringMode(AnisotropicFilteringMode anisotropic_mode, String^ application)
 {
-    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
         return false;
     }
@@ -847,6 +885,15 @@ bool ArcticControlGPUInterop::GPUInterop::SetAnisotropicFilteringMode(Anisotropi
     set_3d_property.bSet = true;
     set_3d_property.CustomValueSize = 0;
     set_3d_property.pCustomValue = nullptr;
+    // application specify
+    if (application != nullptr)
+    {
+        marshal_context^ context = gcnew marshal_context();
+        const char* app_name = context->marshal_as<const char*>(application);
+        set_3d_property.ApplicationName = const_cast<char*>(app_name);
+        set_3d_property.ApplicationNameLength = static_cast<int8_t>(strlen(app_name));
+        delete context;
+    }
     set_3d_property.ValueType = CTL_PROPERTY_VALUE_TYPE_ENUM;
     set_3d_property.Value.EnumType.EnableType = static_cast<ctl_3d_anisotropic_types_t>(anisotropic_mode);
     set_3d_property.Version = 0;
@@ -856,7 +903,7 @@ bool ArcticControlGPUInterop::GPUInterop::SetAnisotropicFilteringMode(Anisotropi
         WRITE_LINE("[GPUInterop]: trying to set CTL_3D_FEATURE_ANISOTROPIC to "
             + set_3d_property.Value.EnumType.EnableType);
         
-        if (const ctl_result_t result = ctlGetSet3DFeature(h_devices_[0], &set_3d_property);
+        if (const ctl_result_t result = ctlGetSet3DFeature(h_devices_[selected_device_], &set_3d_property);
             result == CTL_RESULT_SUCCESS)
         {
             return true;
@@ -868,9 +915,9 @@ bool ArcticControlGPUInterop::GPUInterop::SetAnisotropicFilteringMode(Anisotropi
     return false;
 }
 
-ArcticControlGPUInterop::CmaaMode ArcticControlGPUInterop::GPUInterop::GetCmaaMode()
+ArcticControlGPUInterop::CmaaMode ArcticControlGPUInterop::GPUInterop::GetCmaaMode(String^ application)
 {
-    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
         return CmaaMode::Unknown;
     }
@@ -882,12 +929,21 @@ ArcticControlGPUInterop::CmaaMode ArcticControlGPUInterop::GPUInterop::GetCmaaMo
     get_3d_property.bSet = false;
     get_3d_property.CustomValueSize = 0;
     get_3d_property.pCustomValue = nullptr;
+    // application specify
+    if (application != nullptr)
+    {
+        marshal_context^ context = gcnew marshal_context();
+        const char* app_name = context->marshal_as<const char*>(application);
+        get_3d_property.ApplicationName = const_cast<char*>(app_name);
+        get_3d_property.ApplicationNameLength = static_cast<int8_t>(strlen(app_name));
+        delete context;
+    }
     get_3d_property.ValueType = CTL_PROPERTY_VALUE_TYPE_ENUM;
     get_3d_property.Version = 0;
 
     if (h_devices_ != nullptr)
     {
-        if (const ctl_result_t result = ctlGetSet3DFeature(h_devices_[0], &get_3d_property);
+        if (const ctl_result_t result = ctlGetSet3DFeature(h_devices_[selected_device_], &get_3d_property);
             result == CTL_RESULT_SUCCESS)
         {
             WRITE_LINE("[GPUInterop]: EnableType: " + get_3d_property.Value.EnumType.EnableType.ToString());
@@ -904,9 +960,9 @@ ArcticControlGPUInterop::CmaaMode ArcticControlGPUInterop::GPUInterop::GetCmaaMo
     return CmaaMode::Unknown;
 }
 
-bool ArcticControlGPUInterop::GPUInterop::SetCmaaMode(CmaaMode cmaa_mode)
+bool ArcticControlGPUInterop::GPUInterop::SetCmaaMode(CmaaMode cmaa_mode, String^ application)
 {
-    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
         return false;
     }
@@ -918,6 +974,15 @@ bool ArcticControlGPUInterop::GPUInterop::SetCmaaMode(CmaaMode cmaa_mode)
     set_3d_property.bSet = true;
     set_3d_property.CustomValueSize = 0;
     set_3d_property.pCustomValue = nullptr;
+    // application specify
+    if (application != nullptr)
+    {
+        marshal_context^ context = gcnew marshal_context();
+        const char* app_name = context->marshal_as<const char*>(application);
+        set_3d_property.ApplicationName = const_cast<char*>(app_name);
+        set_3d_property.ApplicationNameLength = static_cast<int8_t>(strlen(app_name));
+        delete context;
+    }
     set_3d_property.ValueType = CTL_PROPERTY_VALUE_TYPE_ENUM;
     set_3d_property.Value.EnumType.EnableType = static_cast<ctl_3d_anisotropic_types_t>(cmaa_mode);
     set_3d_property.Version = 0;
@@ -927,7 +992,7 @@ bool ArcticControlGPUInterop::GPUInterop::SetCmaaMode(CmaaMode cmaa_mode)
         WRITE_LINE("[GPUInterop]: trying to set CTL_3D_FEATURE_CMAA to "
             + set_3d_property.Value.EnumType.EnableType);
         
-        if (const ctl_result_t result = ctlGetSet3DFeature(h_devices_[0], &set_3d_property);
+        if (const ctl_result_t result = ctlGetSet3DFeature(h_devices_[selected_device_], &set_3d_property);
             result == CTL_RESULT_SUCCESS)
         {
             return true;
@@ -939,9 +1004,9 @@ bool ArcticControlGPUInterop::GPUInterop::SetCmaaMode(CmaaMode cmaa_mode)
     return false;
 }
 
-bool ArcticControlGPUInterop::GPUInterop::IsSharpeningFilterActive()
+bool ArcticControlGPUInterop::GPUInterop::IsSharpeningFilterActive(String^ application)
 {
-    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
         // TODO: search for a better exception type
         // forbidden exception types:
@@ -956,12 +1021,21 @@ bool ArcticControlGPUInterop::GPUInterop::IsSharpeningFilterActive()
     get_3d_property.bSet = false;
     get_3d_property.CustomValueSize = 0;
     get_3d_property.pCustomValue = nullptr;
+    // application specify
+    if (application != nullptr)
+    {
+        marshal_context^ context = gcnew marshal_context();
+        const char* app_name = context->marshal_as<const char*>(application);
+        get_3d_property.ApplicationName = const_cast<char*>(app_name);
+        get_3d_property.ApplicationNameLength = static_cast<int8_t>(strlen(app_name));
+        delete context;
+    }
     get_3d_property.ValueType = CTL_PROPERTY_VALUE_TYPE_ENUM;
     get_3d_property.Version = 0;
 
     if (h_devices_ != nullptr)
     {
-        if (const ctl_result_t result = ctlGetSet3DFeature(h_devices_[0], &get_3d_property);
+        if (const ctl_result_t result = ctlGetSet3DFeature(h_devices_[selected_device_], &get_3d_property);
             result == CTL_RESULT_SUCCESS)
         {
             WRITE_LINE("[GPUInterop]: EnableType: " + get_3d_property.Value.EnumType.EnableType.ToString());
@@ -978,9 +1052,9 @@ bool ArcticControlGPUInterop::GPUInterop::IsSharpeningFilterActive()
     throw gcnew PlatformNotSupportedException;
 }
 
-bool ArcticControlGPUInterop::GPUInterop::SetSharpeningFilter(const bool on)
+bool ArcticControlGPUInterop::GPUInterop::SetSharpeningFilter(const bool on, String^ application)
 {
-    if (h_api_handle_ == nullptr || *adapter_count_ < 1)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
         throw gcnew PlatformNotSupportedException;
     }
@@ -992,6 +1066,15 @@ bool ArcticControlGPUInterop::GPUInterop::SetSharpeningFilter(const bool on)
     set_3d_property.bSet = true;
     set_3d_property.CustomValueSize = 0;
     set_3d_property.pCustomValue = nullptr;
+    // application specify
+    if (application != nullptr)
+    {
+        marshal_context^ context = gcnew marshal_context();
+        const char* app_name = context->marshal_as<const char*>(application);
+        set_3d_property.ApplicationName = const_cast<char*>(app_name);
+        set_3d_property.ApplicationNameLength = static_cast<int8_t>(strlen(app_name));
+        delete context;
+    }
     set_3d_property.ValueType = CTL_PROPERTY_VALUE_TYPE_ENUM;
     set_3d_property.Value.EnumType.EnableType
     = on ? CTL_3D_SHARPENING_FILTER_TYPES_TURN_ON : CTL_3D_SHARPENING_FILTER_TYPES_TURN_OFF;
@@ -1002,7 +1085,7 @@ bool ArcticControlGPUInterop::GPUInterop::SetSharpeningFilter(const bool on)
         WRITE_LINE("[GPUInterop]: trying to set CTL_3D_FEATURE_SHARPENING_FILTER to "
             + set_3d_property.Value.EnumType.EnableType);
         
-        if (const ctl_result_t result = ctlGetSet3DFeature(h_devices_[0], &set_3d_property);
+        if (const ctl_result_t result = ctlGetSet3DFeature(h_devices_[selected_device_], &set_3d_property);
             result == CTL_RESULT_SUCCESS)
         {
             return true;
@@ -1012,6 +1095,177 @@ bool ArcticControlGPUInterop::GPUInterop::SetSharpeningFilter(const bool on)
     }
 
     throw gcnew PlatformNotSupportedException;
+}
+
+bool ArcticControlGPUInterop::GPUInterop::InitFrequencyDomains()
+{
+    if (h_api_handle_ == nullptr
+        || *adapter_count_ < 1
+        || selected_device_ < 0
+
+        // already initialized
+        || selected_freq_ >= 0
+        || h_freq_handle_ != nullptr)
+    {
+        return false;
+    }
+
+    uint32_t freq_handle_count = 0;
+
+    if (ctl_result_t result = ctlEnumFrequencyDomains(h_devices_[selected_device_], &freq_handle_count, nullptr);
+        result == CTL_RESULT_SUCCESS && freq_handle_count > 0)
+    {
+        h_freq_handle_ = new ctl_freq_handle_t[freq_handle_count];
+        result = ctlEnumFrequencyDomains(h_devices_[selected_device_], &freq_handle_count, h_freq_handle_);
+
+        for (uint32_t i = 0; i < freq_handle_count; i++)
+        {
+            ctl_freq_properties_t freq_properties{0};
+            freq_properties.Size = sizeof(ctl_freq_properties_t);
+            result = ctlFrequencyGetProperties(h_freq_handle_[i], &freq_properties);
+
+            if (result == CTL_RESULT_SUCCESS && freq_properties.type == CTL_FREQ_DOMAIN_GPU)
+            {
+                WRITE_LINE("[GPUInterop]: found freq handle");
+                selected_freq_ = i;
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+ArcticControlGPUInterop::FrequencyProperties^ ArcticControlGPUInterop::GPUInterop::GetFrequencyProperties()
+{
+    if (h_api_handle_ == nullptr
+        || *adapter_count_ < 1
+        || selected_device_ < 0
+        || selected_freq_ < 0
+        || h_freq_handle_ == nullptr)
+    {
+        return nullptr;
+    }
+
+    ctl_freq_properties_t freq_properties{0};
+    freq_properties.Size = sizeof(ctl_freq_properties_t);
+
+    if (const ctl_result_t result = ctlFrequencyGetProperties(h_freq_handle_[selected_freq_], &freq_properties);
+        result == CTL_RESULT_SUCCESS)
+    {
+        return FrequencyProperties::create(&freq_properties);
+    }
+
+    return nullptr;
+}
+
+ArcticControlGPUInterop::FrequencyState^ ArcticControlGPUInterop::GPUInterop::GetFrequencyState()
+{
+    if (h_api_handle_ == nullptr
+        || *adapter_count_ < 1
+        || selected_device_ < 0
+        || selected_freq_ < 0
+        || h_freq_handle_ == nullptr)
+    {
+        return nullptr;
+    }
+
+    ctl_freq_state_t freq_state{0};
+    freq_state.Size = sizeof(ctl_freq_state_t);
+
+    if (const ctl_result_t result = ctlFrequencyGetState(h_freq_handle_[selected_freq_], &freq_state);
+        result == CTL_RESULT_SUCCESS)
+    {
+        return FrequencyState::create(&freq_state);
+    }
+
+    return nullptr;
+}
+
+System::Tuple<double, double>^ ArcticControlGPUInterop::GPUInterop::GetMinMaximumFrequency()
+{
+    if (h_api_handle_ == nullptr
+        || *adapter_count_ < 1
+        || selected_device_ < 0
+        || selected_freq_ < 0
+        || h_freq_handle_ == nullptr)
+    {
+        return nullptr;
+    }
+
+    ctl_freq_range_t freq_range{0};
+    freq_range.Size = sizeof(ctl_freq_range_t);
+    const ctl_result_t result = ctlFrequencyGetRange(h_freq_handle_[selected_freq_], &freq_range);
+
+    if (result == CTL_RESULT_SUCCESS)
+    {
+        WRITE_LINE("[GPUInterop]: GetMinMaximumFrequency");
+        return Tuple::Create(freq_range.min, freq_range.max);
+    }
+    else
+    {
+        WRITE_LINE("[GPUInterop]: GetMinMaximumFrequency failed with result: "
+            + gcnew String(decode_ret_code(result).c_str()));
+    }
+
+    return nullptr;
+}
+
+bool ArcticControlGPUInterop::GPUInterop::SetMinMaximumFrequency(const double min_freq, const double max_freq)
+{
+    if (h_api_handle_ == nullptr
+        || *adapter_count_ < 1
+        || selected_device_ < 0
+        || selected_freq_ < 0
+        || h_freq_handle_ == nullptr)
+    {
+        return false;
+    }
+
+    ctl_freq_range_t freq_range{0};
+    freq_range.min = min_freq;
+    freq_range.max = max_freq;
+    freq_range.Size = sizeof(freq_range);
+
+    if (const ctl_result_t result = ctlFrequencySetRange(h_freq_handle_[selected_freq_], &freq_range);
+        result == CTL_RESULT_SUCCESS)
+    {
+        WRITE_LINE("[GPUInterop]: SetMinMaximumFrequency");
+        return true;
+    }
+    else
+    {
+        WRITE_LINE("[GPUInterop]: SetMinMaximumFrequency failed with result: " 
+            + gcnew String(decode_ret_code(result).c_str()));
+    }
+
+    return false;
+}
+
+ArcticControlGPUInterop::PCIeProperties^ ArcticControlGPUInterop::GPUInterop::GetPCIeProperties()
+{
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
+    {
+        return nullptr;
+    }
+
+    ctl_pci_properties_t pci_properties{0};
+    pci_properties.Size = sizeof(ctl_pci_properties_t);
+
+    if (const ctl_result_t result = ctlPciGetProperties(h_devices_[selected_device_], &pci_properties);
+        result == CTL_RESULT_SUCCESS)
+    {
+        // TODO: for some reason _supported is false and enabled true on my system
+        // pci_properties.resizable_bar_supported && pci_properties.resizable_bar_enabled
+        auto pcie_props = gcnew PCIeProperties;
+        pcie_props->IsReBarSupported = pci_properties.resizable_bar_supported;
+        pcie_props->IsReBarEnabled = pci_properties.resizable_bar_enabled;
+        pcie_props->Lanes = pci_properties.maxSpeed.width;
+        pcie_props->Gen = pci_properties.maxSpeed.gen;
+        return pcie_props;
+    }
+
+    return  nullptr;
 }
 
 ArcticControlGPUInterop::GPUInterop::!GPUInterop()
@@ -1028,6 +1282,7 @@ ArcticControlGPUInterop::GPUInterop::!GPUInterop()
     CTL_FREE_MEM(fans_count_);
     CTL_FREE_MEM(h_pwr_handle_);
     CTL_FREE_MEM(pwr_count_);
+    CTL_FREE_MEM(h_freq_handle_);
 }
 
 // Decoding the return code for the most common error codes.

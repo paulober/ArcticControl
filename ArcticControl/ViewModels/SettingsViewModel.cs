@@ -12,6 +12,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Windows.ApplicationModel;
+using Microsoft.UI.Xaml.Controls.Primitives;
 
 namespace ArcticControl.ViewModels;
 
@@ -56,6 +57,22 @@ public class SettingsViewModel : ObservableRecipient
         set => SetProperty(ref _gpuPowerMaxLimit, value);
     }
 
+    private bool _isPowerMaxLimitInputEnabled = true;
+
+    public bool IsPowerMaxLimitInputEnabled
+    {
+        get => _isPowerMaxLimitInputEnabled;
+        set => SetProperty(ref _isPowerMaxLimitInputEnabled, value);
+    }
+    
+    private bool _isNotAdminTeachingTipOpen = false;
+
+    public bool IsNotAdminTeachingTipOpen
+    {
+        get => _isNotAdminTeachingTipOpen;
+        set => SetProperty(ref _isNotAdminTeachingTipOpen, value);
+    }
+    
     public SettingsViewModel(IThemeSelectorService themeSelectorService, ILocalSettingsService localSettingsService)
     {
         _themeSelectorService = themeSelectorService;
@@ -142,5 +159,49 @@ public class SettingsViewModel : ObservableRecipient
             }
             box.Value = settingsVal;
         }
+    }
+    
+    public async void UnlimitedPowerButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        // TODO: would be load togglebutton state on settings open
+        if (sender is ToggleButton tb)
+        {
+            //IsPowerMaxLimitInputEnabled = false;
+            if (!UACChecker.IsAdministrator())
+            {
+                IsNotAdminTeachingTipOpen = true;
+                return;
+            }
+            
+            var igcs = App.GetService<IIntelGraphicsControlService>();
+            if (tb.IsChecked ?? false)
+            {
+                var result = igcs.SetOverclockPowerLimit(0.0);
+                if (result)
+                {
+                    await App.MainWindow
+                        .ShowMessageDialogAsync("You now unlocked the power-limit of you GPU. That means " +
+                                                    "that the GPU frequency will not throttle due to average " +
+                                                    "power but may hit other limits. This will also disable the " +
+                                                    "overclocking power slider in the performance tab.");
+                }
+            }
+            else
+            {
+                // TODO: search for a better back to normal power limit
+                var result = igcs.SetOverclockPowerLimit(1500.0);
+                if (result)
+                {
+                    await App.MainWindow
+                        .ShowMessageDialogAsync("You disabled the unlimited power-limit of your " +
+                                                "GPU. Sustained power-limit has been reset to 150W.");
+                }
+            }
+        }
+    }
+    
+    public void NotAdminTeachingTip_OnActionButtonClick(TeachingTip sender, object args)
+    {
+        Application.Current.Exit();
     }
 }

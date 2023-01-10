@@ -57,7 +57,8 @@
                 <TextBlock x:Uid="Settings_GPUPowerMaxLimit" />
                 <Grid Width="Auto" Margin="{StaticResource SmallTopMargin}">
                     <Grid.RowDefinitions>
-                        <RowDefinition/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -79,6 +80,35 @@
                         Content="Save"
                         Click="{x:Bind ViewModel.SaveMaxGPUPowerLimitButton_Click, Mode=OneTime}"
                         Margin="{StaticResource MediumLeftRightMargin}"/>
+                    <ToggleButton
+                        x:Name="UnlimitedPowerToggleButton"
+                        Visibility="Collapsed"
+                        x:Load="False"
+                        Grid.Row="1" 
+                        Grid.Column="0" 
+                        Grid.ColumnSpan="2" 
+                        Content="Unlimited (very dangerous)"
+                        ToolTipService.Placement="Top"
+                        ToolTipService.ToolTip="only limit will be temperature and other limits. It's on your own risk. It can hurt you components and could be a potential fire hazard!"
+                        Click="{x:Bind ViewModel.UnlimitedPowerButton_OnClick}"
+                        Background="IndianRed"
+                        Foreground="Wheat"
+                        Margin="{StaticResource MediumTopBottomMargin}">
+                    </ToggleButton>
+                    <TeachingTip 
+                        Visibility="Collapsed"
+                        x:Load="False"
+                        x:Name="NotAdminTeachingTip"
+                        Title="Insufficient permissions"
+                        Subtitle="Relaunch the app as administrator in oder to use this button!"
+                        IsOpen="{x:Bind ViewModel.IsNotAdminTeachingTipOpen}"
+                        PreferredPlacement="Auto"
+                        PlacementMargin="20"
+                        IsLightDismissEnabled="True"
+                        ActionButtonClick="{x:Bind ViewModel.NotAdminTeachingTip_OnActionButtonClick}"
+                        ActionButtonContent="Close app now"
+                        CloseButtonContent="Maybe later...">
+                    </TeachingTip>
                 </Grid>
                 <TextBlock 
                     x:Uid="Settings_GPUPowerMaxLimit_InputError"

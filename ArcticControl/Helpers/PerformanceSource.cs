@@ -28,11 +28,13 @@ internal struct PerformanceSourceArgs
 internal class PerformanceSource
 {
     private readonly PerformanceSourceType _type;
-    private readonly PerformanceCounter? _perfCounter;
+    private PerformanceCounter? _perfCounter;
     private readonly string _format;
     private readonly Func<float, string> _valueOffsetCallback;
+    private readonly bool _deferPerfCounterSetup;
+    private readonly string[]? _deferedPerfCounterArgs;
 
-    internal PerformanceSource(PerformanceSourceArgs args)
+    internal PerformanceSource(PerformanceSourceArgs args, bool deferPerfCounterSetup = false)
     {
         _type = args.Type;
         _format = args.Format;
@@ -51,14 +53,30 @@ internal class PerformanceSource
                 
                 if (args.PerformanceCounterArgs?.Length == 2)
                 {
-                    _perfCounter = new PerformanceCounter(args.PerformanceCounterArgs[0], args.PerformanceCounterArgs[1]);
+                    if (deferPerfCounterSetup)
+                    {
+                        _deferPerfCounterSetup = true;
+                        _deferedPerfCounterArgs = args.PerformanceCounterArgs;
+                    }
+                    else
+                    {
+                        _perfCounter = new PerformanceCounter(args.PerformanceCounterArgs[0], args.PerformanceCounterArgs[1]);
+                    }
                 }
                 else if (args.PerformanceCounterArgs?.Length == 3)
                 {
-                    _perfCounter = new PerformanceCounter(
-                        args.PerformanceCounterArgs[0], 
-                        args.PerformanceCounterArgs[1], 
-                        args.PerformanceCounterArgs[2]);
+                    if (deferPerfCounterSetup)
+                    {
+                        _deferPerfCounterSetup = true;
+                        _deferedPerfCounterArgs = args.PerformanceCounterArgs;
+                    }
+                    else
+                    {
+                        _perfCounter = new PerformanceCounter(
+                            args.PerformanceCounterArgs[0], 
+                            args.PerformanceCounterArgs[1], 
+                            args.PerformanceCounterArgs[2]);
+                    }
                 }
                 else
                 {
@@ -81,12 +99,32 @@ internal class PerformanceSource
         }
     }
 
+    private void SetupPerfCounterLate()
+    {
+        if (_deferedPerfCounterArgs?.Length == 2)
+        {
+            _perfCounter = new PerformanceCounter(_deferedPerfCounterArgs[0], _deferedPerfCounterArgs[1]);
+        }
+        else if (_deferedPerfCounterArgs?.Length == 3)
+        {
+            _perfCounter = new PerformanceCounter(
+                _deferedPerfCounterArgs[0], 
+                _deferedPerfCounterArgs[1], 
+                _deferedPerfCounterArgs[2]);
+        }
+    }
+    
     /// <summary>
     /// Returns next value.
     /// </summary>
     /// <returns>Value or string.Empty if nothing has been found.</returns>
     internal string NextValue()
     {
+        if (_deferPerfCounterSetup && _perfCounter == null)
+        {
+            SetupPerfCounterLate();
+        }
+        
         return _valueOffsetCallback(_type switch
         {
             PerformanceSourceType.ArcNative => 0.0f,

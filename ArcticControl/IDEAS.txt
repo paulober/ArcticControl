@@ -2,3 +2,26 @@
 
 Get-WmiObject -Class Win32_PnPSignedDriver | Where-Object -FilterScript {$_.InfName -eq "oem61.inf"} | Format-Table -Property InfName,DeviceClass,DriverVersion,DriverProviderName
 
+// TODO: move somewhere
+// GPUPowerTest
+/*var result = _igcs.InitPowerDomains();
+if (result)
+{
+    Debug.WriteLine("PowerInit: Res true");
+    var powerProps = _igcs.GetPowerProperties();
+    if (powerProps != null)
+    {
+        Debug.WriteLine(
+            $"PowerProps: CanControl-{powerProps.CanControl} ; DefaultLimit-{powerProps.DefaultLimit} ;" +
+            $" MinLimit-{powerProps.MinLimit} ; MaxLimit-{powerProps.MaxLimit}");
+    }
+    var powerLimits = _igcs.GetPowerLimits();
+    if (powerLimits != null)
+    {
+        Debug.WriteLine($"PowerLimits: " + Environment.NewLine +
+            $"SustainedPowerLimits: Enabled-{powerLimits.SustainedPowerLimit.Enabled} ; Power-{powerLimits.SustainedPowerLimit.Power} ; Interval-{powerLimits.SustainedPowerLimit.Interval}" + Environment.NewLine +
+            $"BurstPowerLimit: Enabled-{powerLimits.BurstPowerLimit.Enabled} ; Power-{powerLimits.BurstPowerLimit.Power}" + Environment.NewLine +
+            $"PeakPowerLimit: PowerDC-{powerLimits.PeakPowerLimit.PowerDC} ; PowerAC-{powerLimits.PeakPowerLimit.PowerAC}");
+    }
+}*/
+            

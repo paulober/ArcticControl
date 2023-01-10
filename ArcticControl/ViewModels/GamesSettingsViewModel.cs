@@ -1,11 +1,8 @@
 ﻿using System.Diagnostics;
 using ArcticControl.Contracts.Services;
 using ArcticControl.Contracts.ViewModels;
-using ArcticControl.Core.Contracts.Services;
-using ArcticControl.Core.Models;
 using ArcticControl.Helpers;
 using ArcticControl.Models;
-using ArcticControlGPUInterop;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -111,7 +108,13 @@ public class GamesSettingsViewModel : ObservableRecipient, INavigationAware
     {
         if (sender is MenuFlyoutItem mfi)
         {
-            _ = _igcs.SetGamingFlipMode(mfi.Text.ToGamingFlipMode());
+            string? applicationName = null;
+            if (_navigationParameter is { IsGame: true, InstalledGame.ExePath: { } })
+            {
+                applicationName = _navigationParameter.Value.InstalledGame?.ExePath;
+            }
+            
+            _ = _igcs.SetGamingFlipMode(mfi.Text.ToGamingFlipMode(), applicationName);
             LoadTearingEffectMitigationStuff();
         }
     }
@@ -123,7 +126,12 @@ public class GamesSettingsViewModel : ObservableRecipient, INavigationAware
             return;
         }
 
-        var gfm = _igcs.GetGamingFlipMode();
+        string? applicationName = null;
+        if (_navigationParameter is { IsGame: true, InstalledGame.ExePath: { } })
+        {
+            applicationName = _navigationParameter.Value.InstalledGame?.ExePath;
+        }
+        var gfm = _igcs.GetGamingFlipMode(applicationName);
         TearingEffectMitigationDropdownBtn.Content = gfm.ToReadableString();
     }
 
@@ -131,7 +139,12 @@ public class GamesSettingsViewModel : ObservableRecipient, INavigationAware
     {
         if (sender is MenuFlyoutItem mfi)
         {
-            _ = _igcs.SetAnisotropicFilteringMode(mfi.Text.ToAnisotropicFilteringMode());
+            string? applicationName = null;
+            if (_navigationParameter is { IsGame: true, InstalledGame.ExePath: { } })
+            {
+                applicationName = _navigationParameter.Value.InstalledGame?.ExePath;
+            }
+            _ = _igcs.SetAnisotropicFilteringMode(mfi.Text.ToAnisotropicFilteringMode(), applicationName);
             LoadAnisotropicFilteringStuff();
         }
     }
@@ -143,7 +156,12 @@ public class GamesSettingsViewModel : ObservableRecipient, INavigationAware
             return;
         }
 
-        var afm = _igcs.GetAnisotropicFilteringMode();
+        string? applicationName = null;
+        if (_navigationParameter is { IsGame: true, InstalledGame.ExePath: { } })
+        {
+            applicationName = _navigationParameter.Value.InstalledGame?.ExePath;
+        }
+        var afm = _igcs.GetAnisotropicFilteringMode(applicationName);
         AnisotropicFilteringDropdownBtn.Content = afm.ToReadableString();
     }
 
@@ -151,7 +169,12 @@ public class GamesSettingsViewModel : ObservableRecipient, INavigationAware
     {
         if (sender is MenuFlyoutItem mfi)
         {
-            _ = _igcs.SetCmaaMode(mfi.Text.ToCmaaMode());
+            string? applicationName = null;
+            if (_navigationParameter is { IsGame: true, InstalledGame.ExePath: { } })
+            {
+                applicationName = _navigationParameter.Value.InstalledGame?.ExePath;
+            }
+            _ = _igcs.SetCmaaMode(mfi.Text.ToCmaaMode(), applicationName);
             LoadAntiAliasingStuff();
         }
     }
@@ -163,14 +186,25 @@ public class GamesSettingsViewModel : ObservableRecipient, INavigationAware
             return;
         }
 
-        var cm = _igcs.GetCmaaMode();
+        string? applicationName = null;
+        if (_navigationParameter is { IsGame: true, InstalledGame.ExePath: { } })
+        {
+            applicationName = _navigationParameter.Value.InstalledGame?.ExePath;
+        }
+        // TODO: return if is game but not exepath, because then this function should not run!
+        var cm = _igcs.GetCmaaMode(applicationName);
         AntiAliasingDropdownBtn.Content = cm.ToReadableString();
     }
     
     public void SharpeningFilter_ToggleSwitch_OnToggled(object sender, RoutedEventArgs e)
     {
         SharpeningFilterSwitchEnabled = false;
-        if (!_igcs.SetSharpeningFilter(IsSharpeningFilterActive))
+        string? applicationName = null;
+        if (_navigationParameter is { IsGame: true, InstalledGame.ExePath: { } })
+        {
+            applicationName = _navigationParameter.Value.InstalledGame?.ExePath;
+        }
+        if (!_igcs.SetSharpeningFilter(IsSharpeningFilterActive, applicationName))
         {
             // sharpening filter hasn't been set successfully
             IsSharpeningFilterActive = !IsSharpeningFilterActive;
@@ -202,6 +236,9 @@ public class GamesSettingsViewModel : ObservableRecipient, INavigationAware
                 {
                     Debug.WriteLine("Found steam game ExeName: " + result);
                     _navigationParameter.Value.InstalledGame.ExePath = result;
+                    
+                    // enable input controls as now game-specific settings can be made
+                    InputControlsEnabled = true;
                 }
             }
             else if (!string.IsNullOrEmpty(epicGamesLaunchPath))
@@ -283,7 +320,12 @@ public class GamesSettingsViewModel : ObservableRecipient, INavigationAware
             LoadAntiAliasingStuff();
 
             // load sharpening filter stuff
-            IsSharpeningFilterActive = _igcs.IsSharpeningFilterActive();
+            string? applicationName = null;
+            if (_navigationParameter is { IsGame: true, InstalledGame.ExePath: { } })
+            {
+                applicationName = _navigationParameter.Value.InstalledGame?.ExePath;
+            }
+            IsSharpeningFilterActive = _igcs.IsSharpeningFilterActive(applicationName);
         }
     }
 

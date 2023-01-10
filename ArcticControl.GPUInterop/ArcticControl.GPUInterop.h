@@ -460,19 +460,106 @@ namespace ArcticControlGPUInterop {
 		Unknown
 	};
 
+	public ref class PCIeProperties
+	{
+	public:
+		bool IsReBarSupported;
+		bool IsReBarEnabled;
+		int32_t Lanes;
+		int32_t Gen;
+	};
+
+	public ref class FrequencyProperties
+	{
+	public:
+		static FrequencyProperties^ create(const ctl_freq_properties_t* freq_props)
+		{
+			auto gc_freq_props = gcnew FrequencyProperties;
+			gc_freq_props->CanControl = freq_props->canControl;
+			gc_freq_props->HardwareMin = freq_props->min;
+			gc_freq_props->HardwareMax = freq_props->min;
+
+			return gc_freq_props;
+		}
+		
+		bool CanControl;
+		/// <summary>
+		/// The maximum non-overclock hardware clock frequency in units of MHz.
+		/// </summary>
+		double HardwareMin;
+		/// <summary>
+		/// The minimum hardware clock frequency in units of MHz.
+		/// </summary>
+		double HardwareMax;
+	};
+
+	public enum class FrequencyCap : UInt16
+	{
+		AveragePowerCap = 1,
+		BurstPowerCap = 2,
+		CurrentLimit = 4,
+		ThermalLimit = 8,
+		PsuAlert = 16,
+		SoftwareRange = 32,
+		HardwareRange = 64,
+		Max = 0x80000000,
+		Unknown = 999
+	};
+
+	public ref class FrequencyState
+	{
+	public:
+		static FrequencyState^ create(const ctl_freq_state_t* freq_state)
+		{
+			auto gc_freq_state = gcnew FrequencyState;
+
+			gc_freq_state->CurrentVoltage = freq_state->currentVoltage;
+			gc_freq_state->RequestedFrequency = freq_state->request;
+			gc_freq_state->TDPFrequency = freq_state->tdp;
+			gc_freq_state->EfficientFrequency = freq_state->efficient;
+			gc_freq_state->ActualFrequency = freq_state->actual;
+
+			gc_freq_state->Cap = static_cast<FrequencyCap>(freq_state->throttleReasons);
+
+			if (gc_freq_state->Cap == FrequencyCap::Max)
+			{
+				gc_freq_state->Cap = FrequencyCap::Unknown;
+			}
+			
+			return gc_freq_state;
+		}
+		
+		double CurrentVoltage;
+		double RequestedFrequency;
+		double TDPFrequency;
+		double EfficientFrequency;
+		double ActualFrequency;
+		FrequencyCap Cap;
+	};
+
 	public ref class GPUInterop
 	{
-		array<uint32_t>^ supported_device_ids;
+		array<uint32_t>^ supported_device_ids_;
 
 		uint32_t* adapter_count_;
 		ctl_device_adapter_handle_t* h_devices_;
-		int selected_device_=-1;
+		int selected_device_ = -1;
+
+		// fans
 		uint32_t* fans_count_;
 		ctl_fan_handle_t* h_fans_;
+
+		// api
 		ctl_api_handle_t* h_api_handle_;
+
+		// power
 		uint32_t* pwr_count_;
 		ctl_pwr_handle_t* h_pwr_handle_;
 
+		// frequency
+		int selected_freq_ = -1;
+		ctl_freq_handle_t* h_freq_handle_;
+		
 		/// <summary>
 		/// Get control api handle if adapter is connected.
 		/// </summary>
@@ -481,7 +568,8 @@ namespace ArcticControlGPUInterop {
 
 	public:
 		GPUInterop() {
-			supported_device_ids = gcnew array<UInt32>(11) {
+			// https://dgpu-docs.intel.com/devices/hardware-table.html
+			supported_device_ids_ = gcnew array<UInt32>(11) {
 				0x5690, // <-- Arc A77M
 				0x56A0, // <-- Arc A770
 				0x5691, // <-- Arc A730M
@@ -555,16 +643,26 @@ namespace ArcticControlGPUInterop {
 		FanConfig^ GetFanConfig();
 		bool SetFansToDefaultMode();
 
-		// Games (3d)
-		GamingFlipMode GetGamingFlipMode();
-		bool SetGamingFlipMode(GamingFlipMode flip_mode);
-		AnisotropicFilteringMode GetAnisotropicFilteringMode();
-		bool SetAnisotropicFilteringMode(AnisotropicFilteringMode anisotropic_mode);
-		CmaaMode GetCmaaMode();
-		bool SetCmaaMode(CmaaMode cmaa_mode);
+		// Games (3d) - provide null to application if want to get/set global settings
+		GamingFlipMode GetGamingFlipMode(String^ application);
+		bool SetGamingFlipMode(GamingFlipMode flip_mode, String^ application);
+		AnisotropicFilteringMode GetAnisotropicFilteringMode(String^ application);
+		bool SetAnisotropicFilteringMode(AnisotropicFilteringMode anisotropic_mode, String^ application);
+		CmaaMode GetCmaaMode(String^ application);
+		bool SetCmaaMode(CmaaMode cmaa_mode, String^ application);
 
-		bool IsSharpeningFilterActive();
-		bool SetSharpeningFilter(bool on);
+		bool IsSharpeningFilterActive(String^ application);
+		bool SetSharpeningFilter(bool on, String^ application);
+
+		// Frequency
+		bool InitFrequencyDomains();
+		FrequencyProperties^ GetFrequencyProperties();
+		FrequencyState^ GetFrequencyState();
+		System::Tuple<double, double>^ GetMinMaximumFrequency();
+		bool SetMinMaximumFrequency(double min_freq, double max_freq);
+
+		// system status/info
+		PCIeProperties^ GetPCIeProperties();
 
 		// just for test
 		static String^ GetMyName();

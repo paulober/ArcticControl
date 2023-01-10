@@ -20,7 +20,7 @@
 	if (nullptr != ptr)		\
 	{						\
 		free(ptr);			\
-		ptr = nullptr;		    \
+		ptr = nullptr;		\
 	}						\
 
 #endif //PCH_H

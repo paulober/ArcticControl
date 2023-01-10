@@ -7,6 +7,7 @@ namespace ArcticControl.Services;
 public class IntelGraphicsControlService: IIntelGraphicsControlService
 {
     private readonly bool _initialized;
+    private bool _frequencyDomainsInitialized = false;
     private readonly GPUInterop _gpuInterop;
 
     public IntelGraphicsControlService()
@@ -321,7 +322,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         return default;
     }
 
-    public GamingFlipMode GetGamingFlipMode()
+    public GamingFlipMode GetGamingFlipMode(string? app = null)
     {
         if (!_initialized)
         {
@@ -330,7 +331,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
         try
         {
-            var gamingFlipMode = _gpuInterop.GetGamingFlipMode();
+            var gamingFlipMode = _gpuInterop.GetGamingFlipMode(app);
             return gamingFlipMode;
         }
         catch (Exception ex)
@@ -342,7 +343,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         return GamingFlipMode.Unknown;
     }
 
-    public bool SetGamingFlipMode(GamingFlipMode gamingFlipMode)
+    public bool SetGamingFlipMode(GamingFlipMode gamingFlipMode, string? app = null)
     {
         if (!_initialized)
         {
@@ -351,7 +352,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
         try
         {
-            var result = _gpuInterop.SetGamingFlipMode(gamingFlipMode);
+            var result = _gpuInterop.SetGamingFlipMode(gamingFlipMode, app);
             return result;
         }
         catch (Exception ex)
@@ -363,7 +364,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         return false;
     }
     
-    public AnisotropicFilteringMode GetAnisotropicFilteringMode()
+    public AnisotropicFilteringMode GetAnisotropicFilteringMode(string? app = null)
     {
         if (!_initialized)
         {
@@ -372,7 +373,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
         try
         {
-            var anisotropicMode = _gpuInterop.GetAnisotropicFilteringMode();
+            var anisotropicMode = _gpuInterop.GetAnisotropicFilteringMode(app);
             return anisotropicMode;
         }
         catch (Exception ex)
@@ -384,7 +385,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         return AnisotropicFilteringMode.Unknown;
     }
 
-    public bool SetAnisotropicFilteringMode(AnisotropicFilteringMode anisotropicMode)
+    public bool SetAnisotropicFilteringMode(AnisotropicFilteringMode anisotropicMode, string? app = null)
     {
         if (!_initialized)
         {
@@ -393,7 +394,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
         try
         {
-            var result = _gpuInterop.SetAnisotropicFilteringMode(anisotropicMode);
+            var result = _gpuInterop.SetAnisotropicFilteringMode(anisotropicMode, app);
             return result;
         }
         catch (Exception ex)
@@ -405,7 +406,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         return false;
     }
     
-    public CmaaMode GetCmaaMode()
+    public CmaaMode GetCmaaMode(string? app = null)
     {
         if (!_initialized)
         {
@@ -414,7 +415,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
         try
         {
-            var cmaaMode = _gpuInterop.GetCmaaMode();
+            var cmaaMode = _gpuInterop.GetCmaaMode(app);
             return cmaaMode;
         }
         catch (Exception ex)
@@ -426,7 +427,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         return CmaaMode.Unknown;
     }
 
-    public bool SetCmaaMode(CmaaMode cmaaMode)
+    public bool SetCmaaMode(CmaaMode cmaaMode, string? app = null)
     {
         if (!_initialized)
         {
@@ -435,7 +436,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
         try
         {
-            var result = _gpuInterop.SetCmaaMode(cmaaMode);
+            var result = _gpuInterop.SetCmaaMode(cmaaMode, app);
             return result;
         }
         catch (Exception ex)
@@ -447,7 +448,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         return false;
     }
 
-    public bool IsSharpeningFilterActive()
+    public bool IsSharpeningFilterActive(string? app = null)
     {
         if (!_initialized)
         {
@@ -456,7 +457,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         
         try
         {
-            var state = _gpuInterop.IsSharpeningFilterActive();
+            var state = _gpuInterop.IsSharpeningFilterActive(app);
             return state;
         }
         catch (Exception ex)
@@ -469,7 +470,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         return false;
     }
 
-    public bool SetSharpeningFilter(bool on)
+    public bool SetSharpeningFilter(bool on, string? app = null)
     {
         if (!_initialized)
         {
@@ -478,7 +479,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         
         try
         {
-            var result = _gpuInterop.SetSharpeningFilter(on);
+            var result = _gpuInterop.SetSharpeningFilter(on, app);
             return result;
         }
         catch (Exception ex)
@@ -488,6 +489,137 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         }
         
         return false;
+    }
+
+    public bool InitFrequencyDomains()
+    {
+        if (!_initialized)
+        {
+            return false;
+        }
+
+        try
+        {
+            var result = _gpuInterop.InitFrequencyDomains();
+
+            _frequencyDomainsInitialized = result;
+            
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[IntelGraphicsControlService]: Error - InitFrequencyDomains");
+            Crashes.TrackError(ex);
+        }
+
+        return false;
+    }
+
+    public bool AreFrequencyDomainsInitialized() => _frequencyDomainsInitialized;
+    
+    public FrequencyProperties? GetFrequencyProperties()
+    {
+        if (!_initialized)
+        {
+            return null;
+        }
+        
+        try
+        {
+            var freqProps = _gpuInterop.GetFrequencyProperties();
+            return freqProps;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[IntelGraphicsControlService]: Error - GetFrequencyProperties");
+            Crashes.TrackError(ex);
+        }
+
+        return null;
+    }
+    
+    public FrequencyState? GetFrequencyState()
+    {
+        if (!_initialized)
+        {
+            return null;
+        }
+        
+        try
+        {
+            var freqState = _gpuInterop.GetFrequencyState();
+            return freqState;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[IntelGraphicsControlService]: Error - GetFrequencyState");
+            Crashes.TrackError(ex);
+        }
+
+        return null;
+    }
+    
+    public Tuple<double, double>? GetMinMaxFrequency()
+    {
+        if (!_initialized)
+        {
+            return null;
+        }
+        
+        try
+        {
+            var range = _gpuInterop.GetMinMaximumFrequency();
+            return range;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[IntelGraphicsControlService]: Error - GetFrequencyState");
+            Crashes.TrackError(ex);
+        }
+
+        return null;
+    }
+
+    public bool SetMinMaxFrequency(double minFreq, double maxFreq)
+    {
+        if (!_initialized)
+        {
+            return false;
+        }
+        
+        try
+        {
+            var result = _gpuInterop.SetMinMaximumFrequency(minFreq, maxFreq);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[IntelGraphicsControlService]: Error - SetMinMaxFrequency");
+            Crashes.TrackError(ex);
+        }
+
+        return false;
+    }
+
+    public PCIeProperties? GetPCIeProperties()
+    {
+        if (!_initialized)
+        {
+            return null;
+        }
+        
+        try
+        {
+            var props = _gpuInterop.GetPCIeProperties();
+
+            return props;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[IntelGraphicsControlService]: Error - GetPCIeProperties: " + ex.Message);
+        }
+
+        return null;
     }
 
     /// <summary>

@@ -50,15 +50,26 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
                     <TextBlock 
                         Grid.Row="0"
+                        Grid.Column="0"
                         Text="Live Performance Monitoring" 
                         Margin="0,0,0,20" 
                         FontSize="20" 
                         Style="{ThemeResource BodyStrongTextBlockStyle}"/>
+                    
+                    <Button 
+                        Grid.Column="1" 
+                        Grid.Row="0" 
+                        Content="Start monitoring"
+                        Click="StartMonitoringButton_OnClick" />
 
-                    <ScrollViewer Grid.Row="1" HorizontalAlignment="Stretch">
+                    <ScrollViewer Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" HorizontalAlignment="Stretch">
                         <!--ItemsSource="{x:Bind ViewModel.PerformanceValues, Mode=OneWay}"-->
                         <GridView 
                             x:Name="PerformanceGridView"
@@ -170,9 +181,7 @@
                 <ScrollViewer 
                     Grid.Row="1" 
                     HorizontalAlignment="Stretch" 
-                    Padding="0,0,5,0"
-                    x:Name="PerformanceSlidersScrollViewer"
-                    x:Load="{x:Bind ViewModel.LoadOverclockSliders, Mode=OneWay}">
+                    Padding="0,0,5,0">
                     
                     <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Margin="0,0,8,0">
                         <RelativePanel 
@@ -235,6 +244,49 @@
                                 </StackPanel>
                             </RelativePanel>-->
 
+                            <Grid HorizontalAlignment="Stretch" Margin="{StaticResource SmallTopBottomMargin}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <NumberBox
+                                    x:Uid="PerformancePage_Overclocking_MinimumFrequency_NumberBox"
+                                    Grid.Column="0"
+                                    Grid.Row="0"
+                                    SmallChange="2"
+                                    LargeChange="10"
+                                    Minimum="0"
+                                    Maximum="2500"
+                                    Value="{x:Bind ViewModel.FrequencyMinimum, Mode=TwoWay}"
+                                    Width="200"
+                                    PlaceholderText="0 MHz"
+                                    ToolTipService.Placement="Left"
+                                    SpinButtonPlacementMode="Inline"
+                                    ValidationMode="InvalidInputOverwritten"
+                                    ValueChanged="FrequencyMinimumNumberBox_OnValueChanged"/>
+
+                                <NumberBox
+                                    x:Uid="PerformancePage_Overclocking_MaximumFrequency_NumberBox"
+                                    Grid.Column="2"
+                                    Grid.Row="0"
+                                    SmallChange="2"
+                                    LargeChange="10"
+                                    Minimum="0"
+                                    Maximum="4000"
+                                    Value="{x:Bind ViewModel.FrequencyMaximum, Mode=TwoWay}"
+                                    Width="200"
+                                    PlaceholderText="0 MHz"
+                                    ToolTipService.Placement="Left"
+                                    SpinButtonPlacementMode="Inline"
+                                    ValidationMode="InvalidInputOverwritten"
+                                    ValueChanged="FrequencyMaximumNumberBox_OnValueChanged"/>
+                            </Grid>
+
                             <!-- GPU Frequency Offset (slider) -->
                             <Grid HorizontalAlignment="Stretch" Margin="{StaticResource SmallTopMargin}">
                                 <Grid.RowDefinitions>
@@ -253,11 +305,11 @@
                                     VerticalAlignment="Center"
                                     Text="GPU Frequency Offset" 
                                     FontSize="20" 
-                                    Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                    Style="{ThemeResource BodyStrongTextBlockStyle}"/>
 
                                 <StackPanel
                                     Grid.Column="2"
-                                    RelativePanel.AlignRightWithPanel="True" 
+                                    RelativePanel.AlignRightWithPanel="True"
                                     Margin="{StaticResource SmallRightMargin}">
 
                                     <RelativePanel HorizontalAlignment="Stretch">
@@ -342,7 +394,8 @@
                                         Maximum="{x:Bind ViewModel.GpuPowerMaxLimit, Mode=OneWay}"
                                         Value="{x:Bind ViewModel.GpuPowerLimitSliderValue, Mode=TwoWay}"
                                         Width="200"
-                                        ValueChanged="GPUPowerLimitSlider_ValueChanged"/>
+                                        ValueChanged="GPUPowerLimitSlider_ValueChanged"
+                                        IsEnabled="{x:Bind ViewModel.PowerLimitSliderEnabled}"/>
                                     <RelativePanel HorizontalAlignment="Stretch">
                                         <TextBlock RelativePanel.AlignLeftWithPanel="True" Text="95"/>
                                         <TextBlock 
@@ -411,6 +464,8 @@
 
                             <!-- Fan Speed manual control (slider) -->
                             <RelativePanel 
+                                x:Name="FanSpeedSliderContainer"
+                                x:Load="{x:Bind ViewModel.LoadFanSpeedSlider, Mode=OneWay}"
                                 Visibility="Collapsed" 
                                 HorizontalAlignment="Stretch" 
                                 Margin="{StaticResource LargeTopMargin}">

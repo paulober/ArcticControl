@@ -119,6 +119,18 @@ public sealed partial class PerformancePage : Page
         EnableRevertButton();
         await CheckWaiver();
     }*/
+    
+    private async void FrequencyMinimumNumberBox_OnValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
+    {
+        EnableRevertButton();
+        await CheckWaiver();
+    }
+    
+    private async void FrequencyMaximumNumberBox_OnValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
+    {
+        EnableRevertButton();
+        await CheckWaiver();
+    }
 
     private async void GPUFrequencyOffsetSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
     {
@@ -168,7 +180,17 @@ public sealed partial class PerformancePage : Page
         if (sender is MenuFlyoutItem mfi)
         {
             FanSpeedControlDropDownButton.Content = mfi.Text;
-            ViewModel.FanSpeedFixed = mfi.Text == "Fixed";
+            if (mfi.Text == "Fixed")
+            {
+                ViewModel.LoadFanSpeedSlider = true;
+                ViewModel.FanSpeedFixed = true;
+                FanSpeedSlider.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                ViewModel.FanSpeedFixed = false;
+                FanSpeedSlider.Visibility = Visibility.Collapsed;
+            }
         }
     }
 
@@ -181,11 +203,6 @@ public sealed partial class PerformancePage : Page
 
     private void GridView_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        // The await causes the handler to return immediately.
-        //Task.Run(() => StartBackgroundTickTimer());
-        // Now update the UI with the results.
-        // ...
-        ViewModel.StartBackgroundTickTimer(DispatcherQueue.GetForCurrentThread());
         _waiverEnabled = true;
     }
 
@@ -199,6 +216,18 @@ public sealed partial class PerformancePage : Page
         else
         {
             await CheckWaiver();
+        }
+    }
+
+    private void StartMonitoringButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (!ViewModel.IsTickTimerStarted())
+        {
+            // The await causes the handler to return immediately.
+            //Task.Run(() => StartBackgroundTickTimer());
+            // Now update the UI with the results.
+            // ...
+            ViewModel.StartBackgroundTickTimer(DispatcherQueue.GetForCurrentThread());
         }
     }
 }

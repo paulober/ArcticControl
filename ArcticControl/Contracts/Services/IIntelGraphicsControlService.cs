@@ -18,13 +18,23 @@ public interface IIntelGraphicsControlService : IDisposable
     public PowerLimitsCombination? GetPowerLimits();
 
     public bool InitFansHandles();
+    public FanProperties? GetFanProperties();
 
-    public GamingFlipMode GetGamingFlipMode();
-    public bool SetGamingFlipMode(GamingFlipMode gamingFlipMode);
-    public AnisotropicFilteringMode GetAnisotropicFilteringMode();
-    public bool SetAnisotropicFilteringMode(AnisotropicFilteringMode anisotropicMode);
-    public CmaaMode GetCmaaMode();
-    public bool SetCmaaMode(CmaaMode cmaaMode);
-    public bool IsSharpeningFilterActive();
-    public bool SetSharpeningFilter(bool on);
+    public GamingFlipMode GetGamingFlipMode(string? app = null);
+    public bool SetGamingFlipMode(GamingFlipMode gamingFlipMode, string? app = null);
+    public AnisotropicFilteringMode GetAnisotropicFilteringMode(string? app = null);
+    public bool SetAnisotropicFilteringMode(AnisotropicFilteringMode anisotropicMode, string? app = null);
+    public CmaaMode GetCmaaMode(string? app = null);
+    public bool SetCmaaMode(CmaaMode cmaaMode, string? app = null);
+    public bool IsSharpeningFilterActive(string? app = null);
+    public bool SetSharpeningFilter(bool on, string? app = null);
+
+    public bool InitFrequencyDomains();
+    public bool AreFrequencyDomainsInitialized();
+    public FrequencyProperties? GetFrequencyProperties();
+    public FrequencyState? GetFrequencyState();
+    public Tuple<double, double>? GetMinMaxFrequency();
+    public bool SetMinMaxFrequency(double minFreq, double maxFreq);
+    
+    public PCIeProperties? GetPCIeProperties();
 }

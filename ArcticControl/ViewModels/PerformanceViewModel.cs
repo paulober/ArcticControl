@@ -19,7 +19,9 @@ internal enum SliderValueDefaults: ushort
     GpuPowerLimit = 2,
     GpuTemperatureLimit = 3,
     GpuFrequencyOffset = 4,
-    FanSpeed = 5
+    FanSpeed = 5,
+    FrequencyMinimum = 6,
+    FrequencyMaximum = 7
 }
 
 internal static class SliderDefaultValues
@@ -29,6 +31,8 @@ internal static class SliderDefaultValues
     internal const ushort GpuPowerLimit = 190;
     internal const ushort GpuTemperatureLimit = 90;
     internal const ushort FanSpeed = 20;
+    internal const double FrequencyMinimum = 0.0;
+    internal const double FrequencyMaximum = 0.0;
 }
 
 public class PerformanceViewModel : ObservableRecipient, INavigationAware
@@ -42,6 +46,9 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
         get; init;
     } = new();
 
+    /// <summary>
+    /// does not actually contain only slider values
+    /// </summary>
     private readonly Dictionary<SliderValueDefaults, double> _currentActiveSliderValues = new()
     {
         { SliderValueDefaults.GpuPowerLimit, Convert.ToDouble(SliderDefaultValues.GpuPowerLimit) },
@@ -49,15 +56,34 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
         { SliderValueDefaults.GpuVoltageOffset, Convert.ToDouble(SliderDefaultValues.GpuVoltageOffset) },
         { SliderValueDefaults.GpuFrequencyOffset, Convert.ToDouble(SliderDefaultValues.GpuFrequencyOffset) },
         { SliderValueDefaults.FanSpeed, Convert.ToDouble(SliderDefaultValues.FanSpeed) },
+        { SliderValueDefaults.FrequencyMinimum, Convert.ToDouble(SliderDefaultValues.FrequencyMinimum) },
+        { SliderValueDefaults.FrequencyMaximum, Convert.ToDouble(SliderDefaultValues.FrequencyMaximum) }
     };
 
     public bool WaiverSigned = false;
-    private bool _loadOverclockSliders = false;
+    
+    private bool _loadFanSpeedSlider = false;
 
-    public bool LoadOverclockSliders
+    public bool LoadFanSpeedSlider
     {
-        get => _loadOverclockSliders;
-        set => SetProperty(ref _loadOverclockSliders, value);
+        get => _loadFanSpeedSlider;
+        set => SetProperty(ref _loadFanSpeedSlider, value);
+    }
+
+    private double _frequencyMinimum;
+
+    public double FrequencyMinimum
+    {
+        get => _frequencyMinimum;
+        set => SetProperty(ref _frequencyMinimum, value);
+    }
+    
+    private double _frequencyMaximum;
+
+    public double FrequencyMaximum
+    {
+        get => _frequencyMaximum;
+        set => SetProperty(ref _frequencyMaximum, value);
     }
 
     private double _gpuFrequencyOffsetSliderValue = Convert.ToDouble(SliderDefaultValues.GpuFrequencyOffset);
@@ -67,7 +93,7 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
         get => _gpuFrequencyOffsetSliderValue;
         set => SetProperty(ref _gpuFrequencyOffsetSliderValue, value);
     }
-
+    
     private double _gpuVoltageOffsetSliderValue = Convert.ToDouble(SliderDefaultValues.GpuVoltageOffset);
 
     public double GpuVoltageOffsetSliderValue
@@ -115,6 +141,14 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
         set => SetProperty(ref _fanSpeedFixed, value);
     }
 
+    private bool _powerLimitSliderEnabled = true;
+
+    public bool PowerLimitSliderEnabled
+    {
+        get => _powerLimitSliderEnabled;
+        set => SetProperty(ref _powerLimitSliderEnabled, value);
+    }
+
     #region ValueDataObject properties to be able to update the values
     private PerformanceValueDataObject _cpuUtilizationObj 
         = new() { Title = "CPU Utilization", Value = "0.0", Unit = "%" };
@@ -130,14 +164,6 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
     {
         get => _memoryUtilizationObj;
         set => SetProperty(ref _memoryUtilizationObj, value);
-    }
-
-    private PerformanceValueDataObject _gpuVolatageObj
-        = new() { Title = "GPU Volatage", Value = "650", Unit = "mV" };
-    public PerformanceValueDataObject GpuVolatageObj
-    {
-        get => _gpuVolatageObj;
-        set => SetProperty(ref _gpuVolatageObj, value);
     }
     #endregion
 
@@ -167,7 +193,7 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
             Type = PerformanceSourceType.PerformanceCounter, 
             PerformanceCounterArgs = new string[] {"Processor Information", "% Processor Utility", "_Total"}, 
             Format = "0.0"
-        }), nameof(CpuUtilizationObj)),
+        }, deferPerfCounterSetup: true), nameof(CpuUtilizationObj)),
         Tuple.Create(new PerformanceSource(new PerformanceSourceArgs()
         {
             Type = PerformanceSourceType.ValueOffsetCallback,
@@ -243,7 +269,7 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
     {
         _dpq = dispatcherQueue;
 
-        _tickTimerTaskCancellationTokenSource = new();
+        _tickTimerTaskCancellationTokenSource = new CancellationTokenSource();
         var ct = _tickTimerTaskCancellationTokenSource.Token;
         _tickTimerTask = Task.Run(async () =>
         {
@@ -260,18 +286,18 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
                     // ...
                     // then
                     ct.ThrowIfCancellationRequested();
-                } else { await DoTick(); }
+                } else { await DoTick(); Thread.Sleep(500); }
             }
         }, ct);
     }
+
+    public bool IsTickTimerStarted() => _tickTimerTask != null;
 
     // TODO: maybe switch to Task vs void
     public async void OnNavigatedTo(object parameter)
     {
         // ItemsSource placeholders setup
         /*
-        PerformanceValues.Clear();
-
         PerformanceValues.Add(new PerformanceValueDataObject { Title = "CPU Utilization", Value = "9.1", Unit = "%" });
         PerformanceValues.Add(new PerformanceValueDataObject { Title = "Memory Utilization", Value = "17.8", Unit = "%" });
         PerformanceValues.Add(new PerformanceValueDataObject { Title = "GPU Volatage", Value = "650", Unit = "mV" });
@@ -286,61 +312,50 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
         PerformanceValues.Add(new PerformanceValueDataObject { Title = "Render Utilization", Value = "69", Unit = "%" });
         */
 
-        // will call !GPUInterop finalizer automaticly after current scope ends
-        /*using GPUInterop gpuInterop = new();
-        //Debug.WriteLine("gpuInterop.TestApi(): " + gpuInterop.TestApi().ToString());
-        var result = (bool)gpuInterop.InitCtlApi();
-        if (result)
+        if (_igcs.IsInitialized() && !_igcs.AreFrequencyDomainsInitialized())
         {
-            Debug.WriteLine("GPUInterop: " + gpuInterop.GetAdapterName());
-            var res = (double)gpuInterop.GetOverclockVRAMVoltageOffset();
-            var res1 = (double)gpuInterop.GetOverclockVRAMVoltageOffset();
-            Debug.WriteLine(res);
-        }*/
-
-        //var result = (bool)_gpuInterop.InitCtlApi();
+            _igcs.InitFrequencyDomains();
+        }
+        
+        GetOverclockingValues();
+        
+        /*
         if (_igcs.IsInitialized())
         {
-            GetOverclockingValues();
-            // TODO: move somewhere
-            // GPUPowerTest
+            // do api testing
+        }*/
 
-            var result = _igcs.InitPowerDomains();
-            if (result)
-            {
-                Debug.WriteLine("PowerInit: Res true");
-                var powerProps = _igcs.GetPowerProperties();
-                if (powerProps != null)
-                {
-                    Debug.WriteLine(
-                        $"PowerProps: CanControl-{powerProps.CanControl} ; DefaultLimit-{powerProps.DefaultLimit} ;" +
-                        $" MinLimit-{powerProps.MinLimit} ; MaxLimit-{powerProps.MaxLimit}");
-                }
-                var powerLimits = _igcs.GetPowerLimits();
-                if (powerLimits != null)
-                {
-                    Debug.WriteLine($"PowerLimits: " + Environment.NewLine +
-                        $"SustainedPowerLimits: Enabled-{powerLimits.SustainedPowerLimit.Enabled} ; Power-{powerLimits.SustainedPowerLimit.Power} ; Interval-{powerLimits.SustainedPowerLimit.Interval}" + Environment.NewLine +
-                        $"BurstPowerLimit: Enabled-{powerLimits.BurstPowerLimit.Enabled} ; Power-{powerLimits.BurstPowerLimit.Power}" + Environment.NewLine +
-                        $"PeakPowerLimit: PowerDC-{powerLimits.PeakPowerLimit.PowerDC} ; PowerAC-{powerLimits.PeakPowerLimit.PowerAC}");
-                }
-            }
-        }
-
-        var settingsGpuPowerMaxLimit = await _localSettingsService.ReadSettingAsync<double>(LocalSettingsKeys.GPUPowerMaxLimit);
+        var settingsGpuPowerMaxLimit = await _localSettingsService
+            .ReadSettingAsync<double>(LocalSettingsKeys.GPUPowerMaxLimit);
         GpuPowerMaxLimit = settingsGpuPowerMaxLimit < 228.0 ? 228.0 : settingsGpuPowerMaxLimit;
     }
 
     private void GetOverclockingValues(bool skipTempLimit = false)
     {
+        if (!_igcs.IsInitialized())
+        {
+            return;
+        }
+
         var powerLimit = _igcs.GetOverclockPowerLimit();
         var tempLimit = skipTempLimit 
             ? GpuTemperatureLimitSliderValue 
             : _igcs.GetOverclockTemperatureLimit();
         var gpuVoltageOffset = _igcs.GetOverclockGpuVoltageOffset();
         var gpuFrequencyOffset = _igcs.GetOverclockGpuFrequencyOffset();
+        var minMaxFrequency = _igcs.GetMinMaxFrequency();
 
-        GpuPowerLimitSliderValue = powerLimit;
+        // unlimited power limit
+        if (powerLimit == 0.0)
+        {
+            PowerLimitSliderEnabled = false;
+        }
+        else
+        {
+            PowerLimitSliderEnabled = true;
+            GpuPowerLimitSliderValue = powerLimit;
+        }
+        
         GpuTemperatureLimitSliderValue = tempLimit;
         GpuVoltageOffsetSliderValue = gpuVoltageOffset;
         GpuFrequencyOffsetSliderValue = gpuFrequencyOffset;
@@ -349,6 +364,17 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
         _currentActiveSliderValues[SliderValueDefaults.GpuTemperatureLimit] = tempLimit;
         _currentActiveSliderValues[SliderValueDefaults.GpuVoltageOffset] = gpuVoltageOffset;
         _currentActiveSliderValues[SliderValueDefaults.GpuFrequencyOffset] = gpuFrequencyOffset;
+        
+        // frequency stuff
+        // TODO: maybe stop returning nullable values replace with defaults - but would remove placeholders
+        if (minMaxFrequency != null)
+        {
+            FrequencyMinimum = minMaxFrequency.Item1;
+            FrequencyMaximum = minMaxFrequency.Item2;
+            
+            _currentActiveSliderValues[SliderValueDefaults.FrequencyMinimum] = minMaxFrequency.Item1;
+            _currentActiveSliderValues[SliderValueDefaults.FrequencyMaximum] = minMaxFrequency.Item2;
+        }
 
         // TODO: Fan stuff
         // if (FanSpeedFixed)...
@@ -360,6 +386,34 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
         GpuTemperatureLimitSliderValue = Convert.ToDouble(SliderDefaultValues.GpuTemperatureLimit);
         GpuVoltageOffsetSliderValue = Convert.ToDouble(SliderDefaultValues.GpuVoltageOffset);
         GpuFrequencyOffsetSliderValue = Convert.ToDouble(SliderDefaultValues.GpuFrequencyOffset);
+        var resultInitPowerDomains = _igcs.InitPowerDomains();
+        if (resultInitPowerDomains)
+        {
+            var props = _igcs.GetPowerProperties();
+            if (props != null && props?.DefaultLimit > 0)
+            {
+                GpuPowerLimitSliderValue = props.DefaultLimit;
+            }
+        }
+        
+        // frequency stuff
+        if (_igcs.AreFrequencyDomainsInitialized())
+        {
+            var frequencyProperties = _igcs.GetFrequencyProperties();
+            if (frequencyProperties != null)
+            {
+                // TODO: store in db for this device
+                Debug.WriteLine("Freqmin: " + frequencyProperties.HardwareMin);
+                FrequencyMinimum = frequencyProperties.HardwareMin;
+                // TODO: change default maximum
+                FrequencyMaximum = 2400.0;
+            }
+        }
+        else
+        {
+            FrequencyMinimum = Convert.ToDouble(SliderDefaultValues.FrequencyMinimum);
+            FrequencyMaximum = Convert.ToDouble(SliderDefaultValues.FrequencyMaximum);
+        }
     }
 
     public void RevertSliderChanges(object? sender, RoutedEventArgs? e)
@@ -368,6 +422,10 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
         GpuTemperatureLimitSliderValue = _currentActiveSliderValues[SliderValueDefaults.GpuTemperatureLimit];
         GpuVoltageOffsetSliderValue = _currentActiveSliderValues[SliderValueDefaults.GpuVoltageOffset];
         GpuFrequencyOffsetSliderValue = _currentActiveSliderValues[SliderValueDefaults.GpuFrequencyOffset];
+        
+        // frequency stuff
+        FrequencyMinimum = _currentActiveSliderValues[SliderValueDefaults.FrequencyMinimum];
+        FrequencyMaximum = _currentActiveSliderValues[SliderValueDefaults.FrequencyMaximum];
     }
 
     public bool ApplyChanges()
@@ -392,6 +450,17 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
                 doSkipTempLimit = true;
             }
         }
+
+        if (FrequencyMinimum != _currentActiveSliderValues[SliderValueDefaults.FrequencyMinimum] 
+            || FrequencyMaximum != _currentActiveSliderValues[SliderValueDefaults.FrequencyMaximum])
+        {
+            if (!WaiverSigned)
+            {
+                return false;
+            }
+            _igcs.SetMinMaxFrequency(FrequencyMinimum, FrequencyMaximum);
+        }
+        
         if (GpuVoltageOffsetSliderValue != _currentActiveSliderValues[SliderValueDefaults.GpuVoltageOffset])
         {
             if (!WaiverSigned)
@@ -427,15 +496,18 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
             return;
         }
 
-        _tickTimerTaskCancellationTokenSource?.Cancel();
-
         try
         {
-            await _tickTimerTask;
+            _tickTimerTaskCancellationTokenSource?.Cancel();
+            if (_tickTimerTask != null && _tickTimerTask?.Status != TaskStatus.WaitingForActivation)
+            {
+                await _tickTimerTask!;
+            }
         }
         catch (OperationCanceledException ex)
         {
-            Debug.WriteLine($"{nameof(OperationCanceledException)} thrown with message: {ex.Message}");
+            Debug.WriteLine("[PerformanceViewModel]: TickTimer - " +
+                            $"{nameof(OperationCanceledException)} thrown with message: {ex.Message}");
         }
         finally
         {
