@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
 using ArcticControl.Contracts.Services;
-
+using ArcticControl.Views;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Web.WebView2.Core;
 
@@ -32,6 +32,14 @@ public class WebViewService : IWebViewService
         _webView.NavigationCompleted += OnWebViewNavigationCompleted;
     }
 
+    public void GoHome()
+    {
+        if (_webView != null)
+        {
+            _webView.Source = new Uri("https://game.intel.com/story/intel-arc-graphics/");
+        }
+    }
+
     public void GoBack() => _webView?.GoBack();
 
     public void GoForward() => _webView?.GoForward();
@@ -49,7 +57,7 @@ public class WebViewService : IWebViewService
     private void OnWebViewNavigationCompleted(WebView2 sender, CoreWebView2NavigationCompletedEventArgs args)
     {
         NavigationCompleted?.Invoke(this, args.WebErrorStatus);
-        _webView.ExecuteScriptAsync("const elm = document.querySelector('.elementor-element-7980e40'); " +
+        _webView?.ExecuteScriptAsync("const elm = document.querySelector('.elementor-element-7980e40'); " +
                                     "elm.style.visibility = 'hidden';");
     }
 }

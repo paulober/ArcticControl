@@ -43,7 +43,7 @@ public class GamesViewModel : ObservableRecipient, INavigationAware
     {
         Source.Clear();
 
-        var data = await _gamesScannerService.GetInstalledGames();
+        var data = await Task.Run(() => _gamesScannerService.GetInstalledGames());
 
         foreach (var game in data)
         {

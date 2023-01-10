@@ -14,27 +14,76 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Border
+            <StackPanel 
                 Grid.Column="0"
-                BorderThickness="0"
-                CornerRadius="20"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
-                Visibility="{x:Bind ViewModel.GameDetailElementsVisibility, Mode=OneWay}"
-                Margin="{StaticResource MediumRightMargin}">
-                <Image 
-                    x:Name="GameDetailImage"
-                    Source="{x:Bind ViewModel.ImagePath, Mode=OneWay}"
-                    MaxHeight="300"
-                    MaxWidth="200"
-                    Visibility="{x:Bind ViewModel.GameDetailElementsVisibility, Mode=OneWay}"/>
-            </Border>
+                Orientation="Vertical"
+                Margin="{StaticResource MediumRightMargin}"
+                Visibility="{x:Bind ViewModel.GameDetailElementsVisibility, Mode=OneWay}">
+                <Border
+                    BorderThickness="0"
+                    CornerRadius="20"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Visibility="{x:Bind ViewModel.GameDetailElementsVisibility, Mode=OneWay}">
+                    <Image 
+                        x:Name="GameDetailImage"
+                        Source="{x:Bind ViewModel.ImagePath, Mode=OneWay}"
+                        MaxHeight="300"
+                        MaxWidth="200"
+                        Visibility="{x:Bind ViewModel.GameDetailElementsVisibility, Mode=OneWay}"/>
+                </Border>
+                <Grid Margin="{StaticResource MediumTopMargin}" 
+                      BorderThickness="1" 
+                      CornerRadius="6"
+                      Padding="4"
+                      Visibility="{x:Bind ViewModel.GameDetailElementsVisibility, Mode=OneWay}">
+                    <Grid.Background>
+                        <SolidColorBrush Opacity="0.2" Color="DarkSlateGray"/>
+                    </Grid.Background>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock 
+                        Grid.Column="0" 
+                        Text="XeSS: "
+                        FontSize="16"
+                        FontWeight="Bold"
+                        Margin="{StaticResource SmallRightMargin}"/>
+                    <TextBlock 
+                        Grid.Column="1" 
+                        Text="Supported" 
+                        Foreground="Green"
+                        FontSize="16"
+                        FontWeight="Bold"
+                        Visibility="{x:Bind ViewModel.XessSupportedFlagSupportedText,Mode=OneWay}"/>
+                    <TextBlock 
+                        Grid.Column="1" 
+                        Text="Unsupported" 
+                        Foreground="Red"
+                        FontSize="16"
+                        FontWeight="Bold"
+                        Visibility="{x:Bind ViewModel.XessSupportedFlagUnsupportedText,Mode=OneWay}"/>
+                </Grid>
+            </StackPanel>
 
             <StackPanel
                 Grid.Column="1"
                 x:Name="ContentArea"
                 Margin="{StaticResource SmallTopMargin}"
                 HorizontalAlignment="Stretch">
+
+                <InfoBar
+                    IsOpen="True"
+                    IsIconVisible="False"
+                    IsClosable="False"
+                    Severity="Warning"
+                    Title="Note"
+                    Margin="{StaticResource MediumBottomMargin}"
+                    Visibility="{x:Bind ViewModel.GameDetailElementsVisibility, Mode=OneWay}"
+                    Message="Game specific settings are currently under development..." />
 
                 <Grid 
                     HorizontalAlignment="Stretch" 
@@ -118,7 +167,8 @@
                     HorizontalAlignment="Stretch" 
                     BorderBrush="SlateGray" 
                     BorderThickness="0,0,0,1"
-                    Margin="0,0,0,15">
+                    Margin="{StaticResource SmallTopMargin}"
+                    Padding="{StaticResource MediumBottomMargin}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
@@ -145,11 +195,8 @@
                     Margin="{StaticResource MediumTopBottomMargin}"
                     Style="{ThemeResource SubtitleTextBlockStyle}"/>
 
-                <!-- Tearing Effect mitigation setting -->
                 <Grid 
-                    HorizontalAlignment="Stretch" 
-                    BorderBrush="SlateGray" 
-                    BorderThickness="0,0,0,1"
+                    HorizontalAlignment="Stretch"
                     Padding="0,0,0,15">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>

@@ -14,11 +14,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
+using Microsoft.Windows.ApplicationModel.WindowsAppRuntime;
 #if !DEBUG
 using Microsoft.AppCenter;
 using Windows.Globalization;
 #endif
 using System.Diagnostics;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
+using Windows.UI.Popups;
 
 namespace ArcticControl;
 
@@ -126,6 +130,18 @@ public partial class App : Application
             services.Configure<LocalSettingsOptions>(context.Configuration.GetSection(nameof(LocalSettingsOptions)));
         }).
         Build();
+
+        if (DeploymentManager.GetStatus().Status != DeploymentStatus.Ok)
+        {
+            Debug.WriteLine("[App]: DeploymentManager status: " + DeploymentManager.GetStatus().Status);
+            var initializeTask = Task.Run(DeploymentManager.Initialize);
+            initializeTask.Wait();
+
+            if (initializeTask.Result.Status == DeploymentStatus.Ok)
+            {
+                Debug.WriteLine("Installed Windows App Runtime successfully!");
+            }
+        }
 
         App.GetService<IAppNotificationService>().Initialize();
 

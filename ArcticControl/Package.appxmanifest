@@ -14,7 +14,7 @@
   <Identity
     Name="26580PaulOberosler.ArcticControl"
     Publisher="CN=42BD3C1F-9B9E-4875-88FA-EA94684D36E4"
-    Version="0.1.11.0" />
+    Version="0.1.12.0" />
 
   <Properties>
     <DisplayName>Arctic Control</DisplayName>
@@ -61,8 +61,12 @@
   </Applications>
 
   <Capabilities>
+	  <!-- GPUInterop und Games detection -->
 	  <rescap:Capability Name="broadFileSystemAccess" />
+	  <!-- AppCenter SDK -->
 	  <Capability Name="internetClient"/>
+	  <!-- WindowsAppSDK Deployment api -->
+	  <rescap:Capability Name="packageManagement"/>
   </Capabilities>
 
   <genTemplate:Metadata>

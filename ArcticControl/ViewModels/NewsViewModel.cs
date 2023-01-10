@@ -43,6 +43,11 @@ public class NewsViewModel : ObservableRecipient, INavigationAware
         set => SetProperty(ref _hasFailures, value);
     }
 
+    public ICommand BrowserHomeCommand
+    {
+        get;
+    }
+    
     public ICommand BrowserBackCommand
     {
         get;
@@ -72,6 +77,7 @@ public class NewsViewModel : ObservableRecipient, INavigationAware
     {
         WebViewService = webViewService;
 
+        BrowserHomeCommand = new RelayCommand(() => WebViewService.GoHome());
         BrowserBackCommand = new RelayCommand(() => WebViewService.GoBack(), () => WebViewService.CanGoBack);
         BrowserForwardCommand = new RelayCommand(() => WebViewService.GoForward(), () => WebViewService.CanGoForward);
         ReloadCommand = new RelayCommand(() => WebViewService.Reload());

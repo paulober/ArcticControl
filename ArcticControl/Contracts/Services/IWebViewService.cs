@@ -24,6 +24,8 @@ public interface IWebViewService
 
     void Initialize(WebView2 webView);
 
+    void GoHome();
+    
     void GoBack();
 
     void GoForward();

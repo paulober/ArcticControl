@@ -322,7 +322,7 @@
                                     <Slider 
                                         x:Name="GPUFrequencyOffsetSlider"
                                         Minimum="0"
-                                        Maximum="800"
+                                        Maximum="245"
                                         Value="{x:Bind ViewModel.GpuFrequencyOffsetSliderValue, Mode=TwoWay}"
                                         Width="200"
                                         ValueChanged="GPUFrequencyOffsetSlider_ValueChanged"/>

@@ -88,6 +88,36 @@ public class GamesSettingsViewModel : ObservableRecipient, INavigationAware
         set => SetProperty(ref _imagePath, value);
     }
 
+    private Visibility _xessSupportedFlagSupportedText = Visibility.Collapsed;
+
+    public Visibility XessSupportedFlagSupportedText
+    {
+        get => _xessSupportedFlagSupportedText;
+        set => SetProperty(ref _xessSupportedFlagSupportedText, value);
+    }
+
+    private Visibility _xessSupportedFlagUnsupportedText = Visibility.Collapsed;
+
+    public Visibility XessSupportedFlagUnsupportedText
+    {
+        get => _xessSupportedFlagUnsupportedText;
+        set => SetProperty(ref _xessSupportedFlagUnsupportedText, value);
+    }
+
+    private void SetXessState(bool supported)
+    {
+        if (supported)
+        {
+            XessSupportedFlagSupportedText = Visibility.Visible;
+            XessSupportedFlagUnsupportedText = Visibility.Collapsed;
+        }
+        else
+        {
+            XessSupportedFlagSupportedText = Visibility.Collapsed;
+            XessSupportedFlagUnsupportedText = Visibility.Visible;
+        }
+    }
+
     private Visibility _gameDetailElementsVis = Visibility.Collapsed;
 
     public Visibility GameDetailElementsVisibility
@@ -290,6 +320,7 @@ public class GamesSettingsViewModel : ObservableRecipient, INavigationAware
                     throw new OperationCanceledException();
                 }
                 ImagePath = param.InstalledGame?.ImagePath!;
+                SetXessState(param.InstalledGame?.XeSS ?? false);
 
                 GameDetailElementsVisibility = Visibility.Visible;
                 

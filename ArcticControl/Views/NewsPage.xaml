@@ -36,6 +36,9 @@
 
         <Grid Grid.Row="1">
             <StackPanel Orientation="Horizontal">
+                <Button x:Uid="BrowserHomeButton" Command="{x:Bind ViewModel.BrowserHomeCommand, Mode=OneWay}" Margin="{StaticResource XSmallLeftTopRightBottomMargin}" Padding="{StaticResource XXSmallLeftTopRightBottomMargin}">
+                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE80F;" />
+                </Button>
                 <Button x:Uid="BrowserBackButton" Command="{x:Bind ViewModel.BrowserBackCommand, Mode=OneWay}" Margin="{StaticResource XSmallLeftTopRightBottomMargin}" Padding="{StaticResource XXSmallLeftTopRightBottomMargin}">
                     <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE72B;" />
                 </Button>

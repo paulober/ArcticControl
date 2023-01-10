@@ -4,26 +4,90 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Text.RegularExpressions;
 using Windows.Storage;
+using Windows.Storage.Search;
 using ArcticControl.Models;
 using ArcticControl.Contracts.Services;
 using Newtonsoft.Json;
 using Icon = System.Drawing.Icon;
 
 namespace ArcticControl.Services;
-public class GamesScannerService : IGamesScannerService
+public partial class GamesScannerService : IGamesScannerService
 {
     private const string STEAM_LIBRARIES_CONFIG_PATH = "C:\\Program Files (x86)\\Steam\\steamapps\\libraryfolders.vdf";
     private const string STEAM_LIBRARY_CACHE_PATH = "C:\\Program Files (x86)\\Steam\\appcache\\librarycache";
     private const string EPICGAMES_MANIFESTS_PATH = "C:\\ProgramData\\Epic\\EpicGamesLauncher\\Data\\Manifests";
 
-    private List<InstalledGame>? installedGames;
+    private List<InstalledGame>? _installedGames;
 
+    private async Task<List<InstalledGame>> AlternativeSteamScannerAsync()
+    {
+        try
+        {
+            var config = await File.ReadAllTextAsync(STEAM_LIBRARIES_CONFIG_PATH);
+
+            var libraryPathsRegex = SteamLibraryPathsRegex();
+            var libraryPaths = libraryPathsRegex.Matches(config);
+            if (libraryPaths.Any())
+            {
+                var result = new List<InstalledGame>();
+                
+                foreach (Match libPath in libraryPaths)
+                {
+                    var libraryFolder =
+                        await StorageFolder.GetFolderFromPathAsync(Path.Combine(libPath.Groups["path"].Value.Replace("\\\\", "\\"),
+                            "steamapps"));
+
+                    QueryOptions options = new(CommonFileQuery.DefaultQuery, new[] { ".acf" })
+                    {
+                        FolderDepth = FolderDepth.Shallow
+                    };
+                    var filesInLib = await libraryFolder.CreateFileQueryWithOptions(options).GetFilesAsync();
+                    var manifestFiles = filesInLib.Where(f => f.Name.Contains("appmanifest_"));
+
+                    foreach (var manifest in manifestFiles)
+                    {
+                        try
+                        {
+                            var appIdRegex = AppIdRegex();
+                            var installDirRegex = InstallDirRegex();
+
+                            var manifestContent = await FileIO.ReadTextAsync(manifest);
+
+                            var appId = appIdRegex.Match(manifestContent).Groups["appId"].Value;
+                            var installDir = installDirRegex.Match(manifestContent).Groups["installdir"].Value;
+
+                            var gameFolder = await (await libraryFolder.GetFolderAsync("common")).GetFolderAsync(installDir);
+                            var xessSupported = await DoesGameSupportXeSsAsync(gameFolder.Path);
+
+                            var imagePath = Path.Combine(STEAM_LIBRARY_CACHE_PATH, appId + "_library_600x900.jpg");
+                            if (File.Exists(imagePath))
+                            {
+                                result.Add(new InstalledGame(imagePath, steamAppId: appId, xeSs: xessSupported));
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine("[GameScannerService]: Could not load 1 steam game: " + ex.Message);
+                        }
+                    }
+                }
+
+                return result;
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.Write("Could not load steam libraries!: " + ex.Message);
+        }
+        return new List<InstalledGame>();
+    }
+    
     private static IEnumerable<string> GetInstalledSteamAppIds()
     {
         try
         {
             var config = File.ReadAllText(STEAM_LIBRARIES_CONFIG_PATH);
-
+            
             var appsRegex = new Regex("\"apps\"\\n.*?{\\n(?:.*?\"(?:\\d*?)\".*?\"(?:\\d*?)\"\\n)*.*?}");
 
             var appsLists = appsRegex.Matches(config);
@@ -31,7 +95,7 @@ public class GamesScannerService : IGamesScannerService
             {
                 throw new Exception("Could not find installed steam apps");
             }
-
+            
             var appIdRegex = new Regex("(?:.*?\"(?<appId>\\d*?)\".*?\"(?:\\d*?)\"\\n)");
 
             List<string> result = new();
@@ -112,6 +176,35 @@ public class GamesScannerService : IGamesScannerService
         return string.Empty;
     }
 
+    private async Task<bool> DoesGameSupportXeSsAsync(string installLocation)
+    {
+        /*var xessDlls = 0;
+
+        QueryOptions qOpts = new(CommonFileQuery.DefaultQuery, new[] { ".dll" })
+        {
+            // for performance reasons but could be changed to deep if games don't get detected
+            // as XeSS utilizing games
+            FolderDepth = FolderDepth.Shallow
+        };
+        var dllsQuerry = gameDirectory.CreateFileQueryWithOptions(qOpts);
+        var dlls = await dllsQuerry.GetFilesAsync();
+        if (dlls.Count < 3)
+        {
+            qOpts.FolderDepth = FolderDepth.Deep;
+            dllsQuerry.ApplyNewQueryOptions(qOpts);
+            dlls = await dllsQuerry.GetFilesAsync();
+        }
+
+        if (dlls != null)
+        {
+            // TODO: maybe get xess version by libxess.dll <- FileVersionInfo.GetVersionInfo()
+            xessDlls = dlls.Count(dll => XeSsRegex().IsMatch(dll.Name));
+        }*/
+        var xessDllsCount = Directory.GetFiles(installLocation, "*xess.dll", SearchOption.AllDirectories).Length;
+
+        return xessDllsCount > 0;
+    }
+
     private async Task<IEnumerable<InstalledGame>> GetInstalledEpicGames()
     {
         try
@@ -130,15 +223,27 @@ public class GamesScannerService : IGamesScannerService
                 var content = await File.ReadAllTextAsync(file);
                 var item = JsonConvert.DeserializeObject<EpicGamesItem>(content);
 
+                // skip dlcs and stuff like that
                 if (item.LaunchExecutable.Length < 2)
                 {
                     continue;
                 }
 
+                // icon
                 var imagePath =
                     await CacheIconForEpicGamesGame(Path.Combine(item.InstallLocation, item.LaunchExecutable));
+                
+                // XeSS support
+                var xeSsSupported = false;
+                var gameDirectory = await StorageFolder.GetFolderFromPathAsync(item.InstallLocation);
+                if (gameDirectory != null)
+                {
+                    xeSsSupported = await DoesGameSupportXeSsAsync(gameDirectory.Path);
+                }
+                
                 result.Add(new InstalledGame(
-                    imagePath, 
+                    imagePath,
+                    xeSs: xeSsSupported,
                     exePath: item.LaunchExecutable, 
                     epicGamesLaunchPath: item.MainGameCatalogNamespace
                                          +"%3A"+item.MainGameCatalogItemId
@@ -158,18 +263,19 @@ public class GamesScannerService : IGamesScannerService
 
     public async Task<IEnumerable<InstalledGame>> GetInstalledGames(bool force = false)
     {
-        if (installedGames == null || force)
+        if (_installedGames == null || force)
         {
-            installedGames = new List<InstalledGame>();
+            _installedGames = new List<InstalledGame>();
 
-            var steamGames = GetInstalledSteamGames();
+            //var steamGames = GetInstalledSteamGames();
+            var steamGames = await AlternativeSteamScannerAsync();
             var epicGames = await GetInstalledEpicGames();
 
-            installedGames.AddRange(steamGames);
-            installedGames.AddRange(epicGames);
+            _installedGames.AddRange(steamGames);
+            _installedGames.AddRange(epicGames);
         }
 
-        return installedGames;
+        return _installedGames;
     }
 
     public GamesScannerService()
@@ -325,4 +431,13 @@ public class GamesScannerService : IGamesScannerService
 
         await Task.CompletedTask;
     }
+
+    [GeneratedRegex("(?:^|/)(?:ig|lib)xess\\.dll$", RegexOptions.Multiline)]
+    private static partial Regex XeSsRegex();
+    [GeneratedRegex("^(?:.*)\"appid\"(?:.*)\"(?<appId>.*)\"$", RegexOptions.Multiline)]
+    private static partial Regex AppIdRegex();
+    [GeneratedRegex("^(?:.*)\"installdir\"(?:.*)\"(?<installdir>.*)\"$", RegexOptions.Multiline)]
+    private static partial Regex InstallDirRegex();
+    [GeneratedRegex("^(?:.*)\"path\"(?:.*)\"(?<path>.*)\"$", RegexOptions.Multiline)]
+    private static partial Regex SteamLibraryPathsRegex();
 }
