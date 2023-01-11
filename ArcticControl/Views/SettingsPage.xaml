@@ -117,7 +117,8 @@
                     Visibility="{x:Bind ViewModel.GPUPowerMaxLimitInputErrorVis, Mode=OneWay}" />
             </StackPanel>
 
-            <TextBlock x:Uid="Settings_About" Style="{ThemeResource SubtitleTextBlockStyle}" />
+            <TextBlock x:Uid="Settings_About" Style="{ThemeResource SubtitleTextBlockStyle}" 
+                       Margin="{StaticResource MediumTopMargin}" />
 
             <StackPanel Margin="{StaticResource XSmallTopMargin}">
                 <TextBlock Text="{x:Bind ViewModel.VersionDescription, Mode=OneWay}" Style="{ThemeResource BodyTextBlockStyle}" />
@@ -132,7 +133,7 @@
                     Style="{ThemeResource BodyTextBlockStyle}" />
                 <TextBlock
                     x:Uid="Settings_NotFromIntelNote"
-                    Margin="{StaticResource XSmallTopMargin}"
+                    Margin="{StaticResource XSmallTopBottomMargin}"
                     Style="{ThemeResource BodyTextBlockStyle}" />
                 <HyperlinkButton x:Uid="SettingsPage_PrivacyTermsLink" Margin="{StaticResource SettingsPageHyperlinkButtonMargin}" />
                 <HyperlinkButton x:Uid="SettingsPage_TermsOfServiceLink" Margin="{StaticResource SettingsPageHyperlinkButtonMargin}"/>

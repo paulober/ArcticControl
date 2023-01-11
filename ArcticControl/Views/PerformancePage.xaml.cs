@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Windows.Foundation.Metadata;
+using ArcticControl.Helpers;
 
 namespace ArcticControl.Views;
 
@@ -19,6 +20,11 @@ public sealed partial class PerformancePage : Page
     {
         ViewModel = App.GetService<PerformanceViewModel>();
         InitializeComponent();
+
+        if (!UACChecker.IsAdministrator())
+        {
+            NotAdminWarningInfo.IsOpen = true;
+        }
     }
 
     private void EnableRevertButton()

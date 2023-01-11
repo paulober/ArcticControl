@@ -135,7 +135,7 @@
                 </RelativePanel>-->
 
                 <!-- when element above exists: Height="100" and remove style other than horizontalalignment -->
-                <RelativePanel
+                <!--<RelativePanel
                     BorderBrush="SlateGray" 
                     BorderThickness="0,1,0,1"
                     Padding="0,25,0,25"
@@ -152,11 +152,11 @@
                         ClickMode="Release" 
                         Click="TelemetryOverlayToggleButton_Click"
                         IsEnabled="False"/>
-                </RelativePanel>
+                </RelativePanel>-->
             </StackPanel>
         </ScrollViewer>
 
-        <!-- Right column (Graphs) -->
+        <!-- Right column (Sliders) -->
         <Border 
             Grid.Column="1" 
             HorizontalAlignment="Stretch"
@@ -169,17 +169,29 @@
             <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
+                
+                <InfoBar
+                    Grid.Row="0"
+                    x:Name="NotAdminWarningInfo"
+                    IsOpen="False"
+                    IsIconVisible="False"
+                    IsClosable="False"
+                    Severity="Warning"
+                    Title="No admin privileges"
+                    Margin="{StaticResource MediumBottomMargin}"
+                    Message="Most overclocking settings require the app to be started as administrator!" />
 
                 <TextBlock 
-                    Grid.Row="0" 
+                    Grid.Row="1" 
                     Text="Performance Tuning" 
                     Margin="0,0,0,15" FontSize="20" 
                     Style="{ThemeResource BodyStrongTextBlockStyle}"/>
 
                 <ScrollViewer 
-                    Grid.Row="1" 
+                    Grid.Row="2" 
                     HorizontalAlignment="Stretch" 
                     Padding="0,0,5,0">
                     
@@ -198,7 +210,7 @@
                             <ToggleButton
                                 IsEnabled="False"
                                 RelativePanel.AlignRightWithPanel="True" 
-                                Content="OFF" 
+                                Content="Under development..." 
                                 ClickMode="Release" 
                                 Click="ApplySettingsOnSystemBootToggle_Click"
                                 Margin="{StaticResource SmallRightMargin}"/>
