@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ArcticControlGPUInterop;
+﻿using ArcticControl.Models;
 
 namespace ArcticControl.Helpers;
 public static class GamingFlipModeExtension

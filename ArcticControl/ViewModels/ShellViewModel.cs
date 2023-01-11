@@ -1,4 +1,5 @@
 ﻿using ArcticControl.Contracts.Services;
+using ArcticControl.Helpers;
 using ArcticControl.Views;
 
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -34,11 +35,21 @@ public class ShellViewModel : ObservableRecipient
         set => SetProperty(ref _selected, value);
     }
 
+    private bool _arcDriverInstalled = false;
+    public bool ArcDriverInstalled
+    {
+        get => _arcDriverInstalled;
+        set => SetProperty(ref _arcDriverInstalled, value);
+    }
+
     public ShellViewModel(INavigationService navigationService, INavigationViewService navigationViewService)
     {
         NavigationService = navigationService;
         NavigationService.Navigated += OnNavigated;
         NavigationViewService = navigationViewService;
+
+        // TODO: remove this by fixing performance page crashes users pc with c++ exceptions and "System.IO.FileNotFoundException"
+        ArcDriverInstalled = InstalledDriverHelper.IsIntelGraphicsDriverInstalled();
     }
 
     private void OnNavigated(object sender, NavigationEventArgs e)

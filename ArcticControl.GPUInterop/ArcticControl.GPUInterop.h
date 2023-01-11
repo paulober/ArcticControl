@@ -404,62 +404,6 @@ namespace ArcticControlGPUInterop {
 		
 	};*/
 
-	public enum class GamingFlipMode : UInt16
-	{
-		Unknown = 0,
-		/// <summary>
-		/// Application Default
-		/// </summary>
-		AppDefault = 1,
-		/// <summary>
-		/// Convert all sync flips to async on the next possible scanline.
-		/// </summary>
-		VSyncOff = 2,
-		/// <summary>
-		/// Convert all async flips to sync flips.
-		/// </summary>
-		VSync = 4,
-		/// <summary>
-		/// Reduce tearing effect with async flips
-		/// </summary>
-		SmoothSync = 8,
-		/// <summary>
-		/// Application unaware triple buffering (Speed Sync). Not avail. on Alchemist dGPUs.
-		/// </summary>
-		SpeedFrame = 16,
-		/// <summary>
-		/// Limit the game FPS to panel RR(Rendering-Rate). Does automaticly switch between VSync and VSyncOFF. (Smart VSync)
-		/// </summary>
-		CappedFPS = 32
-	};
-
-	public enum class AnisotropicFilteringMode : UInt16
-	{
-		// values do have parity with ctl_3d_anisotropic_types_t
-		
-		/// <summary>
-		/// Application choice.
-		/// </summary>
-		AppChoice = 0,
-		TwoX = 2,
-		FourX = 4,
-		EightX = 8,
-		SixteenX = 16,
-		// equivalent to MAX
-		Unknown
-	};
-
-	public enum class CmaaMode : UInt16
-	{
-		// values do have parity with ctl_3d_cmaa_types_t
-		
-		TurnOff = 0,
-		OverrideMsaa = 1,
-		EnhanceApplication = 2,
-		// equivalent to MAX
-		Unknown
-	};
-
 	public ref class PCIeProperties
 	{
 	public:
@@ -644,12 +588,12 @@ namespace ArcticControlGPUInterop {
 		bool SetFansToDefaultMode();
 
 		// Games (3d) - provide null to application if want to get/set global settings
-		GamingFlipMode GetGamingFlipMode(String^ application);
-		bool SetGamingFlipMode(GamingFlipMode flip_mode, String^ application);
-		AnisotropicFilteringMode GetAnisotropicFilteringMode(String^ application);
-		bool SetAnisotropicFilteringMode(AnisotropicFilteringMode anisotropic_mode, String^ application);
-		CmaaMode GetCmaaMode(String^ application);
-		bool SetCmaaMode(CmaaMode cmaa_mode, String^ application);
+		UInt32 GetGamingFlipMode(String^ application);
+		bool SetGamingFlipMode(UInt32 flip_mode, String^ application);
+		UInt32 GetAnisotropicFilteringMode(String^ application);
+		bool SetAnisotropicFilteringMode(UInt32 anisotropic_mode, String^ application);
+		UInt32 GetCmaaMode(String^ application);
+		bool SetCmaaMode(UInt32 cmaa_mode, String^ application);
 
 		bool IsSharpeningFilterActive(String^ application);
 		bool SetSharpeningFilter(bool on, String^ application);

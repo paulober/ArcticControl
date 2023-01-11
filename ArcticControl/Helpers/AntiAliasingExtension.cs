@@ -1,4 +1,4 @@
-﻿using ArcticControlGPUInterop;
+﻿using ArcticControl.Models;
 
 namespace ArcticControl.Helpers;
 

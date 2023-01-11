@@ -9,20 +9,17 @@ using ArcticControl.Notifications;
 using ArcticControl.Services;
 using ArcticControl.ViewModels;
 using ArcticControl.Views;
-using Microsoft.AppCenter.Crashes;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
 using Microsoft.Windows.ApplicationModel.WindowsAppRuntime;
+using CommunityToolkit.WinUI.Helpers;
+using Microsoft.Extensions.Configuration;
 #if !DEBUG
 using Microsoft.AppCenter;
 using Windows.Globalization;
 #endif
 using System.Diagnostics;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
-using Windows.UI.Popups;
 
 namespace ArcticControl;
 
@@ -50,14 +47,28 @@ public partial class App : Application
 
     public App()
     {
+        if (DeploymentManager.GetStatus().Status != DeploymentStatus.Ok 
+            || SystemInformation.Instance.IsFirstRun 
+            || SystemInformation.Instance.IsAppUpdated)
+        {
+            Debug.WriteLine("[App]: DeploymentManager status: " + DeploymentManager.GetStatus().Status);
+            var initializeTask = Task.Run(DeploymentManager.Initialize);
+            initializeTask.Wait();
+
+            if (initializeTask.Result.Status == DeploymentStatus.Ok)
+            {
+                Debug.WriteLine("Installed Windows App Runtime successfully!");
+            }
+        }
+
         InitializeComponent();
 
         Host = Microsoft.Extensions.Hosting.Host.
         CreateDefaultBuilder().
         UseContentRoot(AppContext.BaseDirectory).
-        ConfigureAppConfiguration((appConfig) =>
+        ConfigureAppConfiguration(config =>
         {
-            appConfig.AddUserSecrets<App>();
+            config.AddUserSecrets<App>();
         }).
         ConfigureServices((context, services) =>
         {
@@ -131,18 +142,6 @@ public partial class App : Application
         }).
         Build();
 
-        if (DeploymentManager.GetStatus().Status != DeploymentStatus.Ok)
-        {
-            Debug.WriteLine("[App]: DeploymentManager status: " + DeploymentManager.GetStatus().Status);
-            var initializeTask = Task.Run(DeploymentManager.Initialize);
-            initializeTask.Wait();
-
-            if (initializeTask.Result.Status == DeploymentStatus.Ok)
-            {
-                Debug.WriteLine("Installed Windows App Runtime successfully!");
-            }
-        }
-
         App.GetService<IAppNotificationService>().Initialize();
 
         UnhandledException += App_UnhandledException;
@@ -150,10 +149,11 @@ public partial class App : Application
 
     private void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
     {
+        /*
         if (Crashes.IsEnabledAsync().GetAwaiter().GetResult())
         {
             Crashes.TrackError(e.Exception);
-        }
+        }*/
     }
 
     protected async override void OnLaunched(LaunchActivatedEventArgs args)

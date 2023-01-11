@@ -31,7 +31,7 @@
     <AppxBundlePlatforms>x64|arm64</AppxBundlePlatforms>
     <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
 	<!-- For outside Microsoft store deployment -->
-    <!--<PackageCertificateThumbprint>BE5FC4CC7F1784AC74E442CE3AB3D0003ED383F8</PackageCertificateThumbprint>-->
+    <!-- <PackageCertificateThumbprint>BE5FC4CC7F1784AC74E442CE3AB3D0003ED383F8</PackageCertificateThumbprint> -->
     <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
     <AppxPackageSigningTimestampServerUrl>http://timestamp.digicert.com</AppxPackageSigningTimestampServerUrl>
     <AppInstallerUri>https://github.com/paulober/ArcticControl/releases/latest/download/</AppInstallerUri>
@@ -54,6 +54,7 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Animations" Version="7.1.2" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
+    <PackageReference Include="Microsoft.AppCenter" Version="5.0.1" />
     <PackageReference Include="Microsoft.AppCenter.Analytics" Version="5.0.1" />
     <PackageReference Include="Microsoft.AppCenter.Crashes" Version="5.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />

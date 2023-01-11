@@ -1,6 +1,7 @@
 #include "pch.h"
 
 #include <stdlib.h>
+#include <conio.h>
 #include <vector>
 #include <string>
 
@@ -731,11 +732,11 @@ bool ArcticControlGPUInterop::GPUInterop::SetFansToDefaultMode()
     return false;
 }
 
-ArcticControlGPUInterop::GamingFlipMode ArcticControlGPUInterop::GPUInterop::GetGamingFlipMode(String^ application)
+UInt32 ArcticControlGPUInterop::GPUInterop::GetGamingFlipMode(String^ application)
 {
     if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
-        return GamingFlipMode::Unknown;
+        return CTL_GAMING_FLIP_MODE_FLAG_MAX;
     }
 
     ctl_3d_feature_getset_t get_3d_property{0};
@@ -763,7 +764,7 @@ ArcticControlGPUInterop::GamingFlipMode ArcticControlGPUInterop::GPUInterop::Get
             result == CTL_RESULT_SUCCESS)
         {
             WRITE_LINE("[GPUInterop]: EnableType: " + get_3d_property.Value.EnumType.EnableType.ToString());
-            const auto gfm = static_cast<GamingFlipMode>(get_3d_property.Value.EnumType.EnableType);
+            const auto gfm = static_cast<ctl_gaming_flip_mode_flag_t>(get_3d_property.Value.EnumType.EnableType);
             return gfm;
         }
         else
@@ -773,10 +774,10 @@ ArcticControlGPUInterop::GamingFlipMode ArcticControlGPUInterop::GPUInterop::Get
         }
     }
 
-    return GamingFlipMode::Unknown;
+    return CTL_GAMING_FLIP_MODE_FLAG_MAX;
 }
 
-bool ArcticControlGPUInterop::GPUInterop::SetGamingFlipMode(GamingFlipMode flip_mode, String^ application)
+bool ArcticControlGPUInterop::GPUInterop::SetGamingFlipMode(UInt32 flip_mode, String^ application)
 {
     if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
@@ -822,11 +823,11 @@ bool ArcticControlGPUInterop::GPUInterop::SetGamingFlipMode(GamingFlipMode flip_
     return false;
 }
 
-ArcticControlGPUInterop::AnisotropicFilteringMode ArcticControlGPUInterop::GPUInterop::GetAnisotropicFilteringMode(String^ application)
+UInt32 ArcticControlGPUInterop::GPUInterop::GetAnisotropicFilteringMode(String^ application)
 {
     if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
-        return AnisotropicFilteringMode::Unknown;
+        return CTL_3D_ANISOTROPIC_TYPES_MAX;
     }
 
     ctl_3d_feature_getset_t get_3d_property{0};
@@ -855,7 +856,7 @@ ArcticControlGPUInterop::AnisotropicFilteringMode ArcticControlGPUInterop::GPUIn
         {
             WRITE_LINE("[GPUInterop]: GetAnisotropicFilteringMode - EnableType: "
                 + get_3d_property.Value.EnumType.EnableType.ToString());
-            const auto afm = static_cast<AnisotropicFilteringMode>(get_3d_property.Value.EnumType.EnableType);
+            const auto afm = static_cast<ctl_3d_anisotropic_types_t>(get_3d_property.Value.EnumType.EnableType);
             return afm;
         }
         else
@@ -868,10 +869,10 @@ ArcticControlGPUInterop::AnisotropicFilteringMode ArcticControlGPUInterop::GPUIn
         }
     }
     
-    return AnisotropicFilteringMode::Unknown;
+    return CTL_3D_ANISOTROPIC_TYPES_MAX;
 }
 
-bool ArcticControlGPUInterop::GPUInterop::SetAnisotropicFilteringMode(AnisotropicFilteringMode anisotropic_mode, String^ application)
+bool ArcticControlGPUInterop::GPUInterop::SetAnisotropicFilteringMode(UInt32 anisotropic_mode, String^ application)
 {
     if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
@@ -915,11 +916,11 @@ bool ArcticControlGPUInterop::GPUInterop::SetAnisotropicFilteringMode(Anisotropi
     return false;
 }
 
-ArcticControlGPUInterop::CmaaMode ArcticControlGPUInterop::GPUInterop::GetCmaaMode(String^ application)
+UInt32 ArcticControlGPUInterop::GPUInterop::GetCmaaMode(String^ application)
 {
     if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
-        return CmaaMode::Unknown;
+        return CTL_3D_CMAA_TYPES_MAX;
     }
 
     ctl_3d_feature_getset_t get_3d_property{0};
@@ -947,7 +948,7 @@ ArcticControlGPUInterop::CmaaMode ArcticControlGPUInterop::GPUInterop::GetCmaaMo
             result == CTL_RESULT_SUCCESS)
         {
             WRITE_LINE("[GPUInterop]: EnableType: " + get_3d_property.Value.EnumType.EnableType.ToString());
-            const auto cm = static_cast<CmaaMode>(get_3d_property.Value.EnumType.EnableType);
+            const auto cm = static_cast<ctl_3d_cmaa_types_t>(get_3d_property.Value.EnumType.EnableType);
             return cm;
         }
         else
@@ -957,10 +958,10 @@ ArcticControlGPUInterop::CmaaMode ArcticControlGPUInterop::GPUInterop::GetCmaaMo
         }
     }
     
-    return CmaaMode::Unknown;
+    return CTL_3D_CMAA_TYPES_MAX;
 }
 
-bool ArcticControlGPUInterop::GPUInterop::SetCmaaMode(CmaaMode cmaa_mode, String^ application)
+bool ArcticControlGPUInterop::GPUInterop::SetCmaaMode(UInt32 cmaa_mode, String^ application)
 {
     if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
@@ -1116,7 +1117,7 @@ bool ArcticControlGPUInterop::GPUInterop::InitFrequencyDomains()
         result == CTL_RESULT_SUCCESS && freq_handle_count > 0)
     {
         h_freq_handle_ = new ctl_freq_handle_t[freq_handle_count];
-        result = ctlEnumFrequencyDomains(h_devices_[selected_device_], &freq_handle_count, h_freq_handle_);
+        ctlEnumFrequencyDomains(h_devices_[selected_device_], &freq_handle_count, h_freq_handle_);
 
         for (uint32_t i = 0; i < freq_handle_count; i++)
         {

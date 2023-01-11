@@ -1,24 +1,24 @@
 ﻿using System.Diagnostics;
 using ArcticControl.Contracts.Services;
+using ArcticControl.Models;
 using ArcticControlGPUInterop;
-using Microsoft.AppCenter.Crashes;
 
 namespace ArcticControl.Services;
 public class IntelGraphicsControlService: IIntelGraphicsControlService
 {
-    private readonly bool _initialized;
+    private readonly bool _initialized = false;
     private bool _frequencyDomainsInitialized = false;
-    private readonly GPUInterop _gpuInterop;
+    private readonly GPUInterop? _gpuInterop;
 
     public IntelGraphicsControlService()
     {
-        _gpuInterop = new GPUInterop();
-
         try
         {
+            _gpuInterop = new GPUInterop();
+
             _initialized = _gpuInterop.InitCtlApi();
         }
-        catch (PlatformNotSupportedException)
+        catch (Exception)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: error setting up service " +
                             "as platform is not supported");
@@ -29,7 +29,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
     public bool SetOverclockWaiver()
     {
-        if (!_initialized)
+        if (!_initialized || _gpuInterop == null)
         {
             return false;
         }
@@ -42,7 +42,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         catch (Exception ex)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - SetOverclockWaiver");
-            Crashes.TrackError(ex);
+            // Crashes.TrackError(ex);
         }
 
         return false;
@@ -50,7 +50,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
     public double GetOverclockPowerLimit()
     {
-        if (!_initialized)
+        if (!_initialized || _gpuInterop == null)
         {
             return 0.0;
         }
@@ -63,7 +63,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         catch (Exception ex)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - GetOverclockPowerLimit");
-            Crashes.TrackError(ex);
+            // Crashes.TrackError(ex);
         }
 
         return 0.0;
@@ -71,7 +71,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
     public double GetOverclockTemperatureLimit()
     {
-        if (!_initialized)
+        if (!_initialized || _gpuInterop == null)
         {
             return 0.0;
         }
@@ -84,7 +84,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         catch (Exception ex)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - GetOverclockTemperatureLimit");
-            Crashes.TrackError(ex);
+            // Crashes.TrackError(ex);
         }
 
         return 0.0;
@@ -92,7 +92,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
     public double GetOverclockGpuVoltageOffset()
     {
-        if (!_initialized)
+        if (!_initialized || _gpuInterop == null)
         {
             return 0.0;
         }
@@ -105,7 +105,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         catch (Exception ex)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - GetOverclockGPUVoltageOffset");
-            Crashes.TrackError(ex);
+            // Crashes.TrackError(ex);
         }
 
         return 0.0;
@@ -113,7 +113,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
     public double GetOverclockGpuFrequencyOffset()
     {
-        if (!_initialized)
+        if (!_initialized || _gpuInterop == null)
         {
             return 0.0;
         }
@@ -126,7 +126,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         catch (Exception ex)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - GetOverclockGPUFrequencyOffset");
-            Crashes.TrackError(ex);
+            // Crashes.TrackError(ex);
         }
 
         return 0.0;
@@ -134,7 +134,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
     public bool SetOverclockPowerLimit(double newPowerLimit)
     {
-        if (!_initialized)
+        if (!_initialized || _gpuInterop == null)
         {
             return false;
         }
@@ -147,7 +147,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         catch (Exception ex)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - SetOverclockPowerLimit");
-            Crashes.TrackError(ex);
+            // Crashes.TrackError(ex);
         }
 
         return false;
@@ -155,7 +155,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
     public bool SetOverclockTemperatureLimit(double newGpuTemperatureLimit)
     {
-        if (!_initialized)
+        if (!_initialized || _gpuInterop == null)
         {
             return false;
         }
@@ -168,7 +168,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         catch (Exception ex)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - SetOverclockTemperatureLimit");
-            Crashes.TrackError(ex);
+            // Crashes.TrackError(ex);
         }
 
         return false;
@@ -176,7 +176,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
     public bool SetOverclockGpuVoltageOffset(double newGpuVoltageOffset)
     {
-        if (!_initialized)
+        if (!_initialized || _gpuInterop == null)
         {
             return false;
         }
@@ -189,7 +189,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         catch (Exception ex)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - SetOverclockGPUVoltageOffset");
-            Crashes.TrackError(ex);
+            // Crashes.TrackError(ex);
         }
 
         return false;
@@ -197,7 +197,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
     public bool SetOverclockGpuFrequencyOffset(double newGpuFrequencyOffset)
     {
-        if (!_initialized)
+        if (!_initialized || _gpuInterop == null)
         {
             return false;
         }
@@ -210,7 +210,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         catch (Exception ex)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - SetOverclockGPUFrequencyOffset");
-            Crashes.TrackError(ex);
+            // Crashes.TrackError(ex);
         }
 
         return false;
@@ -218,7 +218,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
     public bool InitPowerDomains()
     {
-        if (!_initialized)
+        if (!_initialized || _gpuInterop == null)
         {
             return false;
         }
@@ -231,7 +231,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         catch (Exception ex)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - InitPowerDomains");
-            Crashes.TrackError(ex);
+            // Crashes.TrackError(ex);
         }
 
         return default;
@@ -239,7 +239,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
     public PowerProperties? GetPowerProperties()
     {
-        if (!_initialized)
+        if (!_initialized || _gpuInterop == null)
         {
             return null;
         }
@@ -252,7 +252,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         catch (Exception ex)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - GetPowerProperties");
-            Crashes.TrackError(ex);
+            // Crashes.TrackError(ex);
         }
 
         return default;
@@ -260,7 +260,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
     public PowerLimitsCombination? GetPowerLimits()
     {
-        if (!_initialized)
+        if (!_initialized || _gpuInterop == null)
         {
             return null;
         }
@@ -273,7 +273,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         catch (Exception ex)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - GetPowerLimits");
-            Crashes.TrackError(ex);
+            // Crashes.TrackError(ex);
         }
 
         return default;
@@ -281,7 +281,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
     public bool InitFansHandles()
     {
-        if (!_initialized)
+        if (!_initialized || _gpuInterop == null)
         {
             return false;
         }
@@ -295,7 +295,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         catch (Exception ex)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - InitFansHandles");
-            Crashes.TrackError(ex);
+            // Crashes.TrackError(ex);
         }
 
         return false;
@@ -303,7 +303,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
     public FanProperties? GetFanProperties()
     {
-        if (!_initialized)
+        if (!_initialized || _gpuInterop == null)
         {
             return default;
         }
@@ -316,7 +316,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         catch (Exception ex)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - GetFanProperties");
-            Crashes.TrackError(ex);
+            // Crashes.TrackError(ex);
         }
 
         return default;
@@ -324,20 +324,20 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
     public GamingFlipMode GetGamingFlipMode(string? app = null)
     {
-        if (!_initialized)
+        if (!_initialized || _gpuInterop == null)
         {
             return GamingFlipMode.Unknown;
         }
 
         try
         {
-            var gamingFlipMode = _gpuInterop.GetGamingFlipMode(app);
+            var gamingFlipMode = (GamingFlipMode)_gpuInterop.GetGamingFlipMode(app);
             return gamingFlipMode;
         }
         catch (Exception ex)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - GetGamingFlipMode");
-            Crashes.TrackError(ex);
+            // Crashes.TrackError(ex);
         }
 
         return GamingFlipMode.Unknown;
@@ -345,20 +345,20 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
     public bool SetGamingFlipMode(GamingFlipMode gamingFlipMode, string? app = null)
     {
-        if (!_initialized)
+        if (!_initialized || _gpuInterop == null)
         {
             return false;
         }
 
         try
         {
-            var result = _gpuInterop.SetGamingFlipMode(gamingFlipMode, app);
+            var result = _gpuInterop.SetGamingFlipMode((uint)gamingFlipMode, app);
             return result;
         }
         catch (Exception ex)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - SetGamingFlipMode");
-            Crashes.TrackError(ex);
+            // Crashes.TrackError(ex);
         }
         
         return false;
@@ -366,20 +366,20 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
     
     public AnisotropicFilteringMode GetAnisotropicFilteringMode(string? app = null)
     {
-        if (!_initialized)
+        if (!_initialized || _gpuInterop == null)
         {
             return AnisotropicFilteringMode.Unknown;
         }
 
         try
         {
-            var anisotropicMode = _gpuInterop.GetAnisotropicFilteringMode(app);
+            var anisotropicMode = (AnisotropicFilteringMode)_gpuInterop.GetAnisotropicFilteringMode(app);
             return anisotropicMode;
         }
         catch (Exception ex)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - GetAnisotropicFilteringMode");
-            Crashes.TrackError(ex);
+            // Crashes.TrackError(ex);
         }
 
         return AnisotropicFilteringMode.Unknown;
@@ -387,20 +387,20 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
     public bool SetAnisotropicFilteringMode(AnisotropicFilteringMode anisotropicMode, string? app = null)
     {
-        if (!_initialized)
+        if (!_initialized || _gpuInterop == null)
         {
             return false;
         }
 
         try
         {
-            var result = _gpuInterop.SetAnisotropicFilteringMode(anisotropicMode, app);
+            var result = _gpuInterop.SetAnisotropicFilteringMode((uint)anisotropicMode, app);
             return result;
         }
         catch (Exception ex)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - SetAnisotropicFilteringMode");
-            Crashes.TrackError(ex);
+            // Crashes.TrackError(ex);
         }
         
         return false;
@@ -408,20 +408,20 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
     
     public CmaaMode GetCmaaMode(string? app = null)
     {
-        if (!_initialized)
+        if (!_initialized || _gpuInterop == null)
         {
             return CmaaMode.Unknown;
         }
 
         try
         {
-            var cmaaMode = _gpuInterop.GetCmaaMode(app);
+            var cmaaMode = (CmaaMode)_gpuInterop.GetCmaaMode(app);
             return cmaaMode;
         }
         catch (Exception ex)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - GetCmaaMode");
-            Crashes.TrackError(ex);
+            // Crashes.TrackError(ex);
         }
 
         return CmaaMode.Unknown;
@@ -429,20 +429,20 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
     public bool SetCmaaMode(CmaaMode cmaaMode, string? app = null)
     {
-        if (!_initialized)
+        if (!_initialized || _gpuInterop == null)
         {
             return false;
         }
 
         try
         {
-            var result = _gpuInterop.SetCmaaMode(cmaaMode, app);
+            var result = _gpuInterop.SetCmaaMode((uint)cmaaMode, app);
             return result;
         }
         catch (Exception ex)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - SetCmaaMode");
-            Crashes.TrackError(ex);
+            // Crashes.TrackError(ex);
         }
         
         return false;
@@ -450,7 +450,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
     public bool IsSharpeningFilterActive(string? app = null)
     {
-        if (!_initialized)
+        if (!_initialized || _gpuInterop == null)
         {
             return false;
         }
@@ -464,7 +464,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - IsSharpeningFilterActive");
             // TODO: check each tracked exception in this file if really needed to track
-            //Crashes.TrackError(ex);
+            //// Crashes.TrackError(ex);
         }
         
         return false;
@@ -472,7 +472,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
     public bool SetSharpeningFilter(bool on, string? app = null)
     {
-        if (!_initialized)
+        if (!_initialized || _gpuInterop == null)
         {
             return false;
         }
@@ -485,7 +485,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         catch (Exception)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - SetSharpeningFilter");
-            //Crashes.TrackError(ex);
+            //// Crashes.TrackError(ex);
         }
         
         return false;
@@ -493,7 +493,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
     public bool InitFrequencyDomains()
     {
-        if (!_initialized)
+        if (!_initialized || _gpuInterop == null)
         {
             return false;
         }
@@ -509,7 +509,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         catch (Exception ex)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - InitFrequencyDomains");
-            Crashes.TrackError(ex);
+            // Crashes.TrackError(ex);
         }
 
         return false;
@@ -519,7 +519,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
     
     public FrequencyProperties? GetFrequencyProperties()
     {
-        if (!_initialized)
+        if (!_initialized || _gpuInterop == null)
         {
             return null;
         }
@@ -532,7 +532,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         catch (Exception ex)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - GetFrequencyProperties");
-            Crashes.TrackError(ex);
+            // Crashes.TrackError(ex);
         }
 
         return null;
@@ -540,7 +540,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
     
     public FrequencyState? GetFrequencyState()
     {
-        if (!_initialized)
+        if (!_initialized || _gpuInterop == null)
         {
             return null;
         }
@@ -553,7 +553,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         catch (Exception ex)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - GetFrequencyState");
-            Crashes.TrackError(ex);
+            // Crashes.TrackError(ex);
         }
 
         return null;
@@ -561,7 +561,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
     
     public Tuple<double, double>? GetMinMaxFrequency()
     {
-        if (!_initialized)
+        if (!_initialized || _gpuInterop == null)
         {
             return null;
         }
@@ -574,7 +574,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         catch (Exception ex)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - GetFrequencyState");
-            Crashes.TrackError(ex);
+            // Crashes.TrackError(ex);
         }
 
         return null;
@@ -582,7 +582,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
     public bool SetMinMaxFrequency(double minFreq, double maxFreq)
     {
-        if (!_initialized)
+        if (!_initialized || _gpuInterop == null)
         {
             return false;
         }
@@ -595,7 +595,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         catch (Exception ex)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - SetMinMaxFrequency");
-            Crashes.TrackError(ex);
+            // Crashes.TrackError(ex);
         }
 
         return false;
@@ -603,7 +603,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
     public PCIeProperties? GetPCIeProperties()
     {
-        if (!_initialized)
+        if (!_initialized || _gpuInterop == null)
         {
             return null;
         }
@@ -625,5 +625,5 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
     /// <summary>
     /// DON'T CALL THIS METHOD MANUALLY.
     /// </summary>
-    public void Dispose() => _gpuInterop.Dispose();
+    public void Dispose() => _gpuInterop?.Dispose();
 }

@@ -53,7 +53,7 @@
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xea37;"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem x:Uid="Shell_Performance" helpers:NavigationHelper.NavigateTo="ArcticControl.ViewModels.PerformanceViewModel">
+                <NavigationViewItem x:Uid="Shell_Performance" IsEnabled="{x:Bind ViewModel.ArcDriverInstalled, Mode=OneWay}" helpers:NavigationHelper.NavigateTo="ArcticControl.ViewModels.PerformanceViewModel">
                     <NavigationViewItem.Icon>
                         <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xec4a;"/>
                     </NavigationViewItem.Icon>

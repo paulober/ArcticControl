@@ -2,10 +2,17 @@
   "profiles": {
     "ArcticControl (Package)": {
       "commandName": "MsixPackage",
-      "nativeDebugging": false
+      "nativeDebugging": true
     },
     "ArcticControl (Unpackaged)": {
       "commandName": "Project"
+    },
+    "ArcticControl (Package, Remote)": {
+      "commandName": "MsixPackage",
+      "nativeDebugging": false,
+      "remoteDebugEnabled": true,
+      "remoteDebugMachine": "PAULSSCREEN",
+      "authenticationMode": "None"
     }
   }
 }
