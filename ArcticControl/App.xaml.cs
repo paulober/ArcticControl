@@ -15,6 +15,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.Windows.ApplicationModel.WindowsAppRuntime;
 using CommunityToolkit.WinUI.Helpers;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AppCenter.Crashes;
 #if !DEBUG
 using Microsoft.AppCenter;
 using Windows.Globalization;
@@ -147,13 +148,12 @@ public partial class App : Application
         UnhandledException += App_UnhandledException;
     }
 
-    private void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+    private async void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
     {
-        /*
-        if (Crashes.IsEnabledAsync().GetAwaiter().GetResult())
+        if (await Crashes.IsEnabledAsync())
         {
             Crashes.TrackError(e.Exception);
-        }*/
+        }
     }
 
     protected async override void OnLaunched(LaunchActivatedEventArgs args)
