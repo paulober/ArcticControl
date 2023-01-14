@@ -13,6 +13,13 @@
       "remoteDebugEnabled": true,
       "remoteDebugMachine": "PAULSSCREEN",
       "authenticationMode": "None"
+    },
+    "ArcticControl (Unpackaged, Remote)": {
+      "commandName": "Project",
+      "remoteDebugEnabled": true,
+      "remoteDebugMachine": "PAULSSCREEN",
+      "authenticationMode": "None",
+      "nativeDebugging": false
     }
   }
 }

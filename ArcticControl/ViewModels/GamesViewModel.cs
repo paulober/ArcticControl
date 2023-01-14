@@ -4,7 +4,7 @@ using System.Windows.Input;
 using ArcticControl.Contracts.Services;
 using ArcticControl.Contracts.ViewModels;
 using ArcticControl.Core.Contracts.Services;
-using ArcticControl.IntelWebAPI.Contracts.Services;
+using ArcticControl.Helpers;
 using ArcticControl.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -27,6 +27,13 @@ public class GamesViewModel : ObservableRecipient, INavigationAware
 
     public ObservableCollection<InstalledGame> Source { get; } = new ObservableCollection<InstalledGame>();
 
+    private bool _arcDriverInstalled = false;
+    public bool ArcDriverInstalled
+    {
+        get => _arcDriverInstalled;
+        set => SetProperty(ref _arcDriverInstalled, value);
+    }
+    
     public GamesViewModel(
         INavigationService navigationService, 
         ISampleDataService sampleDataService, 
@@ -37,6 +44,8 @@ public class GamesViewModel : ObservableRecipient, INavigationAware
         _gamesScannerService = gamesScannerService;
 
         ItemClickCommand = new RelayCommand<InstalledGame>(OnItemClick);
+        
+        ArcDriverInstalled = InstalledDriverHelper.IsIntelGraphicsDriverInstalled();
     }
 
     public async void OnNavigatedTo(object parameter)

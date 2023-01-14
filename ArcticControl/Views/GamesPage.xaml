@@ -53,8 +53,9 @@
         <Button 
             Grid.Row="0"
             Grid.Column="2"
-            x:Uid="Games_GlobalSettings_Btn" 
-            Click="{x:Bind ViewModel.GlobalSettingsButton_OnClick}"/>
+            x:Uid="Games_GlobalSettings_Btn"
+            Click="{x:Bind ViewModel.GlobalSettingsButton_OnClick}"
+            IsEnabled="{x:Bind ViewModel.ArcDriverInstalled, Mode=OneWay}"/>
         <GridView
             Grid.Row="1"
             Grid.Column="0"

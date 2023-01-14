@@ -176,6 +176,8 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
         _igcs = intelGraphicsControlService;
     }
 
+    public bool IsNoArcDriverInstalled() => _igcs.IsDummy();
+
     private DispatcherQueue? _dpq;
     private CancellationTokenSource? _tickTimerTaskCancellationTokenSource;
     private Task? _tickTimerTask;

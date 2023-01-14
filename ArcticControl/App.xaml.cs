@@ -15,7 +15,9 @@ using Microsoft.UI.Xaml;
 using Microsoft.Windows.ApplicationModel.WindowsAppRuntime;
 using CommunityToolkit.WinUI.Helpers;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.UserSecrets;
 using Microsoft.AppCenter.Crashes;
+using ArcticControl.Helpers;
 #if !DEBUG
 using Microsoft.AppCenter;
 using Windows.Globalization;
@@ -67,9 +69,9 @@ public partial class App : Application
         Host = Microsoft.Extensions.Hosting.Host.
         CreateDefaultBuilder().
         UseContentRoot(AppContext.BaseDirectory).
-        ConfigureAppConfiguration(config =>
+        ConfigureAppConfiguration((appConfig) =>
         {
-            config.AddUserSecrets<App>();
+            appConfig.AddUserSecrets<App>();
         }).
         ConfigureServices((context, services) =>
         {
@@ -116,7 +118,14 @@ public partial class App : Application
             services.AddSingleton<IGamesScannerService, GamesScannerService>();
 
             // Intel Services
-            services.AddSingleton<IIntelGraphicsControlService, IntelGraphicsControlService>();
+            if (InstalledDriverHelper.IsIntelGraphicsDriverInstalled())
+            {
+                services.AddSingleton<IIntelGraphicsControlService, IntelGraphicsControlService>();
+            }
+            else
+            {
+                services.AddSingleton<IIntelGraphicsControlService, DummyIntelGraphicsControlService>();
+            }
             services.AddSingleton<IWebArcDriversService, WebArcDriversService>();
 
             // Views and ViewModels (changes here must be reflected in PagesService.cs)

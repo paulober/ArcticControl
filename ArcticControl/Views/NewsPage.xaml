@@ -16,6 +16,7 @@
 
         <WebView2
             x:Name="WebView"
+            NavigationCompleted="WebView_OnNavigationCompleted"
             Source="{x:Bind ViewModel.Source, Mode=OneWay}" />
 
         <StackPanel
@@ -47,7 +48,7 @@
                 </Button>
             </StackPanel >
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button x:Uid="ReloadButton" Command="{x:Bind ViewModel.ReloadCommand}" Margin="{StaticResource XSmallLeftTopRightBottomMargin}" Padding="{StaticResource XXSmallLeftTopRightBottomMargin}">
+                <Button x:Uid="ReloadButton" IsEnabled="False" Command="{x:Bind ViewModel.ReloadCommand}" Margin="{StaticResource XSmallLeftTopRightBottomMargin}" Padding="{StaticResource XXSmallLeftTopRightBottomMargin}">
                     <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE72C;" />
                 </Button>
                 <Button x:Uid="OpenInBrowserButton" Command="{x:Bind ViewModel.OpenInBrowserCommand}" Margin="{StaticResource XSmallLeftTopRightBottomMargin}" Padding="{StaticResource XXSmallLeftTopRightBottomMargin}">

@@ -25,6 +25,8 @@ public sealed partial class PerformancePage : Page
         {
             NotAdminWarningInfo.IsOpen = true;
         }
+
+        NoDriverErrorInfo.IsOpen = ViewModel.IsNoArcDriverInstalled();
     }
 
     private void EnableRevertButton()

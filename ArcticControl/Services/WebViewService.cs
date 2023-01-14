@@ -57,7 +57,5 @@ public class WebViewService : IWebViewService
     private void OnWebViewNavigationCompleted(WebView2 sender, CoreWebView2NavigationCompletedEventArgs args)
     {
         NavigationCompleted?.Invoke(this, args.WebErrorStatus);
-        _webView?.ExecuteScriptAsync("const elm = document.querySelector('.elementor-element-7980e40'); " +
-                                    "elm.style.visibility = 'hidden';");
     }
 }

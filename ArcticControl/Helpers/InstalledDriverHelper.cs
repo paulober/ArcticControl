@@ -9,7 +9,7 @@ internal static class InstalledDriverHelper
     {
         try
         {
-            //SELECT PathName FROM Win32_SystemDriver
+            /*//SELECT PathName FROM Win32_SystemDriver
             //WHERE State = 'Running' AND ServiceType = 'Kernel Driver' AND Caption LIKE '%intel%'
             SelectQuery query = new("Win32_SystemDriver");
             query.Condition = "State = 'Running' AND ServiceType = 'Kernel Driver' AND Caption LIKE '%intel%'";
@@ -37,7 +37,8 @@ internal static class InstalledDriverHelper
             else
             {
                 Debug.WriteLine("Could not find any installed Intel Graphics Driver");
-            }
+            }*/
+            return Path.Exists("C:\\Windows\\System32\\ControlLib.dll");
         } catch (Exception ex)
         {
             Debug.WriteLine("Error searching for Intel driver: " + ex.ToString());

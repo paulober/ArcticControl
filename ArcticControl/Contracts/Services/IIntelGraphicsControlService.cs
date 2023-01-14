@@ -4,6 +4,7 @@ using ArcticControlGPUInterop;
 namespace ArcticControl.Contracts.Services;
 public interface IIntelGraphicsControlService : IDisposable
 {
+    public bool IsDummy();
     public bool IsInitialized();
     public bool SetOverclockWaiver();
     public double GetOverclockPowerLimit();
