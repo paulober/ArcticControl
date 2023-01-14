@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using ArcticControl.Contracts.Services;
 using ArcticControl.Models;
 using ArcticControlGPUInterop;
@@ -207,7 +207,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
         try
         {
-            var result = _gpuInterop.SetOverclockGPUVoltageOffset(newGpuFrequencyOffset);
+            var result = _gpuInterop.SetOverclockGPUFrequencyOffset(newGpuFrequencyOffset);
             return result;
         }
         catch (Exception ex)
