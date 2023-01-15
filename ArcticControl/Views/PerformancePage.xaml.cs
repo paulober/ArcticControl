@@ -140,6 +140,18 @@ public sealed partial class PerformancePage : Page
         await CheckWaiver();
     }
 
+    private async void VoltageLockNumberBox_OnValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
+    {
+        EnableRevertButton();
+        await CheckWaiver();
+    }
+
+    private async void FrequencyLockNumberBox_OnValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
+    {
+        EnableRevertButton();
+        await CheckWaiver();
+    }
+    
     private async void GPUFrequencyOffsetSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
     {
         GPUFrequencyOffsetLabel.Text = $"+{Math.Round(e.NewValue, 2)} MHz";
@@ -165,7 +177,6 @@ public sealed partial class PerformancePage : Page
     {
         GPUTemperatureLimitLabel.Text = $"{e.NewValue} °C";
         EnableRevertButton();
-        EnableApplyButton();
         await CheckWaiver();
     }
 
@@ -218,8 +229,8 @@ public sealed partial class PerformancePage : Page
     {
         if (ViewModel.ApplyChanges())
         {
-            ApplyButton.IsEnabled = false;
-            DisableApplyButton();
+            //ApplyButton.IsEnabled = false;
+            //DisableApplyButton();
         }
         else
         {

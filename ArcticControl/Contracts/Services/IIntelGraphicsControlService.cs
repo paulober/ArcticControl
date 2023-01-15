@@ -15,6 +15,8 @@ public interface IIntelGraphicsControlService : IDisposable
     public bool SetOverclockTemperatureLimit(double newGpuTemperatureLimit);
     public bool SetOverclockGpuVoltageOffset(double newGpuVoltageOffset);
     public bool SetOverclockGpuFrequencyOffset(double newGpuFrequencyOffset);
+    public Tuple<double, double>? GetOverclockGpuLock();
+    public bool SetOverclockGpuLock(double voltage, double frequency);
     public bool InitPowerDomains();
     public PowerProperties? GetPowerProperties();
     public PowerLimitsCombination? GetPowerLimits();

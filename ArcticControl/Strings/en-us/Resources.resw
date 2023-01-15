@@ -281,4 +281,16 @@
   <data name="SettingsStorageExtensions_SaveFileAsync_FileName_ArgumentException" xml:space="preserve">
     <value>File name is null or empty. Specify a valid file name</value>
   </data>
+  <data name="PerformancePage_Overclocking_VoltageLock_NumberBox.Header" xml:space="preserve">
+    <value>Voltage Lock (in mV; 0 = OFF)</value>
+  </data>
+  <data name="PerformancePage_Overclocking_FrequencyLock_NumberBox.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Frequency expressed in units of MHz with a resolution of 1MHz. 0 will return hardware to dynamic. The actual frequency may reduce depending on power/thermal limitations. Temporarily disables frequency offset.</value>
+  </data>
+  <data name="PerformancePage_Overclocking_FrequencyLock_NumberBox.Header" xml:space="preserve">
+    <value>Frequency Lock (in MHz; 0 = OFF)</value>
+  </data>
+  <data name="PerformancePage_Overclocking_VoltageLock_NumberBox.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Voltage expressed in units of mV with a resolution of 1 mV. 0 will return hardware to dynamic. Temporarily disables voltage offset.</value>
+  </data>
 </root>

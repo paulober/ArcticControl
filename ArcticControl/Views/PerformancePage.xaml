@@ -327,6 +327,50 @@
                                     ValidationMode="InvalidInputOverwritten"
                                     ValueChanged="FrequencyMaximumNumberBox_OnValueChanged"/>
                             </Grid>
+                            
+                            <Grid HorizontalAlignment="Stretch" Margin="{StaticResource SmallTopBottomMargin}">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <NumberBox
+                                    x:Uid="PerformancePage_Overclocking_VoltageLock_NumberBox"
+                                    Grid.Column="0"
+                                    Grid.Row="0"
+                                    VerticalAlignment="Bottom"
+                                    SmallChange="2"
+                                    LargeChange="5"
+                                    Minimum="0"
+                                    Maximum="2000"
+                                    Value="{x:Bind ViewModel.VoltageLock, Mode=TwoWay}"
+                                    Width="200"
+                                    PlaceholderText="0 mV"
+                                    ToolTipService.Placement="Left"
+                                    SpinButtonPlacementMode="Inline"
+                                    ValidationMode="InvalidInputOverwritten"
+                                    ValueChanged="VoltageLockNumberBox_OnValueChanged"/>
+
+                                <NumberBox
+                                    x:Uid="PerformancePage_Overclocking_FrequencyLock_NumberBox"
+                                    Grid.Column="2"
+                                    Grid.Row="0"
+                                    SmallChange="2"
+                                    LargeChange="10"
+                                    Minimum="0"
+                                    Maximum="4000"
+                                    Value="{x:Bind ViewModel.FrequencyLock, Mode=TwoWay}"
+                                    Width="200"
+                                    PlaceholderText="0 MHz"
+                                    ToolTipService.Placement="Left"
+                                    SpinButtonPlacementMode="Inline"
+                                    ValidationMode="InvalidInputOverwritten"
+                                    ValueChanged="FrequencyLockNumberBox_OnValueChanged"/>
+                            </Grid>
 
                             <!-- GPU Frequency Offset (slider) -->
                             <Grid HorizontalAlignment="Stretch" Margin="{StaticResource SmallTopMargin}">

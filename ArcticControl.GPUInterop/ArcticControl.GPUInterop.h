@@ -576,6 +576,10 @@ namespace ArcticControlGPUInterop {
 		double GetOverclockVRAMFrequencyOffset();
 		bool SetOverclockVRAMFrequencyOffset(double new_vram_frequency_offset);
 
+		// gpu lock
+		System::Tuple<double, double>^ GetOverclockGPULock();
+		bool SetOverclockGPULock(double voltage, double frequency);
+		
 		// Power
 		bool InitPowerDomains();
 		PowerProperties^ GetPowerProperties();

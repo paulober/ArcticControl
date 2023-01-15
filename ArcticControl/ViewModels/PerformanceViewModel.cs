@@ -21,7 +21,9 @@ internal enum SliderValueDefaults: ushort
     GpuFrequencyOffset = 4,
     FanSpeed = 5,
     FrequencyMinimum = 6,
-    FrequencyMaximum = 7
+    FrequencyMaximum = 7,
+    VoltageLock = 8,
+    FrequencyLock = 9
 }
 
 internal static class SliderDefaultValues
@@ -33,6 +35,8 @@ internal static class SliderDefaultValues
     internal const ushort FanSpeed = 20;
     internal const double FrequencyMinimum = 0.0;
     internal const double FrequencyMaximum = 0.0;
+    internal const double VoltageLock = 0.0;
+    internal const double FrequencyLock = 0.0;
 }
 
 public class PerformanceViewModel : ObservableRecipient, INavigationAware
@@ -57,7 +61,9 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
         { SliderValueDefaults.GpuFrequencyOffset, Convert.ToDouble(SliderDefaultValues.GpuFrequencyOffset) },
         { SliderValueDefaults.FanSpeed, Convert.ToDouble(SliderDefaultValues.FanSpeed) },
         { SliderValueDefaults.FrequencyMinimum, Convert.ToDouble(SliderDefaultValues.FrequencyMinimum) },
-        { SliderValueDefaults.FrequencyMaximum, Convert.ToDouble(SliderDefaultValues.FrequencyMaximum) }
+        { SliderValueDefaults.FrequencyMaximum, Convert.ToDouble(SliderDefaultValues.FrequencyMaximum) },
+        { SliderValueDefaults.VoltageLock, Convert.ToDouble(SliderDefaultValues.VoltageLock) },
+        { SliderValueDefaults.FrequencyLock, Convert.ToDouble(SliderDefaultValues.FrequencyLock) }
     };
 
     public bool WaiverSigned = false;
@@ -71,7 +77,6 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
     }
 
     private double _frequencyMinimum;
-
     public double FrequencyMinimum
     {
         get => _frequencyMinimum;
@@ -79,11 +84,24 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
     }
     
     private double _frequencyMaximum;
-
     public double FrequencyMaximum
     {
         get => _frequencyMaximum;
         set => SetProperty(ref _frequencyMaximum, value);
+    }
+    
+    private double _frequencyLock;
+    public double FrequencyLock
+    {
+        get => _frequencyLock;
+        set => SetProperty(ref _frequencyLock, value);
+    }
+    
+    private double _voltageLock;
+    public double VoltageLock
+    {
+        get => _voltageLock;
+        set => SetProperty(ref _voltageLock, value);
     }
 
     private double _gpuFrequencyOffsetSliderValue = Convert.ToDouble(SliderDefaultValues.GpuFrequencyOffset);
@@ -354,6 +372,7 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
         var gpuVoltageOffset = _igcs.GetOverclockGpuVoltageOffset();
         var gpuFrequencyOffset = _igcs.GetOverclockGpuFrequencyOffset();
         var minMaxFrequency = _igcs.GetMinMaxFrequency();
+        var ocVfLockPair = _igcs.GetOverclockGpuLock();
 
         // unlimited power limit
         if (powerLimit == 0.0)
@@ -384,6 +403,16 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
             
             _currentActiveSliderValues[SliderValueDefaults.FrequencyMinimum] = minMaxFrequency.Item1;
             _currentActiveSliderValues[SliderValueDefaults.FrequencyMaximum] = minMaxFrequency.Item2;
+        }
+        
+        // gpu lock stuff
+        if (ocVfLockPair != null)
+        {
+            VoltageLock = ocVfLockPair.Item1;
+            FrequencyLock = ocVfLockPair.Item2;
+            
+            _currentActiveSliderValues[SliderValueDefaults.VoltageLock] = ocVfLockPair.Item1;
+            _currentActiveSliderValues[SliderValueDefaults.FrequencyLock] = ocVfLockPair.Item2;
         }
 
         // TODO: Fan stuff
@@ -424,6 +453,10 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
             FrequencyMinimum = Convert.ToDouble(SliderDefaultValues.FrequencyMinimum);
             FrequencyMaximum = Convert.ToDouble(SliderDefaultValues.FrequencyMaximum);
         }
+        
+        // voltage stuff
+        VoltageLock = Convert.ToDouble(SliderDefaultValues.VoltageLock);
+        FrequencyLock = Convert.ToDouble(SliderDefaultValues.FrequencyLock);
     }
 
     public void RevertSliderChanges(object? sender, RoutedEventArgs? e)
@@ -436,6 +469,10 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
         // frequency stuff
         FrequencyMinimum = _currentActiveSliderValues[SliderValueDefaults.FrequencyMinimum];
         FrequencyMaximum = _currentActiveSliderValues[SliderValueDefaults.FrequencyMaximum];
+        
+        // voltage stuff
+        VoltageLock = _currentActiveSliderValues[SliderValueDefaults.VoltageLock];
+        FrequencyLock = _currentActiveSliderValues[SliderValueDefaults.FrequencyLock];
     }
 
     public bool ApplyChanges()
@@ -469,6 +506,17 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
                 return false;
             }
             _igcs.SetMinMaxFrequency(FrequencyMinimum, FrequencyMaximum);
+        }
+
+        if (VoltageLock != _currentActiveSliderValues[SliderValueDefaults.VoltageLock]
+            || FrequencyLock != _currentActiveSliderValues[SliderValueDefaults.FrequencyLock])
+        {
+            if (!WaiverSigned)
+            {
+                return false;
+            }
+
+            _igcs.SetOverclockGpuLock(VoltageLock, FrequencyLock);
         }
         
         if (GpuVoltageOffsetSliderValue != _currentActiveSliderValues[SliderValueDefaults.GpuVoltageOffset])

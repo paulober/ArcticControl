@@ -24,6 +24,8 @@ public class DummyIntelGraphicsControlService : IIntelGraphicsControlService
     public PowerProperties? GetPowerProperties() { return null; }
     public bool InitFansHandles() { return false; }
     public bool InitFrequencyDomains() { return false; }
+    public bool SetOverclockGpuLock(double voltage, double frequency) => false;
+
     public bool InitPowerDomains() { return false; }
     public bool IsInitialized() { return false; }
     public bool IsSharpeningFilterActive(string? app = null) { return false; }
@@ -32,6 +34,7 @@ public class DummyIntelGraphicsControlService : IIntelGraphicsControlService
     public bool SetGamingFlipMode(GamingFlipMode gamingFlipMode, string? app = null) { return false; }
     public bool SetMinMaxFrequency(double minFreq, double maxFreq) { return false; }
     public bool SetOverclockGpuFrequencyOffset(double newGpuFrequencyOffset) { return false; }
+    public Tuple<double, double>? GetOverclockGpuLock() => null;
     public bool SetOverclockGpuVoltageOffset(double newGpuVoltageOffset) { return false; }
     public bool SetOverclockPowerLimit(double newPowerLimit) { return false; }
     public bool SetOverclockTemperatureLimit(double newGpuTemperatureLimit) { return false; }

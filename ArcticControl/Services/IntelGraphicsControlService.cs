@@ -219,6 +219,48 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         return false;
     }
 
+    public Tuple<double, double>? GetOverclockGpuLock()
+    {
+        if (!_initialized || _gpuInterop == null)
+        {
+            return null;
+        }
+        
+        try
+        {
+            var ocVfPair = _gpuInterop.GetOverclockGPULock();
+            return ocVfPair;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[IntelGraphicsControlService]: Error - GetOverclockGpuLock");
+            Crashes.TrackError(ex);
+        }
+
+        return null;
+    }
+
+    public bool SetOverclockGpuLock(double voltage, double frequency)
+    {
+        if (!_initialized || _gpuInterop == null)
+        {
+            return false;
+        }
+        
+        try
+        {
+            var result = _gpuInterop.SetOverclockGPULock(voltage, frequency);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[IntelGraphicsControlService]: Error - SetOverclockGpuLock");
+            Crashes.TrackError(ex);
+        }
+        
+        return false;
+    }
+
     public bool InitPowerDomains()
     {
         if (!_initialized || _gpuInterop == null)

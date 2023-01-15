@@ -530,6 +530,43 @@ bool ArcticControlGPUInterop::GPUInterop::SetOverclockVRAMFrequencyOffset(const 
     return false;
 }
 
+System::Tuple<double, double>^ ArcticControlGPUInterop::GPUInterop::GetOverclockGPULock()
+{
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
+    {
+        return nullptr;
+    }
+
+    ctl_oc_vf_pair_t get_oc_vf_pair;
+    get_oc_vf_pair.Size = sizeof(ctl_oc_vf_pair_t);
+
+    if (const ctl_result_t result = ctlOverclockGpuLockGet(h_devices_[selected_device_], &get_oc_vf_pair);
+        result == CTL_RESULT_SUCCESS)
+    {
+        return Tuple::Create(get_oc_vf_pair.Voltage, get_oc_vf_pair.Frequency);
+    }
+
+    return nullptr;
+}
+
+bool ArcticControlGPUInterop::GPUInterop::SetOverclockGPULock(const double voltage, const double frequency)
+{
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
+    {
+        return nullptr;
+    }
+
+    ctl_oc_vf_pair_t set_oc_vf_pair;
+    set_oc_vf_pair.Size = sizeof(ctl_oc_vf_pair_t);
+    set_oc_vf_pair.Voltage = voltage;
+    set_oc_vf_pair.Frequency = frequency;
+
+    // ReSharper disable once CppSomeObjectMembersMightNotBeInitialized
+    const ctl_result_t result = ctlOverclockGpuLockSet(h_devices_[selected_device_], set_oc_vf_pair);
+
+    return result == CTL_RESULT_SUCCESS;
+}
+
 bool ArcticControlGPUInterop::GPUInterop::InitPowerDomains()
 {
     if (h_api_handle_ == nullptr
@@ -630,8 +667,6 @@ ArcticControlGPUInterop::PowerLimitsCombination^ ArcticControlGPUInterop::GPUInt
 
     return nullptr;
 }
-
-
 
 bool ArcticControlGPUInterop::GPUInterop::InitFansHandles()
 {
