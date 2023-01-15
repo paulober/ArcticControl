@@ -481,6 +481,99 @@ namespace ArcticControlGPUInterop {
 		FrequencyCap Cap;
 	};
 
+	public enum class Units : UInt32
+	{
+		// Type is Frequency with units in MHz.
+		FrequencyMhz = 0,
+		// Type is Frequency with units in GT/s (gigatransfers per second).
+		OperationsGts = 1,
+		// Type is Frequency with units in MT/s (megatransfers per second).
+		OperationsMts = 2,
+		// Type is Voltage with units in Volts.
+		VoltageVolts = 3,
+		// Type is Power with units in Watts.
+		PowerWatts = 4,
+		// Type is Temperature with units in Celsius.
+		TemperatureCelsius = 5,
+		// Type is Energy with units in Joules.
+		EnergyJoules = 6,
+		// Type is Time with units in Seconds.
+		TimeSeconds = 7,
+		// Type is Memory with units in Bytes.
+		MemoryBytes = 8,
+		// Type is Angular Speed with units in Revolutions per Minute.
+		AngularSpeedRpm = 9,
+		// Type of units unknown.
+		Unknown = 0x4800FFFF,
+		Max
+	};
+
+	public enum class DataType : UInt32
+	{
+		// The data type is 8 bit signed integer.
+		Int8 = 0,
+		// The data type is 8 bit unsigned integer.
+		Uint8 = 1,
+		// The data type is 16 bit signed integer.
+		Int16 = 2,
+		// The data type is 16 bit unsigned integer.
+		Uint16 = 3,
+		// The data type is 32 bit signed integer.
+		Int32 = 4,
+		// The data type is 32 bit unsigned integer.
+		Uint32 = 5,
+		// The data type is 64 bit signed integer.
+		Int64 = 6,
+		// The data type is 64 bit unsigned integer.
+		Uint64 = 7,
+		// The data type is 32 bit floating point.
+		Float = 8,
+		// The data type is 64 bit floating point.
+		Double = 9,
+		// The data type is an array of 8 bit unsigned integers.
+		StringAscii = 10,
+		// The data type is an array of 16 bit unsigned integers.
+		StringUtf16 = 11,
+		// The data type is an array of 32 bit unsigned integers.
+		StringUtf132 = 12,
+		// The data type is unknown.
+		Unknown = 0x4800FFFF,
+		Max
+	};
+	
+	public ref class OcTelemetryItem
+	{
+	public:
+		bool BSupported;
+		Units Units;
+		DataType Type;
+		System::Object Value;
+	};
+
+	public ref class PowerTelemetry
+	{
+	public:
+		OcTelemetryItem^ TimeStamp;
+		OcTelemetryItem^ GpuEnergyCounter;
+		OcTelemetryItem^ GpuVoltage;
+		OcTelemetryItem^ GpuCurrentClockFrequency;
+		OcTelemetryItem^ GpuCurrentTemperature;
+		OcTelemetryItem^ GlobalActivityCounter;
+		OcTelemetryItem^ RenderComputeActivityCounter;
+		OcTelemetryItem^ MediaActivityCounter;
+		bool GpuPowerLimit;
+		bool GpuTemperatureLimited;
+		bool GpuCurrentLimited;
+		bool GpuVoltageLimited;
+		bool GpuUtilizationLimited;
+		OcTelemetryItem^ VramEnergyCounter;
+		OcTelemetryItem^ VramVoltage;
+		OcTelemetryItem^ VramCurrentClockFrequency;
+		OcTelemetryItem^ VramCurrentEffectiveFrequency;
+		OcTelemetryItem^ VramReadBandwidthCounter;
+		
+	};
+
 	public ref class GPUInterop
 	{
 		array<uint32_t>^ supported_device_ids_;
@@ -579,6 +672,8 @@ namespace ArcticControlGPUInterop {
 		// gpu lock
 		System::Tuple<double, double>^ GetOverclockGPULock();
 		bool SetOverclockGPULock(double voltage, double frequency);
+
+		// overclock power telemetry
 		
 		// Power
 		bool InitPowerDomains();

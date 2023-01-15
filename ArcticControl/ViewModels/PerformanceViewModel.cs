@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Globalization;
 using System.Management;
 using ArcticControl.Contracts.Services;
@@ -191,6 +191,15 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
         get => _memoryUtilizationObj;
         set => SetProperty(ref _memoryUtilizationObj, value);
     }
+
+    private PerformanceValueDataObject _gpuVoltageObj
+        = new() { Title = "GPU Voltage", Value = "0.0", Unit = "mV" };
+
+    public PerformanceValueDataObject GPUVoltageObj
+    {
+        get => _gpuVoltageObj;
+        set => SetProperty(ref _gpuVoltageObj, value);
+    }
     #endregion
 
     public PerformanceViewModel(
@@ -227,7 +236,7 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
             Type = PerformanceSourceType.ValueOffsetCallback,
             // PerformanceCounterArgs = new string[] {"Memory", "Available KBytes"},
             Format = "0.0",
-            ValueOffsetCallback = (float value) =>
+            ValueOffsetCallback = (float value, object? arcNativeArgs) =>
             {
                 try
                 {
@@ -251,7 +260,23 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
                 return "N/A";
             }
         }), nameof(MemoryUtilizationObj))/*,
-        Tuple.Create(new PerformanceSource(new PerformanceSourceArgs()
+        Tuple.Create(new PerformanceSource(new PerformanceSourceArgs
+        {
+            Type = PerformanceSourceType.ValueOffsetCallback,
+            Format = "0.0",
+            ArcNativeArgs = App.GetService<IIntelGraphicsControlService>(),
+            ValueOffsetCallback = (float value, object? arcNativeArgs) =>
+            {
+                if (arcNativeArgs is IIntelGraphicsControlService igcs)
+                {
+                    
+                    var powerProperties = igcs.GetPowerProperties();
+                }
+                
+                return "N/A";
+            }
+        }), nameof(GPUVoltageObj))*/
+        /*Tuple.Create(new PerformanceSource(new PerformanceSourceArgs()
         {
             Type = PerformanceSourceType.PerformanceCounter,
             PerformanceCounterArgs = new string[] {"Processor", "% Processor Time", "_Total"},
