@@ -5,7 +5,6 @@ namespace ArcticControl.Helpers;
 internal enum PerformanceSourceType
 {
     PerformanceCounter,
-    ArcNative,
     ValueOffsetCallback
 }
 
@@ -13,7 +12,7 @@ internal struct PerformanceSourceArgs
 {
     internal PerformanceSourceType Type;
     internal string[]? PerformanceCounterArgs;
-    internal uint[]? ArcNativeArgs;
+    internal object? ArcNativeArgs;
 
     /// <summary>
     /// Will only be used if no ValueOffsetCallback has been provided.
@@ -22,7 +21,7 @@ internal struct PerformanceSourceArgs
     /// <summary>
     /// Callback to modify value before return.
     /// </summary>
-    internal Func<float, string>? ValueOffsetCallback;
+    internal Func<float, object?, string>? ValueOffsetCallback;
 }
 
 internal class PerformanceSource
@@ -30,7 +29,8 @@ internal class PerformanceSource
     private readonly PerformanceSourceType _type;
     private PerformanceCounter? _perfCounter;
     private readonly string _format;
-    private readonly Func<float, string> _valueOffsetCallback;
+    private readonly Func<float, object?, string> _valueOffsetCallback;
+    private readonly object? _arcNativeArgs;
     private readonly bool _deferPerfCounterSetup;
     private readonly string[]? _deferedPerfCounterArgs;
 
@@ -38,13 +38,11 @@ internal class PerformanceSource
     {
         _type = args.Type;
         _format = args.Format;
-        _valueOffsetCallback = args.ValueOffsetCallback ?? ((float arg) => arg.ToString(_format));
+        _valueOffsetCallback = args.ValueOffsetCallback ?? ((float arg, object? arcNativeArgs) => arg.ToString(_format));
+        _arcNativeArgs = args.ArcNativeArgs;
 
         switch (_type)
         {
-            case PerformanceSourceType.ArcNative:
-                throw new NotImplementedException();
-
             case PerformanceSourceType.PerformanceCounter:
                 if (args.PerformanceCounterArgs == null || args.PerformanceCounterArgs.Length < 2)
                 {
@@ -127,9 +125,8 @@ internal class PerformanceSource
         
         return _valueOffsetCallback(_type switch
         {
-            PerformanceSourceType.ArcNative => 0.0f,
             PerformanceSourceType.PerformanceCounter => _perfCounter?.NextValue() ?? 0.0f,
             _ => 0.0f,
-        });
+        }, _arcNativeArgs);
     }
 }

@@ -249,4 +249,54 @@ public sealed partial class PerformancePage : Page
             ViewModel.StartBackgroundTickTimer(DispatcherQueue.GetForCurrentThread());
         }
     }
+
+    private bool _responsivenessActivated = false;
+    
+    private void ContentArea_OnSizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        if (!_responsivenessActivated)
+        {
+            return;
+        }
+        
+        if (e.NewSize.Width < 1000)
+        {
+            LeftColumn.SetValue(Grid.RowSpanProperty, 1);
+            LeftColumn.SetValue(Grid.RowProperty, 0);
+            LeftColumn.SetValue(Grid.ColumnSpanProperty, 2);
+            LeftColumn.Padding = new Thickness(0, 0, 0, 40);
+
+            RightColumn.SetValue(Grid.RowSpanProperty, 1);
+            RightColumn.SetValue(Grid.RowProperty, 1);
+            RightColumn.SetValue(Grid.ColumnProperty, 0);
+            RightColumn.SetValue(Grid.ColumnSpanProperty, 2);
+            RightColumn.BorderThickness = new Thickness(0, 2, 0, 0);
+            RightColumn.Padding = new Thickness(0, 40, 0, 0);
+
+            ContentAreaScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+            ContentAreaScrollViewer.VerticalScrollMode = ScrollMode.Enabled;
+        }
+        else
+        {
+            LeftColumn.SetValue(Grid.RowProperty, 0);
+            LeftColumn.SetValue(Grid.RowSpanProperty, 2);
+            LeftColumn.SetValue(Grid.ColumnSpanProperty, 1);
+            LeftColumn.Padding = new Thickness(0, 0, 40, 0);
+
+            RightColumn.SetValue(Grid.RowProperty, 0);
+            RightColumn.SetValue(Grid.RowSpanProperty, 2);
+            RightColumn.SetValue(Grid.ColumnSpanProperty, 1);
+            RightColumn.SetValue(Grid.ColumnProperty, 1);
+            RightColumn.BorderThickness = new Thickness(2, 0, 0, 0);
+            RightColumn.Padding = new Thickness(40, 0, 0, 0);
+
+            ContentAreaScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Disabled;
+            ContentAreaScrollViewer.VerticalScrollMode = ScrollMode.Disabled;
+        }
+    }
+
+    private void ContentArea_OnLoaded(object sender, RoutedEventArgs e)
+    {
+        _responsivenessActivated = true;
+    }
 }

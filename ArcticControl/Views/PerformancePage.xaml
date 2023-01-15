@@ -7,7 +7,7 @@
     xmlns:local="using:ArcticControl.Views"
     xmlns:models="using:ArcticControl.Models"
     mc:Ignorable="d" HorizontalAlignment="Stretch">
-    
+
     <Page.Resources>
         <DataTemplate x:Name="PerformanceValueTemplate" x:DataType="models:PerformanceValueDataObject">
             <RelativePanel Width="125" Height="125" Padding="10" CornerRadius="10">
@@ -24,626 +24,647 @@
         </DataTemplate>
     </Page.Resources>
 
-    <Grid x:Name="ContentArea" Margin="0,0,0,20" MaxWidth="1400" HorizontalAlignment="Center">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <!--<Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>-->
-
-        <!-- Left column Grid.Row="0"-->
-        <ScrollViewer
-            MinWidth="500"
-            Grid.Column="0"
-            HorizontalScrollMode="Disabled"
-            VerticalScrollMode="Enabled"
-            VerticalScrollBarVisibility="Hidden"
-            VerticalAlignment="Stretch"
+    <ScrollViewer 
+        x:Name="ContentAreaScrollViewer" 
+        VerticalScrollMode="Disabled" 
+        VerticalScrollBarVisibility="Disabled" 
+        HorizontalScrollMode="Auto"
+        Margin="0,0,0,20" 
+        MaxWidth="1300"
+        HorizontalAlignment="Stretch">
+        
+        <Grid 
+            x:Name="ContentArea" 
             HorizontalAlignment="Stretch"
-            Padding="0,0,40,0">
-            
-            <Grid HorizontalAlignment="Stretch">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition/>
-                </Grid.RowDefinitions>
-                
-                <Grid 
-                    Grid.Row="0"
-                    Grid.Column="0"
-                    Grid.ColumnSpan="2"
-                    HorizontalAlignment="Stretch" 
-                    MaxHeight="400" 
-                    MinHeight="200">
-                    
+            Loaded="ContentArea_OnLoaded"
+            SizeChanged="ContentArea_OnSizeChanged">
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Left column Grid.Row="0"-->
+            <ScrollViewer
+                x:Name="LeftColumn"
+                MinWidth="500"
+                Grid.Column="0"
+                Grid.Row="0"
+                Grid.RowSpan="2"
+                HorizontalScrollMode="Disabled"
+                VerticalScrollMode="Enabled"
+                VerticalScrollBarVisibility="Hidden"
+                VerticalAlignment="Stretch"
+                HorizontalAlignment="Stretch"
+                Padding="0,0,40,0">
+
+                <Grid HorizontalAlignment="Stretch">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <Grid 
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        HorizontalAlignment="Stretch" 
+                        MaxHeight="400" 
+                        MinHeight="200">
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock 
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Text="Live Performance Monitoring" 
+                            FontSize="20"
+                            HorizontalAlignment="Left"
+                            Margin="{StaticResource MediumRightMargin}"
+                            Style="{ThemeResource BodyStrongTextBlockStyle}"/>
+
+                        <Button
+                            Grid.Row="0" 
+                            Grid.Column="1"
+                            Margin="{StaticResource MediumLeftMargin}"
+                            HorizontalAlignment="Right"
+                            Content="Start monitoring"
+                            Click="StartMonitoringButton_OnClick" />
+
+                        <ScrollViewer 
+                            Grid.Row="1" 
+                            Grid.Column="0" 
+                            Grid.ColumnSpan="2" 
+                            Margin="{StaticResource MediumTopBottomMargin}"
+                            HorizontalAlignment="Stretch">
+
+                            <!--ItemsSource="{x:Bind ViewModel.PerformanceValues, Mode=OneWay}"-->
+                            <GridView
+                                VerticalAlignment="Stretch"
+                                FlowDirection="LeftToRight"
+                                ItemTemplate="{StaticResource PerformanceValueTemplate}"
+                                IsItemClickEnabled="False"
+                                SelectionMode="None"
+                                ScrollViewer.HorizontalScrollMode="Disabled"
+                                ScrollViewer.VerticalScrollBarVisibility="Visible"
+                                ScrollViewer.VerticalScrollMode="Enabled"
+                                Loaded="GridView_Loaded">
+
+                                <GridView.ItemContainerStyle>
+                                    <Style TargetType="GridViewItem" BasedOn="{StaticResource DefaultGridViewItemStyle}">
+                                        <Setter Property="Margin" Value="0, 5, 12, 5"/>
+                                    </Style>
+                                </GridView.ItemContainerStyle>
+                                <GridView.Resources>
+                                    <ResourceDictionary>
+                                        <SolidColorBrush x:Key="GridViewItemBackground" Opacity="0.3" Color="SlateGray"/>
+                                    </ResourceDictionary>
+                                </GridView.Resources>
+                                <GridView.Items>
+                                    <GridViewItem>
+                                        <local:PerformanceValueTemplate Obj="{x:Bind ViewModel.CpuUtilizationObj, Mode=OneWay}" />
+                                    </GridViewItem>
+                                    <GridViewItem>
+                                        <local:PerformanceValueTemplate Obj="{x:Bind ViewModel.MemoryUtilizationObj, Mode=OneWay}" />
+                                    </GridViewItem>
+                                    <!--<GridViewItem>
+                                    <local:PerformanceValueTemplate Obj="{x:Bind ViewModel.GPUVolatageObj, Mode=OneWay}" />
+                                </GridViewItem>-->
+                                </GridView.Items>
+                            </GridView>
+                        </ScrollViewer>
+                    </Grid>
+
+                    <Grid
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        BorderBrush="SlateGray" 
+                        BorderThickness="0,1,0,0"
+                        Padding="0,25,0,25"
+                        HorizontalAlignment="Stretch">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock 
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Text="Telemetry Overlay" 
+                            FontSize="20" 
+                            Style="{ThemeResource BodyStrongTextBlockStyle}" />
+
+                        <ToggleButton
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Content="OFF" 
+                            ClickMode="Release"
+                            IsChecked="{x:Bind ViewModel.IsTelemetryOverlayToggleBtnChecked, Mode=TwoWay}"
+                            IsEnabled="False"
+                            Click="TelemetryOverlayToggleButton_Click"/>
+                    </Grid>
+                </Grid>
+            </ScrollViewer>
+
+            <!-- Right column (Sliders) Grid.Row="0"-->
+            <Border 
+                Grid.Column="1"
+                Grid.Row="0"
+                Grid.RowSpan="2"
+                x:Name="RightColumn"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Padding="40,0,0,0" 
+                BorderThickness="2,0,0,0" 
+                Margin="{StaticResource SmallBottomMargin}"
+                BorderBrush="SlateGray">
+
+                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Row="0" HorizontalAlignment="Stretch" Margin="{StaticResource MediumBottomMargin}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <InfoBar
+                            Grid.Row="0"
+                            x:Name="NoDriverErrorInfo"
+                            IsOpen="False"
+                            IsIconVisible="False"
+                            IsClosable="False"
+                            Severity="Error"
+                            Margin="{StaticResource SmallBottomMargin}"
+                            Title="No driver detected"
+                            Message="No Intel® Graphics Driver has been detected on your system. Settings don't take effect!" />
+                        <InfoBar
+                            Grid.Row="1"
+                            x:Name="NotAdminWarningInfo"
+                            IsOpen="False"
+                            IsIconVisible="False"
+                            IsClosable="False"
+                            Severity="Warning"
+                            Title="No admin privileges"
+                            Message="Most overclocking settings require the app to be started as administrator!" />
+                    </Grid>
 
                     <TextBlock 
-                        Grid.Row="0"
-                        Grid.Column="0"
-                        Text="Live Performance Monitoring" 
-                        FontSize="20"
-                        HorizontalAlignment="Left"
-                        Margin="{StaticResource MediumRightMargin}"
+                        Grid.Row="1" 
+                        Text="Performance Tuning" 
+                        Margin="0,0,0,15" FontSize="20" 
                         Style="{ThemeResource BodyStrongTextBlockStyle}"/>
-                    
-                    <Button
-                        Grid.Row="0" 
-                        Grid.Column="1"
-                        Margin="{StaticResource MediumLeftMargin}"
-                        HorizontalAlignment="Right"
-                        Content="Start monitoring"
-                        Click="StartMonitoringButton_OnClick" />
 
                     <ScrollViewer 
-                        Grid.Row="1" 
-                        Grid.Column="0" 
-                        Grid.ColumnSpan="2" 
-                        Margin="{StaticResource MediumTopBottomMargin}"
-                        HorizontalAlignment="Stretch">
-                        
-                        <!--ItemsSource="{x:Bind ViewModel.PerformanceValues, Mode=OneWay}"-->
-                        <GridView
-                            VerticalAlignment="Stretch"
-                            FlowDirection="LeftToRight"
-                            ItemTemplate="{StaticResource PerformanceValueTemplate}"
-                            IsItemClickEnabled="False"
-                            SelectionMode="None"
-                            ScrollViewer.HorizontalScrollMode="Disabled"
-                            ScrollViewer.VerticalScrollBarVisibility="Visible"
-                            ScrollViewer.VerticalScrollMode="Enabled"
-                            Loaded="GridView_Loaded">
+                        Grid.Row="2" 
+                        HorizontalAlignment="Stretch" 
+                        Padding="0,0,5,0">
 
-                            <GridView.ItemContainerStyle>
-                                <Style TargetType="GridViewItem" BasedOn="{StaticResource DefaultGridViewItemStyle}">
-                                    <Setter Property="Margin" Value="0, 5, 12, 5"/>
-                                </Style>
-                            </GridView.ItemContainerStyle>
-                            <GridView.Resources>
-                                <ResourceDictionary>
-                                    <SolidColorBrush x:Key="GridViewItemBackground" Opacity="0.3" Color="SlateGray"/>
-                                </ResourceDictionary>
-                            </GridView.Resources>
-                            <GridView.Items>
-                                <GridViewItem>
-                                    <local:PerformanceValueTemplate Obj="{x:Bind ViewModel.CpuUtilizationObj, Mode=OneWay}" />
-                                </GridViewItem>
-                                <GridViewItem>
-                                    <local:PerformanceValueTemplate Obj="{x:Bind ViewModel.MemoryUtilizationObj, Mode=OneWay}" />
-                                </GridViewItem>
-                                <!--<GridViewItem>
-                                    <local:PerformanceValueTemplate Obj="{x:Bind ViewModel.GPUVolatageObj, Mode=OneWay}" />
-                                </GridViewItem>-->
-                            </GridView.Items>
-                        </GridView>
-                    </ScrollViewer>
-                </Grid>
-                
-                <Grid
-                    Grid.Row="1"
-                    Grid.Column="0"
-                    Grid.ColumnSpan="2"
-                    BorderBrush="SlateGray" 
-                    BorderThickness="0,1,0,0"
-                    Padding="0,25,0,25"
-                    HorizontalAlignment="Stretch">
-                    
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+                        <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Margin="0,0,8,0">
+                            <RelativePanel 
+                                BorderBrush="SlateGray" 
+                                BorderThickness="0,0,0,1"
+                                Padding="0,25,0,25"
+                                HorizontalAlignment="Stretch">
 
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    
-                    <TextBlock 
-                        Grid.Row="0"
-                        Grid.Column="0"
-                        Text="Telemetry Overlay" 
-                        FontSize="20" 
-                        Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                    
-                    <ToggleButton
-                        Grid.Row="0"
-                        Grid.Column="1"
-                        Content="OFF" 
-                        ClickMode="Release"
-                        IsChecked="{x:Bind ViewModel.IsTelemetryOverlayToggleBtnChecked, Mode=TwoWay}"
-                        IsEnabled="False"
-                        Click="TelemetryOverlayToggleButton_Click"/>
-                </Grid>
-            </Grid>
-        </ScrollViewer>
-
-        <!-- Right column (Sliders) Grid.Row="0"-->
-        <Border 
-            Grid.Column="1"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Stretch"
-            Padding="40,0,0,0" 
-            BorderThickness="2,0,0,0" 
-            Margin="{StaticResource SmallBottomMargin}"
-            BorderBrush="SlateGray">
-            
-            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-
-                <Grid Grid.Row="0" HorizontalAlignment="Stretch" Margin="{StaticResource MediumBottomMargin}">
-                    <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
-                    <InfoBar
-                        Grid.Row="0"
-                        x:Name="NoDriverErrorInfo"
-                        IsOpen="False"
-                        IsIconVisible="False"
-                        IsClosable="False"
-                        Severity="Error"
-                        Margin="{StaticResource SmallBottomMargin}"
-                        Title="No driver detected"
-                        Message="No Intel® Graphics Driver has been detected on your system. Settings don't take effect!" />
-                    <InfoBar
-                        Grid.Row="1"
-                        x:Name="NotAdminWarningInfo"
-                        IsOpen="False"
-                        IsIconVisible="False"
-                        IsClosable="False"
-                        Severity="Warning"
-                        Title="No admin privileges"
-                        Message="Most overclocking settings require the app to be started as administrator!" />
-                </Grid>
-
-                <TextBlock 
-                    Grid.Row="1" 
-                    Text="Performance Tuning" 
-                    Margin="0,0,0,15" FontSize="20" 
-                    Style="{ThemeResource BodyStrongTextBlockStyle}"/>
-
-                <ScrollViewer 
-                    Grid.Row="2" 
-                    HorizontalAlignment="Stretch" 
-                    Padding="0,0,5,0">
-                    
-                    <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Margin="0,0,8,0">
-                        <RelativePanel 
-                            BorderBrush="SlateGray" 
-                            BorderThickness="0,0,0,1"
-                            Padding="0,25,0,25"
-                            HorizontalAlignment="Stretch">
-                            
-                            <TextBlock 
-                                RelativePanel.AlignLeftWithPanel="True" 
-                                Text="Apply settings on system boot" 
-                                FontSize="20" 
-                                Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                            <ToggleButton
-                                IsEnabled="False"
-                                RelativePanel.AlignRightWithPanel="True" 
-                                Content="Under development..." 
-                                ClickMode="Release" 
-                                Click="ApplySettingsOnSystemBootToggle_Click"
-                                Margin="{StaticResource SmallRightMargin}"/>
-                        </RelativePanel>
-
-                        <StackPanel 
-                            Orientation="Vertical"
-                            BorderBrush="SlateGray" 
-                            BorderThickness="0,0,0,1"
-                            Padding="0,25,0,25">
-
-                            <!-- GPU Performance Boost (slider) -->
-                            <!--<RelativePanel HorizontalAlignment="Stretch" Margin="{StaticResource SmallTopMargin}">
                                 <TextBlock 
                                     RelativePanel.AlignLeftWithPanel="True" 
-                                    RelativePanel.AlignVerticalCenterWithPanel="True"
-                                    Text="GPU Performance Boost" 
+                                    Text="Apply settings on system boot" 
                                     FontSize="20" 
                                     Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                                
-                                <StackPanel
-                                    RelativePanel.AlignRightWithPanel="True"
-                                    Margin="{StaticResource SmallRightMargin}">
-
-                                    <RelativePanel HorizontalAlignment="Stretch">
-                                        <TextBlock 
-                                            x:Name="GPUPerformanceBoostLabel"
-                                            RelativePanel.AlignRightWithPanel="True" 
-                                            Text="0" 
-                                            Foreground="CornflowerBlue"/>
-                                    </RelativePanel>
-                                    <Slider
-                                        x:Name="GPUPerformanceBoostSlider"
-                                        IsEnabled="False"
-                                        Minimum="0"
-                                        Maximum="100"
-                                        Width="200"
-                                        ValueChanged="GPUPerformanceBoostSlider_ValueChanged"/>
-                                    <RelativePanel HorizontalAlignment="Stretch">
-                                        <TextBlock RelativePanel.AlignLeftWithPanel="True" Text="0"/>
-                                        <TextBlock RelativePanel.AlignRightWithPanel="True" Text="100"/>
-                                    </RelativePanel>
-                                </StackPanel>
-                            </RelativePanel>-->
-
-                            <Grid HorizontalAlignment="Stretch" Margin="{StaticResource SmallTopBottomMargin}">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <NumberBox
-                                    x:Uid="PerformancePage_Overclocking_MinimumFrequency_NumberBox"
-                                    Grid.Column="0"
-                                    Grid.Row="0"
-                                    SmallChange="2"
-                                    LargeChange="10"
-                                    Minimum="0"
-                                    Maximum="2500"
-                                    Value="{x:Bind ViewModel.FrequencyMinimum, Mode=TwoWay}"
-                                    Width="200"
-                                    PlaceholderText="0 MHz"
-                                    ToolTipService.Placement="Left"
-                                    SpinButtonPlacementMode="Inline"
-                                    ValidationMode="InvalidInputOverwritten"
-                                    ValueChanged="FrequencyMinimumNumberBox_OnValueChanged"/>
-
-                                <NumberBox
-                                    x:Uid="PerformancePage_Overclocking_MaximumFrequency_NumberBox"
-                                    Grid.Column="2"
-                                    Grid.Row="0"
-                                    SmallChange="2"
-                                    LargeChange="10"
-                                    Minimum="0"
-                                    Maximum="4000"
-                                    Value="{x:Bind ViewModel.FrequencyMaximum, Mode=TwoWay}"
-                                    Width="200"
-                                    PlaceholderText="0 MHz"
-                                    ToolTipService.Placement="Left"
-                                    SpinButtonPlacementMode="Inline"
-                                    ValidationMode="InvalidInputOverwritten"
-                                    ValueChanged="FrequencyMaximumNumberBox_OnValueChanged"/>
-                            </Grid>
-                            
-                            <Grid HorizontalAlignment="Stretch" Margin="{StaticResource SmallTopBottomMargin}">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <NumberBox
-                                    x:Uid="PerformancePage_Overclocking_VoltageLock_NumberBox"
-                                    Grid.Column="0"
-                                    Grid.Row="0"
-                                    VerticalAlignment="Bottom"
-                                    SmallChange="2"
-                                    LargeChange="5"
-                                    Minimum="0"
-                                    Maximum="2000"
-                                    Value="{x:Bind ViewModel.VoltageLock, Mode=TwoWay}"
-                                    Width="200"
-                                    PlaceholderText="0 mV"
-                                    ToolTipService.Placement="Left"
-                                    SpinButtonPlacementMode="Inline"
-                                    ValidationMode="InvalidInputOverwritten"
-                                    ValueChanged="VoltageLockNumberBox_OnValueChanged"/>
-
-                                <NumberBox
-                                    x:Uid="PerformancePage_Overclocking_FrequencyLock_NumberBox"
-                                    Grid.Column="2"
-                                    Grid.Row="0"
-                                    SmallChange="2"
-                                    LargeChange="10"
-                                    Minimum="0"
-                                    Maximum="4000"
-                                    Value="{x:Bind ViewModel.FrequencyLock, Mode=TwoWay}"
-                                    Width="200"
-                                    PlaceholderText="0 MHz"
-                                    ToolTipService.Placement="Left"
-                                    SpinButtonPlacementMode="Inline"
-                                    ValidationMode="InvalidInputOverwritten"
-                                    ValueChanged="FrequencyLockNumberBox_OnValueChanged"/>
-                            </Grid>
-
-                            <!-- GPU Frequency Offset (slider) -->
-                            <Grid HorizontalAlignment="Stretch" Margin="{StaticResource SmallTopMargin}">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock
-                                    Grid.Column="0"
-                                    x:Name="GPUFrequencyOffsetTitle"
-                                    RelativePanel.AlignLeftWithPanel="True"
-                                    RelativePanel.AlignVerticalCenterWithPanel="True"
-                                    VerticalAlignment="Center"
-                                    Text="GPU Frequency Offset" 
-                                    FontSize="20" 
-                                    Style="{ThemeResource BodyStrongTextBlockStyle}"/>
-
-                                <StackPanel
-                                    Grid.Column="2"
-                                    RelativePanel.AlignRightWithPanel="True"
-                                    Margin="{StaticResource SmallRightMargin}">
-
-                                    <RelativePanel HorizontalAlignment="Stretch">
-                                        <TextBlock
-                                            x:Name="GPUFrequencyOffsetLabel"
-                                            RelativePanel.AlignRightWithPanel="True" 
-                                            Text="+0 MHz" 
-                                            Foreground="CornflowerBlue"/>
-                                    </RelativePanel>
-                                    <Slider 
-                                        x:Name="GPUFrequencyOffsetSlider"
-                                        Minimum="0"
-                                        Maximum="245"
-                                        Value="{x:Bind ViewModel.GpuFrequencyOffsetSliderValue, Mode=TwoWay}"
-                                        Width="200"
-                                        ValueChanged="GPUFrequencyOffsetSlider_ValueChanged"/>
-                                    <RelativePanel HorizontalAlignment="Stretch">
-                                        <TextBlock RelativePanel.AlignLeftWithPanel="True" Text="0"/>
-                                        <TextBlock RelativePanel.AlignRightWithPanel="True" Text="800"/>
-                                    </RelativePanel>
-                                </StackPanel>
-                            </Grid>
-
-                            <!-- GPU Voltage Offset (slider) -->
-                            <RelativePanel HorizontalAlignment="Stretch" Margin="{StaticResource LargeTopMargin}">
-                                <TextBlock 
-                                    RelativePanel.AlignLeftWithPanel="True"
-                                    RelativePanel.AlignVerticalCenterWithPanel="True"
-                                    Text="GPU Voltage Offset" 
-                                    FontSize="20" 
-                                    Style="{ThemeResource BodyStrongTextBlockStyle}" />
-
-                                <StackPanel
+                                <ToggleButton
+                                    IsEnabled="False"
                                     RelativePanel.AlignRightWithPanel="True" 
-                                    Margin="{StaticResource SmallRightMargin}">
-
-                                    <RelativePanel HorizontalAlignment="Stretch">
-                                        <TextBlock
-                                            x:Name="GPUVoltageOffsetLabel"
-                                            RelativePanel.AlignRightWithPanel="True" 
-                                            Text="+0 mV" 
-                                            Foreground="CornflowerBlue"/>
-                                    </RelativePanel>
-                                    <Slider 
-                                        x:Name="GPUVoltageOffsetSlider"
-                                        Minimum="0"
-                                        Maximum="245"
-                                        Value="{x:Bind ViewModel.GpuVoltageOffsetSliderValue, Mode=TwoWay}"
-                                        Width="200"
-                                        ValueChanged="GPUVoltageOffsetSlider_ValueChanged"/>
-                                    <RelativePanel HorizontalAlignment="Stretch">
-                                        <TextBlock RelativePanel.AlignLeftWithPanel="True" Text="0"/>
-                                        <TextBlock RelativePanel.AlignRightWithPanel="True" Text="261"/>
-                                    </RelativePanel>
-                                </StackPanel>
+                                    Content="Under development..." 
+                                    ClickMode="Release" 
+                                    Click="ApplySettingsOnSystemBootToggle_Click"
+                                    Margin="{StaticResource SmallRightMargin}"/>
                             </RelativePanel>
 
-                            <!-- GPU Power Limit (slider) -->
-                            <RelativePanel HorizontalAlignment="Stretch" Margin="{StaticResource LargeTopMargin}">
-                                <TextBlock 
-                                    RelativePanel.AlignLeftWithPanel="True"
-                                    RelativePanel.AlignVerticalCenterWithPanel="True"
-                                    Text="GPU Power Limit" 
-                                    FontSize="20" 
-                                    Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                            <StackPanel 
+                                Orientation="Vertical"
+                                BorderBrush="SlateGray" 
+                                BorderThickness="0,0,0,1"
+                                Padding="0,25,0,25">
 
-                                <StackPanel 
-                                    RelativePanel.AlignRightWithPanel="True"
-                                    Margin="{StaticResource SmallRightMargin}">
+                                <!-- GPU Performance Boost (slider) -->
+                                <!--<RelativePanel HorizontalAlignment="Stretch" Margin="{StaticResource SmallTopMargin}">
+                                    <TextBlock 
+                                        RelativePanel.AlignLeftWithPanel="True" 
+                                        RelativePanel.AlignVerticalCenterWithPanel="True"
+                                        Text="GPU Performance Boost" 
+                                        FontSize="20" 
+                                        Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                
+                                    <StackPanel
+                                        RelativePanel.AlignRightWithPanel="True"
+                                        Margin="{StaticResource SmallRightMargin}">
 
-                                    <RelativePanel HorizontalAlignment="Stretch">
-                                        <TextBlock
+                                        <RelativePanel HorizontalAlignment="Stretch">
+                                            <TextBlock 
+                                                x:Name="GPUPerformanceBoostLabel"
+                                                RelativePanel.AlignRightWithPanel="True" 
+                                                Text="0" 
+                                                Foreground="CornflowerBlue"/>
+                                        </RelativePanel>
+                                        <Slider
+                                            x:Name="GPUPerformanceBoostSlider"
+                                            IsEnabled="False"
+                                            Minimum="0"
+                                            Maximum="100"
+                                            Width="200"
+                                            ValueChanged="GPUPerformanceBoostSlider_ValueChanged"/>
+                                        <RelativePanel HorizontalAlignment="Stretch">
+                                            <TextBlock RelativePanel.AlignLeftWithPanel="True" Text="0"/>
+                                            <TextBlock RelativePanel.AlignRightWithPanel="True" Text="100"/>
+                                        </RelativePanel>
+                                    </StackPanel>
+                                </RelativePanel>-->
+
+                                <Grid HorizontalAlignment="Stretch" Margin="{StaticResource SmallTopBottomMargin}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <NumberBox
+                                        x:Uid="PerformancePage_Overclocking_MinimumFrequency_NumberBox"
+                                        Grid.Column="0"
+                                        Grid.Row="0"
+                                        SmallChange="2"
+                                        LargeChange="10"
+                                        Minimum="0"
+                                        Maximum="2500"
+                                        Value="{x:Bind ViewModel.FrequencyMinimum, Mode=TwoWay}"
+                                        Width="200"
+                                        PlaceholderText="0 MHz"
+                                        ToolTipService.Placement="Left"
+                                        SpinButtonPlacementMode="Inline"
+                                        ValidationMode="InvalidInputOverwritten"
+                                        ValueChanged="FrequencyMinimumNumberBox_OnValueChanged"/>
+
+                                    <NumberBox
+                                        x:Uid="PerformancePage_Overclocking_MaximumFrequency_NumberBox"
+                                        Grid.Column="2"
+                                        Grid.Row="0"
+                                        SmallChange="2"
+                                        LargeChange="10"
+                                        Minimum="0"
+                                        Maximum="4000"
+                                        Value="{x:Bind ViewModel.FrequencyMaximum, Mode=TwoWay}"
+                                        Width="200"
+                                        PlaceholderText="0 MHz"
+                                        ToolTipService.Placement="Left"
+                                        SpinButtonPlacementMode="Inline"
+                                        ValidationMode="InvalidInputOverwritten"
+                                        ValueChanged="FrequencyMaximumNumberBox_OnValueChanged"/>
+                                </Grid>
+
+                                <Grid HorizontalAlignment="Stretch" Margin="{StaticResource SmallTopBottomMargin}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <NumberBox
+                                        x:Uid="PerformancePage_Overclocking_VoltageLock_NumberBox"
+                                        Grid.Column="0"
+                                        Grid.Row="0"
+                                        VerticalAlignment="Bottom"
+                                        SmallChange="2"
+                                        LargeChange="5"
+                                        Minimum="0"
+                                        Maximum="2000"
+                                        Value="{x:Bind ViewModel.VoltageLock, Mode=TwoWay}"
+                                        Width="200"
+                                        PlaceholderText="0 mV"
+                                        ToolTipService.Placement="Left"
+                                        SpinButtonPlacementMode="Inline"
+                                        ValidationMode="InvalidInputOverwritten"
+                                        ValueChanged="VoltageLockNumberBox_OnValueChanged"/>
+
+                                    <NumberBox
+                                        x:Uid="PerformancePage_Overclocking_FrequencyLock_NumberBox"
+                                        Grid.Column="2"
+                                        Grid.Row="0"
+                                        SmallChange="2"
+                                        LargeChange="10"
+                                        Minimum="0"
+                                        Maximum="4000"
+                                        Value="{x:Bind ViewModel.FrequencyLock, Mode=TwoWay}"
+                                        Width="200"
+                                        PlaceholderText="0 MHz"
+                                        ToolTipService.Placement="Left"
+                                        SpinButtonPlacementMode="Inline"
+                                        ValidationMode="InvalidInputOverwritten"
+                                        ValueChanged="FrequencyLockNumberBox_OnValueChanged"/>
+                                </Grid>
+
+                                <!-- GPU Frequency Offset (slider) -->
+                                <Grid HorizontalAlignment="Stretch" Margin="{StaticResource SmallTopMargin}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock
+                                        Grid.Column="0"
+                                        x:Name="GPUFrequencyOffsetTitle"
+                                        RelativePanel.AlignLeftWithPanel="True"
+                                        RelativePanel.AlignVerticalCenterWithPanel="True"
+                                        VerticalAlignment="Center"
+                                        Text="GPU Frequency Offset" 
+                                        FontSize="20" 
+                                        Style="{ThemeResource BodyStrongTextBlockStyle}"/>
+
+                                    <StackPanel
+                                        Grid.Column="2"
+                                        RelativePanel.AlignRightWithPanel="True"
+                                        Margin="{StaticResource SmallRightMargin}">
+
+                                        <RelativePanel HorizontalAlignment="Stretch">
+                                            <TextBlock
+                                                x:Name="GPUFrequencyOffsetLabel"
+                                                RelativePanel.AlignRightWithPanel="True" 
+                                                Text="+0 MHz" 
+                                                Foreground="CornflowerBlue"/>
+                                        </RelativePanel>
+                                        <Slider 
+                                            x:Name="GPUFrequencyOffsetSlider"
+                                            Minimum="0"
+                                            Maximum="245"
+                                            Value="{x:Bind ViewModel.GpuFrequencyOffsetSliderValue, Mode=TwoWay}"
+                                            Width="200"
+                                            ValueChanged="GPUFrequencyOffsetSlider_ValueChanged"/>
+                                        <RelativePanel HorizontalAlignment="Stretch">
+                                            <TextBlock RelativePanel.AlignLeftWithPanel="True" Text="0"/>
+                                            <TextBlock RelativePanel.AlignRightWithPanel="True" Text="800"/>
+                                        </RelativePanel>
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- GPU Voltage Offset (slider) -->
+                                <RelativePanel HorizontalAlignment="Stretch" Margin="{StaticResource LargeTopMargin}">
+                                    <TextBlock 
+                                        RelativePanel.AlignLeftWithPanel="True"
+                                        RelativePanel.AlignVerticalCenterWithPanel="True"
+                                        Text="GPU Voltage Offset" 
+                                        FontSize="20" 
+                                        Style="{ThemeResource BodyStrongTextBlockStyle}" />
+
+                                    <StackPanel
+                                        RelativePanel.AlignRightWithPanel="True" 
+                                        Margin="{StaticResource SmallRightMargin}">
+
+                                        <RelativePanel HorizontalAlignment="Stretch">
+                                            <TextBlock
+                                                x:Name="GPUVoltageOffsetLabel"
+                                                RelativePanel.AlignRightWithPanel="True" 
+                                                Text="+0 mV" 
+                                                Foreground="CornflowerBlue"/>
+                                        </RelativePanel>
+                                        <Slider 
+                                            x:Name="GPUVoltageOffsetSlider"
+                                            Minimum="0"
+                                            Maximum="245"
+                                            Value="{x:Bind ViewModel.GpuVoltageOffsetSliderValue, Mode=TwoWay}"
+                                            Width="200"
+                                            ValueChanged="GPUVoltageOffsetSlider_ValueChanged"/>
+                                        <RelativePanel HorizontalAlignment="Stretch">
+                                            <TextBlock RelativePanel.AlignLeftWithPanel="True" Text="0"/>
+                                            <TextBlock RelativePanel.AlignRightWithPanel="True" Text="261"/>
+                                        </RelativePanel>
+                                    </StackPanel>
+                                </RelativePanel>
+
+                                <!-- GPU Power Limit (slider) -->
+                                <RelativePanel HorizontalAlignment="Stretch" Margin="{StaticResource LargeTopMargin}">
+                                    <TextBlock 
+                                        RelativePanel.AlignLeftWithPanel="True"
+                                        RelativePanel.AlignVerticalCenterWithPanel="True"
+                                        Text="GPU Power Limit" 
+                                        FontSize="20" 
+                                        Style="{ThemeResource BodyStrongTextBlockStyle}" />
+
+                                    <StackPanel 
+                                        RelativePanel.AlignRightWithPanel="True"
+                                        Margin="{StaticResource SmallRightMargin}">
+
+                                        <RelativePanel HorizontalAlignment="Stretch">
+                                            <TextBlock
                                             x:Name="GPUPowerLimitLabel"
                                             RelativePanel.AlignRightWithPanel="True" 
                                             Text="95 W" 
                                             Foreground="CornflowerBlue"/>
-                                    </RelativePanel>
-                                    <Slider 
-                                        x:Name="GPUPowerLimitSlider"
-                                        Minimum="95"
-                                        StepFrequency="1"
-                                        Maximum="{x:Bind ViewModel.GpuPowerMaxLimit, Mode=OneWay}"
-                                        Value="{x:Bind ViewModel.GpuPowerLimitSliderValue, Mode=TwoWay}"
-                                        Width="200"
-                                        ValueChanged="GPUPowerLimitSlider_ValueChanged"
-                                        IsEnabled="{x:Bind ViewModel.PowerLimitSliderEnabled, Mode=OneWay}"/>
-                                    <RelativePanel HorizontalAlignment="Stretch">
-                                        <TextBlock RelativePanel.AlignLeftWithPanel="True" Text="95"/>
-                                        <TextBlock 
-                                            RelativePanel.AlignRightWithPanel="True" 
-                                            Text="{x:Bind ViewModel.GpuPowerMaxLimit, Mode=OneWay}"/>
-                                    </RelativePanel>
-                                </StackPanel>
-                            </RelativePanel>
+                                        </RelativePanel>
+                                        <Slider 
+                                            x:Name="GPUPowerLimitSlider"
+                                            Minimum="95"
+                                            StepFrequency="1"
+                                            Maximum="{x:Bind ViewModel.GpuPowerMaxLimit, Mode=OneWay}"
+                                            Value="{x:Bind ViewModel.GpuPowerLimitSliderValue, Mode=TwoWay}"
+                                            Width="200"
+                                            ValueChanged="GPUPowerLimitSlider_ValueChanged"
+                                            IsEnabled="{x:Bind ViewModel.PowerLimitSliderEnabled, Mode=OneWay}"/>
+                                        <RelativePanel HorizontalAlignment="Stretch">
+                                            <TextBlock RelativePanel.AlignLeftWithPanel="True" Text="95"/>
+                                            <TextBlock 
+                                                RelativePanel.AlignRightWithPanel="True" 
+                                                Text="{x:Bind ViewModel.GpuPowerMaxLimit, Mode=OneWay}"/>
+                                        </RelativePanel>
+                                    </StackPanel>
+                                </RelativePanel>
 
-                            <!-- GPU Temperature Limit (slider) -->
-                            <RelativePanel HorizontalAlignment="Stretch" Margin="{StaticResource LargeTopMargin}">
-                                <TextBlock 
-                                    RelativePanel.AlignLeftWithPanel="True"
-                                    RelativePanel.AlignVerticalCenterWithPanel="True"
-                                    Text="GPU Temperature Limit" 
-                                    FontSize="20" 
-                                    Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                                
-                                <StackPanel 
-                                    RelativePanel.AlignRightWithPanel="True"
-                                    Margin="{StaticResource SmallRightMargin}">
+                                <!-- GPU Temperature Limit (slider) -->
+                                <RelativePanel HorizontalAlignment="Stretch" Margin="{StaticResource LargeTopMargin}">
+                                    <TextBlock 
+                                        RelativePanel.AlignLeftWithPanel="True"
+                                        RelativePanel.AlignVerticalCenterWithPanel="True"
+                                        Text="GPU Temperature Limit" 
+                                        FontSize="20" 
+                                        Style="{ThemeResource BodyStrongTextBlockStyle}" />
 
-                                    <RelativePanel HorizontalAlignment="Stretch">
-                                        <TextBlock
+                                    <StackPanel 
+                                        RelativePanel.AlignRightWithPanel="True"
+                                        Margin="{StaticResource SmallRightMargin}">
+
+                                        <RelativePanel HorizontalAlignment="Stretch">
+                                            <TextBlock
                                             x:Name="GPUTemperatureLimitLabel"
                                             RelativePanel.AlignRightWithPanel="True" 
                                             Text="60 °C" 
                                             Foreground="CornflowerBlue"/>
-                                    </RelativePanel>
-                                    <Slider
-                                        x:Name="GPUTemperatureLimitSlider"
-                                        Minimum="60"
-                                        Maximum="90"
-                                        Value="{x:Bind ViewModel.GpuTemperatureLimitSliderValue, Mode=TwoWay}"
-                                        Width="200"
-                                        ValueChanged="GPUTemperatureLimitSlider_ValueChanged"/>
-                                    <RelativePanel HorizontalAlignment="Stretch">
-                                        <TextBlock RelativePanel.AlignLeftWithPanel="True" Text="60"/>
-                                        <TextBlock RelativePanel.AlignRightWithPanel="True" Text="90"/>
-                                    </RelativePanel>
-                                </StackPanel>
-                            </RelativePanel>
+                                        </RelativePanel>
+                                        <Slider
+                                            x:Name="GPUTemperatureLimitSlider"
+                                            Minimum="60"
+                                            Maximum="90"
+                                            Value="{x:Bind ViewModel.GpuTemperatureLimitSliderValue, Mode=TwoWay}"
+                                            Width="200"
+                                            ValueChanged="GPUTemperatureLimitSlider_ValueChanged"/>
+                                        <RelativePanel HorizontalAlignment="Stretch">
+                                            <TextBlock RelativePanel.AlignLeftWithPanel="True" Text="60"/>
+                                            <TextBlock RelativePanel.AlignRightWithPanel="True" Text="90"/>
+                                        </RelativePanel>
+                                    </StackPanel>
+                                </RelativePanel>
 
-                            <!-- Fan Speed Control (dropdown) -->
-                            <RelativePanel HorizontalAlignment="Stretch" Margin="{StaticResource LargeTopMargin}">
-                                <TextBlock 
-                                    RelativePanel.AlignLeftWithPanel="True" 
-                                    Text="Fan Speed Control" 
-                                    FontSize="20" 
-                                    Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                <!-- Fan Speed Control (dropdown) -->
+                                <RelativePanel HorizontalAlignment="Stretch" Margin="{StaticResource LargeTopMargin}">
+                                    <TextBlock 
+                                        RelativePanel.AlignLeftWithPanel="True" 
+                                        Text="Fan Speed Control" 
+                                        FontSize="20" 
+                                        Style="{ThemeResource BodyStrongTextBlockStyle}" />
 
-                                <DropDownButton 
-                                    x:Name="FanSpeedControlDropDownButton"
-                                    Content="Automatic (Default)"
+                                    <DropDownButton 
+                                        x:Name="FanSpeedControlDropDownButton"
+                                        Content="Automatic (Default)"
+                                        IsEnabled="False"
+                                        RelativePanel.AlignRightWithPanel="True">
+
+                                        <DropDownButton.Flyout>
+                                            <MenuFlyout Placement="Bottom">
+                                                <MenuFlyoutItem Text="Automatic (Default)" Click="FanSpeedControlItem_Click"/>
+                                                <MenuFlyoutItem Text="Fixed" Click="FanSpeedControlItem_Click"/>
+                                            </MenuFlyout>
+                                        </DropDownButton.Flyout>
+                                    </DropDownButton>
+                                </RelativePanel>
+
+                                <!-- Fan Speed manual control (slider) -->
+                                <RelativePanel 
+                                    x:Name="FanSpeedSliderContainer"
+                                    x:Load="{x:Bind ViewModel.LoadFanSpeedSlider, Mode=OneWay}"
+                                    Visibility="Collapsed" 
+                                    HorizontalAlignment="Stretch" 
+                                    Margin="{StaticResource LargeTopMargin}">
+                                    <TextBlock 
+                                        RelativePanel.AlignLeftWithPanel="True"
+                                        RelativePanel.AlignVerticalCenterWithPanel="True"
+                                        Text="Fan Speed (%)" 
+                                        FontSize="20" 
+                                        Style="{ThemeResource BodyStrongTextBlockStyle}" />
+
+                                    <StackPanel
+                                        RelativePanel.AlignRightWithPanel="True" 
+                                        Margin="{StaticResource SmallRightMargin}">
+
+                                        <RelativePanel HorizontalAlignment="Stretch">
+                                            <TextBlock
+                                                x:Name="FanSpeedLabel"
+                                                RelativePanel.AlignRightWithPanel="True" 
+                                                Text="20 %" 
+                                                Foreground="CornflowerBlue"/>
+                                        </RelativePanel>
+                                        <Slider 
+                                            x:Name="FanSpeedSlider"
+                                            Minimum="0"
+                                            Maximum="100"
+                                            Value="{x:Bind ViewModel.FanSpeedSliderValue, Mode=TwoWay}"
+                                            Width="200"
+                                            ValueChanged="FanSpeedSlider_ValueChanged"/>
+                                        <RelativePanel HorizontalAlignment="Stretch">
+                                            <TextBlock RelativePanel.AlignLeftWithPanel="True" Text="0%"/>
+                                            <TextBlock RelativePanel.AlignRightWithPanel="True" Text="100%"/>
+                                        </RelativePanel>
+                                    </StackPanel>
+                                </RelativePanel>
+                            </StackPanel>
+
+                            <!-- Apply buttons -->
+                            <StackPanel 
+                                Orientation="Horizontal" 
+                                HorizontalAlignment="Right" 
+                                Margin="{StaticResource MediumTopMargin}">
+
+                                <Button 
+                                    x:Name="ResetToDefaultsButton"
+                                    Content="Reset to defaults" 
+                                    BorderBrush="CornflowerBlue"
+                                    BorderThickness="1.5"
+                                    Click="ResetToDefaultsButton_Click"
+                                    ClickMode="Release">
+
+                                    <Button.Resources>
+                                        <ResourceDictionary>
+                                            <SolidColorBrush x:Key="ButtonBorderBrushPointerOver" Color="CornflowerBlue" Opacity="0.6"/>
+                                        </ResourceDictionary>
+                                    </Button.Resources>
+                                </Button>
+
+                                <Button
+                                    x:Name="RevertButton"
+                                    Content="Revert" 
+                                    Margin="{StaticResource MediumLeftRightMargin}"
+                                    BorderBrush="CornflowerBlue"
+                                    BorderThickness="1.5"
                                     IsEnabled="False"
-                                    RelativePanel.AlignRightWithPanel="True">
-                                    
-                                    <DropDownButton.Flyout>
-                                        <MenuFlyout Placement="Bottom">
-                                            <MenuFlyoutItem Text="Automatic (Default)" Click="FanSpeedControlItem_Click"/>
-                                            <MenuFlyoutItem Text="Fixed" Click="FanSpeedControlItem_Click"/>
-                                        </MenuFlyout>
-                                    </DropDownButton.Flyout>
-                                </DropDownButton>
-                            </RelativePanel>
+                                    Click="{x:Bind ViewModel.RevertSliderChanges}"
+                                    ClickMode="Release">
 
-                            <!-- Fan Speed manual control (slider) -->
-                            <RelativePanel 
-                                x:Name="FanSpeedSliderContainer"
-                                x:Load="{x:Bind ViewModel.LoadFanSpeedSlider, Mode=OneWay}"
-                                Visibility="Collapsed" 
-                                HorizontalAlignment="Stretch" 
-                                Margin="{StaticResource LargeTopMargin}">
-                                <TextBlock 
-                                    RelativePanel.AlignLeftWithPanel="True"
-                                    RelativePanel.AlignVerticalCenterWithPanel="True"
-                                    Text="Fan Speed (%)" 
-                                    FontSize="20" 
-                                    Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                                    <Button.Resources>
+                                        <ResourceDictionary>
+                                            <SolidColorBrush x:Key="ButtonBorderBrushPointerOver" Color="CornflowerBlue" Opacity="0.6"/>
+                                            <SolidColorBrush x:Key="ButtonBorderBrushDisabled" Color="CornflowerBlue" Opacity="0.3"/>
+                                        </ResourceDictionary>
+                                    </Button.Resources>
+                                </Button>
 
-                                <StackPanel
-                                    RelativePanel.AlignRightWithPanel="True" 
-                                    Margin="{StaticResource SmallRightMargin}">
+                                <Button 
+                                    x:Name="ApplyButton"
+                                    Content="Apply" 
+                                    IsEnabled="True" 
+                                    Background="SeaGreen"
+                                    ClickMode="Release"
+                                    Click="ApplyButton_Click">
 
-                                    <RelativePanel HorizontalAlignment="Stretch">
-                                        <TextBlock
-                                            x:Name="FanSpeedLabel"
-                                            RelativePanel.AlignRightWithPanel="True" 
-                                            Text="20 %" 
-                                            Foreground="CornflowerBlue"/>
-                                    </RelativePanel>
-                                    <Slider 
-                                        x:Name="FanSpeedSlider"
-                                        Minimum="0"
-                                        Maximum="100"
-                                        Value="{x:Bind ViewModel.FanSpeedSliderValue, Mode=TwoWay}"
-                                        Width="200"
-                                        ValueChanged="FanSpeedSlider_ValueChanged"/>
-                                    <RelativePanel HorizontalAlignment="Stretch">
-                                        <TextBlock RelativePanel.AlignLeftWithPanel="True" Text="0%"/>
-                                        <TextBlock RelativePanel.AlignRightWithPanel="True" Text="100%"/>
-                                    </RelativePanel>
-                                </StackPanel>
-                            </RelativePanel>
+                                    <Button.Resources>
+                                        <ResourceDictionary>
+                                            <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="SeaGreen" Opacity="0.5"/>
+                                        </ResourceDictionary>
+                                    </Button.Resources>
+                                </Button>
+                            </StackPanel>
                         </StackPanel>
-
-                        <!-- Apply buttons -->
-                        <StackPanel 
-                            Orientation="Horizontal" 
-                            HorizontalAlignment="Right" 
-                            Margin="{StaticResource MediumTopMargin}">
-                            
-                            <Button 
-                                x:Name="ResetToDefaultsButton"
-                                Content="Reset to defaults" 
-                                BorderBrush="CornflowerBlue"
-                                BorderThickness="1.5"
-                                Click="ResetToDefaultsButton_Click"
-                                ClickMode="Release">
-
-                                <Button.Resources>
-                                    <ResourceDictionary>
-                                        <SolidColorBrush x:Key="ButtonBorderBrushPointerOver" Color="CornflowerBlue" Opacity="0.6"/>
-                                    </ResourceDictionary>
-                                </Button.Resources>
-                            </Button>
-
-                            <Button
-                                x:Name="RevertButton"
-                                Content="Revert" 
-                                Margin="{StaticResource MediumLeftRightMargin}"
-                                BorderBrush="CornflowerBlue"
-                                BorderThickness="1.5"
-                                IsEnabled="False"
-                                Click="{x:Bind ViewModel.RevertSliderChanges}"
-                                ClickMode="Release">
-
-                                <Button.Resources>
-                                    <ResourceDictionary>
-                                        <SolidColorBrush x:Key="ButtonBorderBrushPointerOver" Color="CornflowerBlue" Opacity="0.6"/>
-                                        <SolidColorBrush x:Key="ButtonBorderBrushDisabled" Color="CornflowerBlue" Opacity="0.3"/>
-                                    </ResourceDictionary>
-                                </Button.Resources>
-                            </Button>
-
-                            <Button 
-                                x:Name="ApplyButton"
-                                Content="Apply" 
-                                IsEnabled="True" 
-                                Background="SeaGreen"
-                                ClickMode="Release"
-                                Click="ApplyButton_Click">
-
-                                <Button.Resources>
-                                    <ResourceDictionary>
-                                        <SolidColorBrush x:Key="ButtonBackgroundPointerOver" Color="SeaGreen" Opacity="0.5"/>
-                                    </ResourceDictionary>
-                                </Button.Resources>
-                            </Button>
-                        </StackPanel>
-                    </StackPanel>
-                </ScrollViewer>
-            </Grid>
-        </Border>
-    </Grid>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+        </Grid>
+    </ScrollViewer>
 </Page>

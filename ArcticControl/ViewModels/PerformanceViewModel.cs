@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Globalization;
 using System.Management;
 using ArcticControl.Contracts.Services;
@@ -263,20 +263,6 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
     {
         _ = _dpq?.TryEnqueue(() =>
         {
-            // ItemsSource refresh does not work because no available option for event
-            /*foreach (var item in ViewModel.PerformanceValues)
-            {
-                switch (item.Title)
-                {
-                    case "CPU Utilization":
-                        item.Value = _performanceCounter.NextValue().ToString("0.0");
-                        break;
-                    default:
-                        item.Value = "0.0";
-                        break;
-                }
-            }*/
-
             // property access inside loop equal to for example:
             // CPUUtilizationObj.Value = _performanceCounter.NextValue().ToString("0.0");
             foreach (var counter in _performanceCounters)
