@@ -133,7 +133,7 @@
     <value>Games</value>
   </data>
   <data name="Shell_Performance.Content" xml:space="preserve">
-    <value>Performance (experimental)</value>
+    <value>Performance (dangerous)</value>
   </data>
   <data name="WebView_Loading.Text" xml:space="preserve">
     <value>Loading...</value>

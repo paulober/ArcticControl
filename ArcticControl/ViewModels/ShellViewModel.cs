@@ -1,9 +1,7 @@
 ﻿using ArcticControl.Contracts.Services;
-using ArcticControl.Helpers;
 using ArcticControl.Views;
 
 using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Navigation;
 
 namespace ArcticControl.ViewModels;
