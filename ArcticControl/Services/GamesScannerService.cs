@@ -202,6 +202,7 @@ public partial class GamesScannerService : IGamesScannerService
         }*/
         var xessDllsCount = Directory.GetFiles(installLocation, "*xess.dll", SearchOption.AllDirectories).Length;
 
+        await Task.CompletedTask;
         return xessDllsCount > 0;
     }
 
@@ -235,7 +236,8 @@ public partial class GamesScannerService : IGamesScannerService
                 
                 // XeSS support
                 var xeSsSupported = false;
-                var gameDirectory = await StorageFolder.GetFolderFromPathAsync(item.InstallLocation);
+                // Path.getfullpath to normalize the paths provided by the epicgames items which contains als kinds of slashes
+                var gameDirectory = await StorageFolder.GetFolderFromPathAsync(Path.GetFullPath(item.InstallLocation));
                 if (gameDirectory != null)
                 {
                     xeSsSupported = await DoesGameSupportXeSsAsync(gameDirectory.Path);
