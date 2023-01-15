@@ -148,6 +148,14 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
         get => _powerLimitSliderEnabled;
         set => SetProperty(ref _powerLimitSliderEnabled, value);
     }
+    
+    private bool _isTelemetryOverlayToggleBtnChecked = false;
+
+    public bool IsTelemetryOverlayToggleBtnChecked
+    {
+        get => _isTelemetryOverlayToggleBtnChecked;
+        set => SetProperty(ref _isTelemetryOverlayToggleBtnChecked, value);
+    }
 
     #region ValueDataObject properties to be able to update the values
     private PerformanceValueDataObject _cpuUtilizationObj 
@@ -489,6 +497,13 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
     public void SetOverclockWaiver()
     {
         _igcs.SetOverclockWaiver();
+    }
+
+    public Task TelemetryOverlayEnabledChanged()
+    {
+        // do telemetry overlay stuff here
+        
+        return Task.CompletedTask;
     }
 
     public async void OnNavigatedFrom()

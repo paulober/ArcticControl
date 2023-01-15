@@ -40,6 +40,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Styles\Brushes.xaml" />
     <None Remove="Views\Dialogs\PrivacyConsentDialog.xaml" />
     <None Remove="Views\DriversListViewDetailsControl.xaml" />
     <None Remove="Views\PerformanceValueTemplate.xaml" />
@@ -85,6 +86,9 @@
     <None Update="ArcticControl.appinstaller">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
+    <Page Update="Styles\Brushes.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Update="Views\Dialogs\PrivacyConsentDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

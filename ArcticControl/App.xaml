@@ -9,6 +9,7 @@
                 <ResourceDictionary Source="/Styles/FontSizes.xaml" />
                 <ResourceDictionary Source="/Styles/Thickness.xaml" />
                 <ResourceDictionary Source="/Styles/TextBlock.xaml" />
+                <ResourceDictionary Source="/Styles/Brushes.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <CornerRadius x:Key="GridViewItemCornerRadius">15,15,15,15</CornerRadius>
             <SolidColorBrush x:Key="GridViewItemSelectedBorderBrush" Color="Chartreuse" />

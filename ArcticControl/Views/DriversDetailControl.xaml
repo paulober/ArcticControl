@@ -18,10 +18,34 @@
         VerticalScrollMode="Enabled"
         IsTabStop="True"
         Margin="0,0,0,30">
-        <Grid>
-            <StackPanel x:Name="DriverDetailsPane" HorizontalAlignment="Stretch" Visibility="Collapsed">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+        <Grid HorizontalAlignment="Stretch">
+            <Grid x:Name="DriverDetailsPane" HorizontalAlignment="Stretch" VerticalAlignment="Top" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Driver title (version description) -->
+                <Grid
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2" 
+                    HorizontalAlignment="Stretch"
+                    Margin="{StaticResource LargeBottomMargin}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
                     <FontIcon
+                        Grid.Column="0"
                         x:Name="DriverIcon"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
@@ -29,78 +53,135 @@
                         Glyph="{x:Bind ListDetailsMenuItem.DriverVersion.IsLatest, Converter={StaticResource BoolToGlyphConverter}, Mode=OneWay}"
                         Foreground="{x:Bind ListDetailsMenuItem.DriverVersion.LocalState, Converter={StaticResource LocalArcDriverStateToBrushConverter}, Mode=OneWay}"
                         AutomationProperties.Name="Driver"  />
-                    <TextBlock 
+                    <TextBlock
+                        Grid.Column="1"
                         Margin="{StaticResource SmallLeftMargin}" 
                         VerticalAlignment="Center" 
-                        Text="Intel® Graphics Driver"
+                        Text="{x:Bind ListDetailsMenuItem.DriverVersion, FallbackValue='Unknown driver version', Mode=OneWay}"
+                        TextWrapping="WrapWholeWords"
                         Style="{ThemeResource TitleTextBlockStyle}"/>
+                </Grid>
+                
+                <!-- driver details-->
+                
+                <!-- driver version -->
+                <Grid
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    HorizontalAlignment="Left">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <TextBlock 
+                        Grid.Row="0"
+                        Text="Driver-Version" 
+                        Style="{StaticResource DetailSubTitleStyle}" />
+
                     <TextBlock
-                        Margin="{StaticResource SmallLeftMargin}"
-                        VerticalAlignment="Center"
-                        Text="{x:Bind ListDetailsMenuItem.DriverVersion.GetFullVersion(), Mode=OneWay}"
-                        Style="{ThemeResource TitleTextBlockStyle}" />
-                </StackPanel>
-                <StackPanel Padding="{StaticResource MediumTopMargin}">
-                    <RelativePanel>
-                        <StackPanel Orientation="Vertical" RelativePanel.AlignLeftWithPanel="True">
-                            <TextBlock Text="Driver-Version" Style="{StaticResource DetailSubTitleStyle}" />
+                        Grid.Row="1"
+                        Text="{x:Bind ListDetailsMenuItem.DriverVersion.GetFullVersion(), FallbackValue='Unknown', Mode=OneWay}" 
+                        Style="{StaticResource DetailBodyBaseMediumStyle}" />
+                </Grid>
 
-                            <TextBlock 
-                                Text="{x:Bind ListDetailsMenuItem.DriverVersion.GetFullVersion(), Mode=OneWay}" 
-                                Style="{StaticResource DetailBodyBaseMediumStyle}" />
+                <!-- driver date -->
+                <Grid
+                    Grid.Row="2"
+                    Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock
+                        Grid.Row="0"
+                        Margin="{StaticResource SmallTopMargin}"
+                        Text="Driver date"
+                        Style="{StaticResource DetailSubTitleStyle}" />
+                    <TextBlock
+                        Grid.Row="1"
+                        Text="{x:Bind ListDetailsMenuItem.FriendlyDate, FallbackValue='N/A', Mode=OneWay}" 
+                        Style="{StaticResource DetailBodyBaseMediumStyle}" />
+                </Grid>
+                <Button
+                    Grid.Row="1"
+                    Grid.Column="1"
+                    x:Name="DownloadDriverButton"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Right"
+                    Click="DownloadDriverButton_Click">
 
-                            <TextBlock
-                                Margin="{StaticResource SmallTopMargin}"
-                                Text="Driver date"
-                                Style="{StaticResource DetailSubTitleStyle}" />
-                            <TextBlock Text="{x:Bind ListDetailsMenuItem.FriendlyDate, Mode=OneWay}" Style="{StaticResource DetailBodyBaseMediumStyle}" />
+                    <Grid>
+                        <StackPanel x:Name="DownloadButtonDefaultContent" Orientation="Vertical">
+                            <StackPanel Orientation="Horizontal">
+                                <SymbolIcon Symbol="Download"/>
+                                <TextBlock Margin="{StaticResource SmallLeftMargin}" Text="Download"/>
+                                <!--<muxc:FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xe8a7;"/>-->
+                            </StackPanel>
+                            <muxc:ProgressBar
+                                x:Name="DownloadProgressBar"
+                                Margin="{StaticResource SmallTopMargin}" 
+                                HorizontalAlignment="Stretch" 
+                                IsIndeterminate="True" 
+                                ShowPaused="False" 
+                                ShowError="False"
+                                Visibility="Collapsed"/>
                         </StackPanel>
-                        <Button 
-                            x:Name="DownloadDriverButton"
-                            RelativePanel.AlignRightWithPanel="True" 
-                            Click="DownloadDriverButton_Click">
+                        <TextBlock x:Name="DownloadButtonInstalledText" Text="Installed" Visibility="Collapsed"/>
+                    </Grid>
+                </Button>
+                
+                <!--NavigateUri="{x:Bind ListDetailsMenuItem.ReleaseNotesUri}"-->
+                <HyperlinkButton
+                    Grid.Row="2"
+                    Grid.Column="1"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Right"
+                    Margin="{StaticResource MediumTopMargin}"
+                    Content="Release notes"
+                    Click="ReleaseNotesButton_Click"/>
 
-                            <Grid>
-                                <StackPanel x:Name="DownloadButtonDefaultContent" Orientation="Vertical">
-                                    <StackPanel Orientation="Horizontal">
-                                        <SymbolIcon Symbol="Download"/>
-                                        <TextBlock Margin="{StaticResource SmallLeftMargin}" Text="Download"/>
-                                        <!--<muxc:FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xe8a7;"/>-->
-                                    </StackPanel>
-                                    <muxc:ProgressBar
-                                        x:Name="DownloadProgressBar"
-                                        Margin="{StaticResource SmallTopMargin}" 
-                                        HorizontalAlignment="Stretch" 
-                                        IsIndeterminate="True" 
-                                        ShowPaused="False" 
-                                        ShowError="False"
-                                        Visibility="Collapsed"/>
-                                </StackPanel>
-                                <TextBlock x:Name="DownloadButtonInstalledText" Text="Installed" Visibility="Collapsed"/>
-                            </Grid>
-                        </Button>
-                        <!--NavigateUri="{x:Bind ListDetailsMenuItem.ReleaseNotesUri}"-->
-                        <HyperlinkButton
-                            RelativePanel.AlignRightWithPanel="True"
-                            RelativePanel.Below="DownloadDriverButton"
-                            Margin="{StaticResource MediumTopMargin}"
-                            Content="Release notes"
-                            Click="ReleaseNotesButton_Click"/>
-                    </RelativePanel>
-
+                <Grid
+                    Grid.Row="3"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2">
+                    
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    
                     <TextBlock
+                        Grid.Row="0"
                         Margin="{StaticResource SmallTopMargin}"
                         Text="Size"
                         Style="{StaticResource DetailSubTitleStyle}" />
-                    <TextBlock Text="{x:Bind ListDetailsMenuItem.Size, Mode=OneWay}" Style="{StaticResource DetailBodyBaseMediumStyle}" />
-
                     <TextBlock
+                        Grid.Row="1"
+                        Text="{x:Bind ListDetailsMenuItem.Size, FallbackValue='0 Bytes', Mode=OneWay}" 
+                        Style="{StaticResource DetailBodyBaseMediumStyle}" />
+                </Grid>
+
+                <Grid
+                    Grid.Row="4"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <TextBlock
+                        Grid.Row="0"
                         Margin="{StaticResource SmallTopMargin}"
                         Text="SHA1"
                         Style="{StaticResource DetailSubTitleStyle}" />
-                    <TextBlock Text="{x:Bind ListDetailsMenuItem.SHA1, Mode=OneWay}" Style="{StaticResource DetailBodyBaseMediumStyle}" />
+                    <TextBlock 
+                        Grid.Row="1" 
+                        Text="{x:Bind ListDetailsMenuItem.SHA1, FallbackValue='N/A', Mode=OneWay}" 
+                        Style="{StaticResource DetailBodyBaseMediumStyle}" />
+                </Grid>
 
-                    <!--<TextBlock
+                <!--<TextBlock
                     Margin="{StaticResource MediumTopMargin}"
                     Text="Note 1"
                     Style="{StaticResource DetailSubTitleStyle}" />
@@ -117,12 +198,19 @@
                     Style="{StaticResource DetailBodyStyle}"
                     Text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis quis hendrerit nulla, vel molestie libero. In nec ultricies magna, ultricies molestie ipsum. Mauris non dignissim velit. Etiam malesuada blandit mauris eu maximus. Quisque ornare, felis nec scelerisque mollis, risus dolor posuere magna, in gravida quam mi id nisi. Nullam mattis consequat ex. Cras nulla neque, dictum ac urna et, vestibulum feugiat ex. Pellentesque malesuada accumsan ligula, vel fringilla lacus facilisis sit amet. Proin convallis tempor arcu, ac placerat libero pretium ut. Praesent hendrerit nisl at lobortis viverra. Fusce vitae velit odio. Nam ut tortor sed purus finibus sollicitudin quis at ante. Ut sodales dolor vel eros mollis suscipit. Donec eu nulla id urna ultricies consequat. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae;" />
                 -->
-                </StackPanel>
-            </StackPanel>
+            </Grid>
             
             <!-- Shown if no driver is selected-->
-            <StackPanel x:Name="NoDriverSelectedPane" Visibility="Visible" HorizontalAlignment="Center" VerticalAlignment="Center">
-                <TextBlock Text="No Driver selected" Style="{ThemeResource HeaderTextBlockStyle}"/>
+            <StackPanel 
+                x:Name="NoDriverSelectedPane" 
+                Visibility="Visible" 
+                HorizontalAlignment="Stretch" 
+                VerticalAlignment="Center">
+                <TextBlock 
+                    Text="No Driver selected" 
+                    VerticalAlignment="Center" 
+                    HorizontalAlignment="Center" 
+                    Style="{ThemeResource HeaderTextBlockStyle}"/>
             </StackPanel>
         </Grid>
     </ScrollViewer>

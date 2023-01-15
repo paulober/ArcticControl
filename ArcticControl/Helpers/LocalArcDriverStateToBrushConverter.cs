@@ -7,7 +7,7 @@ internal class LocalArcDriverStateToBrushConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
-        if (value != null && value is LocalArcDriverState localState)
+        if (value is LocalArcDriverState localState)
         {
             return LocalStateToBrush(localState);
         }
@@ -20,7 +20,7 @@ internal class LocalArcDriverStateToBrushConverter : IValueConverter
         throw new NotSupportedException();
     }
 
-    public static Brush LocalStateToBrush(LocalArcDriverState localState)
+    private static Brush LocalStateToBrush(LocalArcDriverState localState)
     {
         return localState switch
         {

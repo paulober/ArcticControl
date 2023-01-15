@@ -85,7 +85,8 @@ public class DriversViewModel : ObservableRecipient, INavigationAware
             } 
             else
             {
-                bool driverVersionEqToInstalled = item.DriverVersion.GetFullVersion() == arcDriverVersion;
+                // TODO: maybe create a new ArcDriverVersion(arcDriverVersion) instance for .equals comparison if faster
+                var driverVersionEqToInstalled = item.DriverVersion.GetFullVersion() == arcDriverVersion;
                 if (NewWebArcDrivers.Count == 0 
                     || driverVersionEqToInstalled 
                     || (arcDriverVersion == string.Empty && NewWebArcDrivers.Count < 2))

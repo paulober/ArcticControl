@@ -278,4 +278,7 @@
   <data name="BrowserHomeButton.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Browser home</value>
   </data>
+  <data name="SettingsStorageExtensions_SaveFileAsync_FileName_ArgumentException" xml:space="preserve">
+    <value>File name is null or empty. Specify a valid file name</value>
+  </data>
 </root>

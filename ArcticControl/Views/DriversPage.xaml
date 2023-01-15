@@ -81,7 +81,7 @@
             </Grid>
         </DataTemplate>
 
-        <DataTemplate x:Key="DetailsTemplate">
+        <!--<DataTemplate x:Key="DetailsTemplate">
             <Grid>
                 <views:DriversDetailControl ListDetailsMenuItem="{Binding}"  />
             </Grid>
@@ -114,11 +114,15 @@
                     Style="{StaticResource ListTitleStyle}"
                     Text="{Binding}" />
             </Grid>
-        </DataTemplate>
+        </DataTemplate> -->
     </Page.Resources>
 
-    <Grid>
-        <Grid x:Name="ContentArea">
+    <Grid MinWidth="640" MaxWidth="1000" HorizontalAlignment="Stretch">
+        <Grid x:Name="ContentArea" HorizontalAlignment="Stretch" MinWidth="640">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" MinWidth="310"/>
+                <ColumnDefinition Width="*" MinWidth="330"/>
+            </Grid.ColumnDefinitions>
             <!--<VisualStateManager.VisualStateGroups>
                 <VisualStateGroup>
                     <VisualState>
@@ -145,125 +149,123 @@
                 NoSelectionContentTemplate="{StaticResource NoSelectionContentTemplate}"
                 SelectedItem="{x:Bind ViewModel.Selected, Mode=TwoWay}"
                 ViewStateChanged="OnViewStateChanged"/>-->
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0" Margin="{StaticResource MediumRightMargin}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-                <Grid Grid.Column="0" Margin="{StaticResource MediumRightMargin}">
+                <Grid
+                    Grid.Row="0"
+                    VerticalAlignment="Stretch">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <Grid
+                    <muxc:ListView
+                        x:Name="NewDriversListView"
                         Grid.Row="0"
-                        VerticalAlignment="Stretch">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
+                        ItemTemplate="{StaticResource DriverListViewItemTemplate}"
+                        ItemsSource="{x:Bind ViewModel.NewWebArcDrivers}"
+                        SelectedItem="{x:Bind ViewModel.NewSelected, Mode=TwoWay}"
+                        SelectionMode="Single"
+                        IsItemClickEnabled="False"/>
 
-                        <muxc:ListView
-                            x:Name="NewDriversListView"
-                            Grid.Row="0"
-                            ItemTemplate="{StaticResource DriverListViewItemTemplate}"
-                            ItemsSource="{x:Bind ViewModel.NewWebArcDrivers}"
-                            SelectedItem="{x:Bind ViewModel.NewSelected, Mode=TwoWay}"
-                            SelectionMode="Single"
-                            IsItemClickEnabled="False"/>
+                    <muxc:Expander
+                        x:Name="OldDriversExpander"
+                        Grid.Row="1"
+                        Margin="{StaticResource SmallTopMargin}"
+                        IsExpanded="False"
+                        ExpandDirection="Down"
+                        VerticalAlignment="Top"
+                        VerticalContentAlignment="Top"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Stretch">
 
-                        <muxc:Expander
-                            x:Name="OldDriversExpander"
-                            Grid.Row="1"
-                            Margin="{StaticResource SmallTopMargin}"
-                            IsExpanded="False"
-                            ExpandDirection="Down"
-                            VerticalAlignment="Top"
-                            VerticalContentAlignment="Top"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Stretch">
-
-                            <muxc:Expander.Header>
-                                <TextBlock 
+                        <muxc:Expander.Header>
+                            <TextBlock 
                                 x:Name="OldDriversExpanderHeader" 
                                 Text="Older Drivers (not recommended)"/>
-                            </muxc:Expander.Header>
+                        </muxc:Expander.Header>
 
-                            <muxc:Expander.Content>
-                                <muxc:ListView
+                        <muxc:Expander.Content>
+                            <muxc:ListView
                                 x:Name="OldDriversListView"
                                 ItemTemplate="{StaticResource DriverListViewItemTemplate}"
                                 ItemsSource="{x:Bind ViewModel.OldWebArcDrivers}"
                                 SelectionMode="Single"
                                 SelectedItem="{x:Bind ViewModel.OldSelected, Mode=TwoWay}"
                                 IsItemClickEnabled="False"/>
-                            </muxc:Expander.Content>
-                        </muxc:Expander>
-                    </Grid>
-                    
-                    <StackPanel 
-                        Grid.Row="1" 
-                        Margin="{StaticResource MediumTopBottomMargin}" 
-                        HorizontalAlignment="Stretch"
-                        CornerRadius="5"
-                        Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
+                        </muxc:Expander.Content>
+                    </muxc:Expander>
+                </Grid>
 
-                        <StackPanel HorizontalAlignment="Center" Margin="{StaticResource SmallTopBottomMargin}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
+                <StackPanel 
+                    Grid.Row="1" 
+                    Margin="{StaticResource MediumTopBottomMargin}" 
+                    HorizontalAlignment="Stretch"
+                    CornerRadius="5"
+                    Style="{ThemeResource SmallBorder}"
+                    Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
 
-                                <FontIcon
-                                    Grid.Column="0"
-                                    FontSize="16"
-                                    Glyph="&#xe74c;"
-                                    Foreground="DarkSlateBlue"
-                                    Margin="0,6,12,6"/>
-                                <TextBlock VerticalAlignment="Center" FontSize="15" Grid.Column="1" Text="Drivers newer than the installed"/>
-                            </Grid>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
+                    <StackPanel HorizontalAlignment="Center" Margin="{StaticResource SmallTopBottomMargin}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
 
-                                <FontIcon
-                                    Grid.Column="0"
-                                    FontSize="16"
-                                    Glyph="&#xe74c;"
-                                    Foreground="Chartreuse"
-                                    Margin="0,6,12,6"/>
-                                <TextBlock VerticalAlignment="Center" FontSize="15" Grid.Column="1" Text="Current installed driver"/>
-                            </Grid>
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
+                            <FontIcon
+                                Grid.Column="0"
+                                FontSize="16"
+                                Glyph="&#xe74c;"
+                                Foreground="DarkSlateBlue"
+                                Margin="0,6,12,6"/>
+                            <TextBlock VerticalAlignment="Center" FontSize="15" Grid.Column="1" Text="Drivers newer than the installed"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
 
-                                <FontIcon
-                                    Grid.Column="0"
-                                    FontSize="16"
-                                    Glyph="&#xe74c;"
-                                    Foreground="DarkOrange"
-                                    Margin="0,6,12,6"/>
-                                <TextBlock VerticalAlignment="Center" FontSize="15" Grid.Column="1" Text="Drivers older than the installed"/>
-                            </Grid>
-                        </StackPanel>
+                            <FontIcon
+                                Grid.Column="0"
+                                FontSize="16"
+                                Glyph="&#xe74c;"
+                                Foreground="Chartreuse"
+                                Margin="0,6,12,6"/>
+                            <TextBlock VerticalAlignment="Center" FontSize="15" Grid.Column="1" Text="Current installed driver"/>
+                        </Grid>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <FontIcon
+                                Grid.Column="0"
+                                FontSize="16"
+                                Glyph="&#xe74c;"
+                                Foreground="DarkOrange"
+                                Margin="0,6,12,6"/>
+                            <TextBlock VerticalAlignment="Center" FontSize="15" Grid.Column="1" Text="Drivers older than the installed"/>
+                        </Grid>
                     </StackPanel>
-                </Grid>
+                </StackPanel>
+            </Grid>
 
-                <Grid x:Name="DetailsRoot" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                    <!-- Show Details -->
-                    <views:DriversDetailControl 
-                        ListDetailsMenuItem="{x:Bind ViewModel.Selected, Mode=OneWay}" 
-                        HorizontalAlignment="Stretch" 
-                        VerticalAlignment="Stretch"  />
-                </Grid>
+            <Grid 
+                x:Name="DetailsRoot" 
+                Grid.Column="1" 
+                HorizontalAlignment="Stretch" 
+                VerticalAlignment="Stretch">
+                <!-- Show Details -->
+                <views:DriversDetailControl 
+                    ListDetailsMenuItem="{x:Bind ViewModel.Selected, Mode=OneWay}" 
+                    HorizontalAlignment="Stretch" 
+                    VerticalAlignment="Stretch"  />
             </Grid>
         </Grid>
 

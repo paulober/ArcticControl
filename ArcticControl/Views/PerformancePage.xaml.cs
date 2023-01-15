@@ -65,7 +65,7 @@ public sealed partial class PerformancePage : Page
     {
         if (sender is ToggleButton tb)
         {
-            tb.Content = (tb.IsChecked ?? false) ? "ON" : "OFF";
+            tb.Content = tb.IsChecked ?? false ? "ON" : "OFF";
         }
     }
 

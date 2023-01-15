@@ -38,7 +38,7 @@ public sealed partial class DriversDetailControl : UserControl
     {
         if (d is DriversDetailControl control)
         {
-            control.ForegroundElement.ChangeView(0, 0, 1);
+            //control.ForegroundElement.ChangeView(0, 0, 1);
             if (e.NewValue != null)
             {
                 control.NoDriverSelectedPane.Visibility = Visibility.Collapsed;
@@ -112,7 +112,7 @@ public sealed partial class DriversDetailControl : UserControl
             DownloadProgressBar.Visibility = Visibility.Collapsed;
 
             _appNotificationService.ShowWithActionAndProgressBar(
-                "Intel® Graphics Driver " + ListDetailsMenuItem?.DriverVersion,
+                ListDetailsMenuItem?.DriverVersion.ToString() ?? "New driver",
                 localFile.Path.Replace('\\', '/'),
                 "Finished",
                 localFile.DisplayName, 

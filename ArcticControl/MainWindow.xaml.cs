@@ -15,9 +15,9 @@ public sealed partial class MainWindow : WindowEx
         Title = "AppDisplayName".GetLocalized();
 
         // set min window width
-        var manager = WindowManager.Get(this);
-        manager.MinWidth = 1200;
-        manager.MaxWidth = 1600;
+        //var manager = WindowManager.Get(this);
+        //manager.MinWidth = 1200;
+        //manager.MaxWidth = 1600;
     }
 
     private void WindowEx_Closed(object sender, Microsoft.UI.Xaml.WindowEventArgs args)

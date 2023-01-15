@@ -7,9 +7,9 @@
     xmlns:animations="using:CommunityToolkit.WinUI.UI.Animations"
     xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     xmlns:models="using:ArcticControl.Models"
-    mc:Ignorable="d">
+    mc:Ignorable="d" HorizontalAlignment="Stretch">
 
-    <Grid x:Name="ContentArea">
+    <Grid x:Name="ContentArea" MaxWidth="1000" HorizontalAlignment="Center">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
@@ -19,37 +19,6 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <!--<controls:AdaptiveGridView
-            animations:Connected.ListItemElementName="itemThumbnail"
-            animations:Connected.ListItemKey="animationKeyContentGrid"
-            DesiredWidth="180"
-            ItemHeight="160"
-            IsItemClickEnabled="True"
-            ItemClickCommand="{x:Bind ViewModel.ItemClickCommand}"
-            ItemsSource="{x:Bind ViewModel.Source,Mode=OneWay}"
-            SelectionMode="None"
-            StretchContentForSingleRow="False">
-            <controls:AdaptiveGridView.ItemTemplate>
-                <DataTemplate x:DataType="models:InstalledGame">
-                    <Grid
-                        x:Name="itemThumbnail"
-                        Background="Red"
-                        Padding="{StaticResource XSmallLeftTopRightBottomMargin}">
-
-                        <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <FontIcon
-                                Glyph="{x:Bind Symbol}"
-                                AutomationProperties.Name="{x:Bind SymbolName}" />
-                            <TextBlock
-                                Margin="{StaticResource XXSmallTopMargin}"
-                                HorizontalAlignment="Center"
-                                Style="{ThemeResource BodyTextStyle}"
-                                Text="{x:Bind Company}" />
-                        </StackPanel>
-                    </Grid>
-                </DataTemplate>
-            </controls:AdaptiveGridView.ItemTemplate>
-        </controls:AdaptiveGridView>-->
         <Button 
             Grid.Row="0"
             Grid.Column="2"
@@ -66,7 +35,8 @@
             IsItemClickEnabled="True"
             ItemClick="GridView_ItemClick"
             ItemsSource="{x:Bind ViewModel.Source,Mode=OneWay}"
-            SelectionMode="None">
+            SelectionMode="None"
+            Padding="0,0,-25,0">
             <GridView.ItemTemplate>
                 <DataTemplate x:DataType="models:InstalledGame">
                     <Image PointerEntered="InstalledGame_PointerEntered" PointerExited="InstalledGame_PointerExited" Source="{x:Bind ImagePath}" Stretch="UniformToFill" Width="130" Height="190"/>

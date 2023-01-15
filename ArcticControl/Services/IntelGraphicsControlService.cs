@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using ArcticControl.Contracts.Services;
 using ArcticControl.Models;
 using ArcticControlGPUInterop;

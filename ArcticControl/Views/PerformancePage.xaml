@@ -6,8 +6,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:local="using:ArcticControl.Views"
     xmlns:models="using:ArcticControl.Models"
-    mc:Ignorable="d">
-
+    mc:Ignorable="d" HorizontalAlignment="Stretch">
+    
     <Page.Resources>
         <DataTemplate x:Name="PerformanceValueTemplate" x:DataType="models:PerformanceValueDataObject">
             <RelativePanel Width="125" Height="125" Padding="10" CornerRadius="10">
@@ -24,14 +24,19 @@
         </DataTemplate>
     </Page.Resources>
 
-    <Grid x:Name="ContentArea" Margin="0,0,0,20">
+    <Grid x:Name="ContentArea" Margin="0,0,0,20" MaxWidth="1400" HorizontalAlignment="Center">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*"/>
-            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
+        <!--<Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>-->
 
-        <!-- Left column -->
+        <!-- Left column Grid.Row="0"-->
         <ScrollViewer
+            MinWidth="500"
             Grid.Column="0"
             HorizontalScrollMode="Disabled"
             VerticalScrollMode="Enabled"
@@ -40,8 +45,20 @@
             HorizontalAlignment="Stretch"
             Padding="0,0,40,0">
             
-            <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Spacing="30">
+            <Grid HorizontalAlignment="Stretch">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                
                 <Grid 
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
                     HorizontalAlignment="Stretch" 
                     MaxHeight="400" 
                     MinHeight="200">
@@ -59,20 +76,28 @@
                         Grid.Row="0"
                         Grid.Column="0"
                         Text="Live Performance Monitoring" 
-                        Margin="0,0,0,20" 
-                        FontSize="20" 
+                        FontSize="20"
+                        HorizontalAlignment="Left"
+                        Margin="{StaticResource MediumRightMargin}"
                         Style="{ThemeResource BodyStrongTextBlockStyle}"/>
                     
-                    <Button 
-                        Grid.Column="1" 
+                    <Button
                         Grid.Row="0" 
+                        Grid.Column="1"
+                        Margin="{StaticResource MediumLeftMargin}"
+                        HorizontalAlignment="Right"
                         Content="Start monitoring"
                         Click="StartMonitoringButton_OnClick" />
 
-                    <ScrollViewer Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" HorizontalAlignment="Stretch">
+                    <ScrollViewer 
+                        Grid.Row="1" 
+                        Grid.Column="0" 
+                        Grid.ColumnSpan="2" 
+                        Margin="{StaticResource MediumTopBottomMargin}"
+                        HorizontalAlignment="Stretch">
+                        
                         <!--ItemsSource="{x:Bind ViewModel.PerformanceValues, Mode=OneWay}"-->
-                        <GridView 
-                            x:Name="PerformanceGridView"
+                        <GridView
                             VerticalAlignment="Stretch"
                             FlowDirection="LeftToRight"
                             ItemTemplate="{StaticResource PerformanceValueTemplate}"
@@ -107,58 +132,47 @@
                         </GridView>
                     </ScrollViewer>
                 </Grid>
-
-                <!--<RelativePanel 
-                    HorizontalAlignment="Stretch" 
+                
+                <Grid
+                    Grid.Row="1"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
                     BorderBrush="SlateGray" 
-                    BorderThickness="0,1,0,1"
-                    Padding="0,25,0,25">
-                    <TextBlock 
-                        RelativePanel.AlignLeftWithPanel="True" 
-                        Text="Performance Tuning" 
-                        FontSize="20" 
-                        Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                    <Button RelativePanel.AlignRightWithPanel="True">
-                        <Grid HorizontalAlignment="Stretch" Padding="0,2,0,2">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition />
-                            </Grid.ColumnDefinitions>
-                            <SymbolIcon
-                                Grid.Column="0"
-                                Margin="0,0,10,0"
-                                Symbol="Setting" 
-                                AutomationProperties.Name="Performance Tuning Settings"/>
-                            <TextBlock Grid.Column="1" Text="Configure"/>
-                        </Grid>
-                    </Button>
-                </RelativePanel>-->
-
-                <!-- when element above exists: Height="100" and remove style other than horizontalalignment -->
-                <!--<RelativePanel
-                    BorderBrush="SlateGray" 
-                    BorderThickness="0,1,0,1"
+                    BorderThickness="0,1,0,0"
                     Padding="0,25,0,25"
                     HorizontalAlignment="Stretch">
                     
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
                     <TextBlock 
-                        RelativePanel.AlignLeftWithPanel="True" 
+                        Grid.Row="0"
+                        Grid.Column="0"
                         Text="Telemetry Overlay" 
                         FontSize="20" 
                         Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                    <ToggleButton 
-                        RelativePanel.AlignRightWithPanel="True" 
+                    
+                    <ToggleButton
+                        Grid.Row="0"
+                        Grid.Column="1"
                         Content="OFF" 
-                        ClickMode="Release" 
-                        Click="TelemetryOverlayToggleButton_Click"
-                        IsEnabled="False"/>
-                </RelativePanel>-->
-            </StackPanel>
+                        ClickMode="Release"
+                        IsChecked="{x:Bind ViewModel.IsTelemetryOverlayToggleBtnChecked, Mode=TwoWay}"
+                        IsEnabled="False"
+                        Click="TelemetryOverlayToggleButton_Click"/>
+                </Grid>
+            </Grid>
         </ScrollViewer>
 
-        <!-- Right column (Sliders) -->
+        <!-- Right column (Sliders) Grid.Row="0"-->
         <Border 
-            Grid.Column="1" 
+            Grid.Column="1"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"
             Padding="40,0,0,0" 

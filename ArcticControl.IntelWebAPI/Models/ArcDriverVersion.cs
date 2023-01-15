@@ -18,51 +18,57 @@ public class ArcDriverVersion : IEquatable<ArcDriverVersion>
     /// <summary>
     /// Operating System (WDDM version)
     /// </summary>
-    public uint WddmVersion
+    private int WddmVersion
     {
-        get; set;
+        get;
     }
 
     /// <summary>
     /// Unused Field
     /// </summary>
-    public ushort UnusedField
+    private short UnusedField
     {
-        get; set; 
+        get;
     }
 
     /// <summary>
     /// Combind with Part2 results in a 7 digit Build Number.
     /// </summary>
     [MaxLength(3)]
-    public string BuildNumberPart1
+    private string BuildNumberPart1
     {
-        get; set;
+        get;
     }
 
     /// <summary>
     /// Combind with Part1 results in a 7 digit Build Number.
     /// </summary>
     [MaxLength(4)]
-    public string BuildNumberPart2
+    private string BuildNumberPart2
     {
-        get; set;
+        get;
     }
 
+    /// <summary>
+    /// Just a state container for element grouping in the UI.
+    /// </summary>
     public LocalArcDriverState LocalState
     {
         get; set;
     } = LocalArcDriverState.Old;
 
+    /// <summary>
+    /// Just a state for UI markup.
+    /// </summary>
     public bool IsLatest { get; set; } = false;
 
     public ArcDriverVersion(string version)
     {
-        var splitted = version.Split('.');
-        WddmVersion = uint.Parse(splitted[0]);
-        UnusedField = ushort.Parse(splitted[1]);
-        BuildNumberPart1 = splitted[2];
-        BuildNumberPart2 = splitted[3];
+        var split = version.Split('.');
+        WddmVersion = int.Parse(split[0]);
+        UnusedField = short.Parse(split[1]);
+        BuildNumberPart1 = split[2];
+        BuildNumberPart2 = split[3];
     }
 
     /// <summary>
@@ -75,6 +81,12 @@ public class ArcDriverVersion : IEquatable<ArcDriverVersion>
     /// </summary>
     public string BuildNumber => "Build: " + string.Join('.', BuildNumberPart1, BuildNumberPart2);
     public string GetFullVersion() => string.Join('.', WddmVersion.ToString(), UnusedField.ToString(), BuildNumberPart1, BuildNumberPart2);
+    
+    /// <summary>
+    /// String representation of driver version with Intel prefix.
+    /// </summary>
+    /// <returns></returns>
+    public override string ToString() => "Intel® Graphics Driver " + GetFullVersion();
 
     // overloaded operators
     // TODO: need to update if WDDM (Windows Display Driver Model) gets an update so the WddmVersion will change
@@ -89,7 +101,7 @@ public class ArcDriverVersion : IEquatable<ArcDriverVersion>
     }
 
 
-    // overloaded equals comparisson
+    // overloaded equals comparison
     public override bool Equals(object? obj)
     {
         if (obj is ArcDriverVersion adv)
@@ -102,7 +114,7 @@ public class ArcDriverVersion : IEquatable<ArcDriverVersion>
 
     public override int GetHashCode()
     {
-        throw new NotImplementedException();
+        return HashCode.Combine(WddmVersion, UnusedField, BuildNumberPart1, BuildNumberPart2);
     }
 
     public bool Equals(ArcDriverVersion? other) 

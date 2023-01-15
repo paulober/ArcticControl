@@ -38,9 +38,9 @@ public class InstalledGame
     public InstalledGame(
         string imagePath,
         bool xeSs = false,
-        string exePath = null,
-        string steamAppId = null,
-        string epicGamesLaunchPath = null)
+        string? exePath = null,
+        string? steamAppId = null,
+        string? epicGamesLaunchPath = null)
     {
         ImagePath = imagePath;
         this.XeSS = xeSs;

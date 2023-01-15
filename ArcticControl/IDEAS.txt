@@ -24,4 +24,7 @@ if (result)
             $"PeakPowerLimit: PowerDC-{powerLimits.PeakPowerLimit.PowerDC} ; PowerAC-{powerLimits.PeakPowerLimit.PowerAC}");
     }
 }*/
+
+// TODO: windows settings like mica cards with Background="{ThemeResource LayerFillColorDefaultBrush}"<- for content
+see https://learn.microsoft.com/de-de/windows/apps/design/style/mica card style
             
