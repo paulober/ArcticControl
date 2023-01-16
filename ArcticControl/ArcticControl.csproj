@@ -2,7 +2,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net7.0-windows10.0.22621.0</TargetFramework>
-    <TargetPlatformMinVersion>10.0.22000.0</TargetPlatformMinVersion>
+    <TargetPlatformMinVersion>10.0.22621.0</TargetPlatformMinVersion>
     <RootNamespace>ArcticControl</RootNamespace>
     <ApplicationIcon>Assets/WindowIcon.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -15,7 +15,7 @@
     <EnableMsixTooling>true</EnableMsixTooling>
 	<!-- 'SupportedOSPlatformVersion' property indicates the minimum OS version required to run your app -->
 	<!-- if not set it defaults to platform version set by the TFM (net7.0-windows...) -->
-	<SupportedOSPlatformVersion>10.0.22000.0</SupportedOSPlatformVersion>
+	<SupportedOSPlatformVersion>10.0.22621.0</SupportedOSPlatformVersion>
 	<LangVersion>11.0</LangVersion>
   </PropertyGroup>
 

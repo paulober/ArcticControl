@@ -24,7 +24,7 @@
     <ProjectGuid>{BD67FCB4-6655-40A6-A5F5-5D94C0E388DF}</ProjectGuid>
     <Keyword>NetCoreCProj</Keyword>
     <RootNamespace>ArcticControlGPUInterop</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.22000.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.22621.0</WindowsTargetPlatformVersion>
     <TargetFramework>net7.0</TargetFramework>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
