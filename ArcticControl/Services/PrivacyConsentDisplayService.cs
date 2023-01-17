@@ -66,12 +66,6 @@ internal class PrivacyConsentDisplayService : IPrivacyConsentDisplayService
                     {
                         AppCenter.Start(typeof(Analytics));
                         AppCenter.Start(typeof(Crashes));
-
-                        // ensure Crashes and Analytics are enabled
-                        //var isenabled = await Crashes.IsEnabledAsync();
-                        //await Crashes.SetEnabledAsync(true).ConfigureAwait(false);
-                        //await Analytics.SetEnabledAsync(true).ConfigureAwait(false);
-                        //await AppCenter.SetEnabledAsync(true);
                     }
                     break;
                 default:

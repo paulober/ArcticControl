@@ -1,6 +1,5 @@
 ﻿using ArcticControl.Contracts.Services;
 using ArcticControl.Models;
-using ArcticControlGPUInterop;
 
 namespace ArcticControl.Services;
 public class DummyIntelGraphicsControlService : IIntelGraphicsControlService

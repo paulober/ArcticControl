@@ -1,5 +1,4 @@
 ﻿using ArcticControl.Models;
-using ArcticControlGPUInterop;
 
 namespace ArcticControl.Contracts.Services;
 public interface IIntelGraphicsControlService : IDisposable

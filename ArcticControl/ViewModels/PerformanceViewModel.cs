@@ -4,7 +4,6 @@ using System.Management;
 using ArcticControl.Contracts.Services;
 using ArcticControl.Contracts.ViewModels;
 using ArcticControl.Core.Helpers;
-using ArcticControl.Core.Models;
 using ArcticControl.Helpers;
 using ArcticControl.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -440,9 +439,9 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
         if (resultInitPowerDomains)
         {
             var props = _igcs.GetPowerProperties();
-            if (props != null && props?.DefaultLimit > 0)
+            if (props is { DefaultLimit: > 0 })
             {
-                GpuPowerLimitSliderValue = props.DefaultLimit;
+                GpuPowerLimitSliderValue = props.Value.DefaultLimit;
             }
         }
         

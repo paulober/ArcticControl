@@ -4,6 +4,18 @@ using ArcticControl.Models;
 using ArcticControlGPUInterop;
 using Microsoft.AppCenter.Crashes;
 
+// types from native dll
+using ManagedFanProperties = ArcticControl.Models.FanProperties;
+using ManagedFrequencyProperties = ArcticControl.Models.FrequencyProperties;
+using ManagedFrequencyCap = ArcticControl.Models.FrequencyCap;
+using ManagedFrequencyState = ArcticControl.Models.FrequencyState;
+using ManagedPCIeProperties = ArcticControl.Models.PCIeProperties;
+using ManagedSustainedPowerLimit = ArcticControl.Models.SustainedPowerLimit;
+using ManagedBurstPowerLimit = ArcticControl.Models.BurstPowerLimit;
+using ManagedPeakPowerLimit = ArcticControl.Models.PeakPowerLimit;
+using ManagedPowerLimitsCombination = ArcticControl.Models.PowerLimitsCombination;
+using ManagedPowerProperties = ArcticControl.Models.PowerProperties;
+
 namespace ArcticControl.Services;
 public class IntelGraphicsControlService: IIntelGraphicsControlService
 {
@@ -282,7 +294,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         return default;
     }
 
-    public PowerProperties? GetPowerProperties()
+    public ManagedPowerProperties? GetPowerProperties()
     {
         if (!_initialized || _gpuInterop == null)
         {
@@ -292,7 +304,17 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         try
         {
             var result = _gpuInterop.GetPowerProperties();
-            return result;
+
+            if (result != null)
+            {
+                return new ManagedPowerProperties
+                {
+                    CanControl = result.CanControl,
+                    DefaultLimit = result.DefaultLimit,
+                    MinLimit = result.MinLimit,
+                    MaxLimit = result.MaxLimit
+                };
+            }
         }
         catch (Exception ex)
         {
@@ -303,7 +325,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         return default;
     }
 
-    public PowerLimitsCombination? GetPowerLimits()
+    public ManagedPowerLimitsCombination? GetPowerLimits()
     {
         if (!_initialized || _gpuInterop == null)
         {
@@ -313,7 +335,29 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         try
         {
             var result = _gpuInterop.GetPowerLimits();
-            return result;
+
+            if (result != null)
+            {
+                return new ManagedPowerLimitsCombination
+                {
+                    SustainedPowerLimit = new ManagedSustainedPowerLimit
+                    {
+                        Enabled = result.SustainedPowerLimit.Enabled,
+                        Power = result.SustainedPowerLimit.Power,
+                        Interval = result.SustainedPowerLimit.Interval
+                    },
+                    BurstPowerLimit = new ManagedBurstPowerLimit
+                    {
+                        Enabled = result.BurstPowerLimit.Enabled,
+                        Power = result.BurstPowerLimit.Power
+                    },
+                    PeakPowerLimit = new ManagedPeakPowerLimit
+                    {
+                        PowerAC = result.PeakPowerLimit.PowerAC,
+                        PowerDC = result.PeakPowerLimit.PowerDC
+                    }
+                };
+            }
         }
         catch (Exception ex)
         {
@@ -346,7 +390,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         return false;
     }
 
-    public FanProperties? GetFanProperties()
+    public ManagedFanProperties? GetFanProperties()
     {
         if (!_initialized || _gpuInterop == null)
         {
@@ -356,7 +400,18 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         try
         {
             var fanProps = _gpuInterop.GetFanProperties();
-            return fanProps;
+
+            if (fanProps != null)
+            {
+                return new ManagedFanProperties
+                {
+                    CanControl = fanProps.CanControl,
+                    SupportedModes = fanProps.SupportedModes,
+                    SupportedUnits = fanProps.SupportedUnits,
+                    MaxRPM = fanProps.MaxRPM,
+                    MaxPoints = fanProps.MaxPoints
+                };
+            }
         }
         catch (Exception ex)
         {
@@ -562,7 +617,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 
     public bool AreFrequencyDomainsInitialized() => _frequencyDomainsInitialized;
     
-    public FrequencyProperties? GetFrequencyProperties()
+    public ManagedFrequencyProperties? GetFrequencyProperties()
     {
         if (!_initialized || _gpuInterop == null)
         {
@@ -572,7 +627,15 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         try
         {
             var freqProps = _gpuInterop.GetFrequencyProperties();
-            return freqProps;
+            if (freqProps != null)
+            {
+                return new ManagedFrequencyProperties
+                {
+                    CanControl = freqProps.CanControl,
+                    HardwareMin = freqProps.HardwareMin,
+                    HardwareMax = freqProps.HardwareMax
+                };
+            }
         }
         catch (Exception ex)
         {
@@ -583,7 +646,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         return null;
     }
     
-    public FrequencyState? GetFrequencyState()
+    public ManagedFrequencyState? GetFrequencyState()
     {
         if (!_initialized || _gpuInterop == null)
         {
@@ -593,7 +656,19 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         try
         {
             var freqState = _gpuInterop.GetFrequencyState();
-            return freqState;
+
+            if (freqState != null)
+            {
+                return new ManagedFrequencyState
+                {
+                    CurrentVoltage = freqState.CurrentVoltage,
+                    RequestedFrequency = freqState.RequestedFrequency,
+                    TDPFrequency = freqState.TDPFrequency,
+                    EfficientFrequency = freqState.EfficientFrequency,
+                    ActualFrequency = freqState.ActualFrequency,
+                    Cap = (ManagedFrequencyCap)freqState.Cap
+                };
+            }
         }
         catch (Exception ex)
         {
@@ -646,7 +721,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         return false;
     }
 
-    public PCIeProperties? GetPCIeProperties()
+    public ManagedPCIeProperties? GetPCIeProperties()
     {
         if (!_initialized || _gpuInterop == null)
         {
@@ -657,7 +732,16 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         {
             var props = _gpuInterop.GetPCIeProperties();
 
-            return props;
+            if (props != null)
+            {
+                return new ManagedPCIeProperties
+                {
+                    IsReBarSupported = props.IsReBarSupported,
+                    IsReBarEnabled = props.IsReBarEnabled,
+                    Lanes = props.Lanes,
+                    Gen = props.Gen
+                };
+            }
         }
         catch (Exception ex)
         {

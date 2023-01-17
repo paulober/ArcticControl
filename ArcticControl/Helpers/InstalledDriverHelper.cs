@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Management;
+using Microsoft.AppCenter.Crashes;
 
 namespace ArcticControl.Helpers;
 
@@ -38,10 +39,32 @@ internal static class InstalledDriverHelper
             {
                 Debug.WriteLine("Could not find any installed Intel Graphics Driver");
             }*/
-            return Path.Exists("C:\\Windows\\System32\\ControlLib.dll");
+            //maybe does not work on store tester pcs return Path.Exists("C:\\Windows\\System32\\ControlLib.dll");
+
+            var searcher = new ManagementObjectSearcher("SELECT * FROM Win32_VideoController");
+            foreach (ManagementBaseObject mo in searcher.Get())
+            {
+                try
+                {
+                    PropertyData description = mo.Properties["Description"];
+                    if (description != null)
+                    {
+                        string desc = (string)description.Value;
+                        if (desc.Contains("Intel(R) Arc(TM)"))
+                        {
+                            return Path.Exists("C:\\Windows\\System32\\ControlLib.dll");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    continue;
+                }
+            }
         } catch (Exception ex)
         {
-            Debug.WriteLine("Error searching for Intel driver: " + ex.ToString());
+            Debug.WriteLine("Error searching for Intel driver: " + ex);
+            Crashes.TrackError(ex);
         }
 
         return false;
@@ -73,8 +96,10 @@ internal static class InstalledDriverHelper
             }*/
 
             // maybe faster than searching all PnPSignedDrivers
-            SelectQuery query = new("Win32_VideoController");
-            query.Condition = "Caption LIKE '%Intel(R) Arc(TM)%' OR Name LIKE '%Intel(R) Arc(TM)%'";
+            SelectQuery query = new("Win32_VideoController")
+            {
+                Condition = "Caption LIKE '%Intel(R) Arc(TM)%' OR Name LIKE '%Intel(R) Arc(TM)%'"
+            };
             query.SelectedProperties.Add("DriverVersion");
             ManagementObjectSearcher searcher = new(query);
             var drivers = searcher.Get();

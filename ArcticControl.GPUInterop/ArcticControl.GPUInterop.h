@@ -409,8 +409,8 @@ namespace ArcticControlGPUInterop {
 	public:
 		bool IsReBarSupported;
 		bool IsReBarEnabled;
-		int32_t Lanes;
-		int32_t Gen;
+		System::Int32 Lanes;
+		System::Int32 Gen;
 	};
 
 	public ref class FrequencyProperties
