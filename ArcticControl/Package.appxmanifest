@@ -12,13 +12,13 @@
   IgnorableNamespaces="uap uap13 rescap build genTemplate">
 
   <Identity
-    Name="26580PaulOberosler.ArcticControl"
+    Name="paulober.ArcticControl"
     Publisher="CN=42BD3C1F-9B9E-4875-88FA-EA94684D36E4"
-    Version="0.1.25.0" />
+    Version="0.1.27.0" />
 
   <Properties>
     <DisplayName>Arctic Control</DisplayName>
-    <PublisherDisplayName>Paul Oberosler</PublisherDisplayName>
+    <PublisherDisplayName>paulober</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 

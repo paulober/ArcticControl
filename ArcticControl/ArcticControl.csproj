@@ -22,19 +22,19 @@
   <PropertyGroup>
     <CsWinRTIncludes>ArcticControl.IGCLInterop</CsWinRTIncludes>
     <UserSecretsId>224e2610-9556-43cb-b467-a50328f0654a</UserSecretsId>
-    <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
+    <GenerateAppInstallerFile>True</GenerateAppInstallerFile>
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
     <AppxBundle>Never</AppxBundle>
     <AppxBundlePlatforms>x64|arm64</AppxBundlePlatforms>
-    <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
+    <!-- Only for ms store deployment <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate> -->
 	<!-- For outside Microsoft store deployment -->
-    <!-- <PackageCertificateThumbprint>BE5FC4CC7F1784AC74E442CE3AB3D0003ED383F8</PackageCertificateThumbprint> -->
-    <AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
+    <PackageCertificateThumbprint>BE5FC4CC7F1784AC74E442CE3AB3D0003ED383F8</PackageCertificateThumbprint>
+    <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <AppxPackageSigningTimestampServerUrl>http://timestamp.digicert.com</AppxPackageSigningTimestampServerUrl>
-    <AppInstallerUri>https://github.com/paulober/ArcticControl/releases/latest/download/</AppInstallerUri>
+    <AppInstallerUri>https://arcticcontrol.paulober.dev/app/</AppInstallerUri>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
     <DefaultLanguage>en-US</DefaultLanguage>
   </PropertyGroup>
@@ -52,7 +52,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.0.0" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.1.0" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Animations" Version="7.1.2" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
     <PackageReference Include="Microsoft.AppCenter" Version="5.0.1" />
@@ -83,7 +83,7 @@
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="ArcticControl.appinstaller">
+    <None Update="Update.appinstaller">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <Page Update="Styles\Brushes.xaml">

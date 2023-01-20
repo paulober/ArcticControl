@@ -103,12 +103,14 @@
                         Text="{x:Bind ListDetailsMenuItem.FriendlyDate, FallbackValue='N/A', Mode=OneWay}" 
                         Style="{StaticResource DetailBodyBaseMediumStyle}" />
                 </Grid>
-                <Button
+                <muxc:Button
                     Grid.Row="1"
                     Grid.Column="1"
                     x:Name="DownloadDriverButton"
                     VerticalAlignment="Center"
                     HorizontalAlignment="Right"
+                    ToolTipService.Placement="Left"
+                    ToolTipService.ToolTip="Don't close this page until the download has finished!"
                     Click="DownloadDriverButton_Click">
 
                     <Grid>
@@ -116,7 +118,7 @@
                             <StackPanel Orientation="Horizontal">
                                 <SymbolIcon Symbol="Download"/>
                                 <TextBlock Margin="{StaticResource SmallLeftMargin}" Text="Download"/>
-                                <!--<muxc:FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xe8a7;"/>-->
+                                <!-- <muxc:FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xe8a7;"/> -->
                             </StackPanel>
                             <muxc:ProgressBar
                                 x:Name="DownloadProgressBar"
@@ -129,7 +131,7 @@
                         </StackPanel>
                         <TextBlock x:Name="DownloadButtonInstalledText" Text="Installed" Visibility="Collapsed"/>
                     </Grid>
-                </Button>
+                </muxc:Button>
                 
                 <!--NavigateUri="{x:Bind ListDetailsMenuItem.ReleaseNotesUri}"-->
                 <HyperlinkButton

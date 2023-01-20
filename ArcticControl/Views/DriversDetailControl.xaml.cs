@@ -90,14 +90,16 @@ public sealed partial class DriversDetailControl : UserControl
             DownloadProgressBar.Visibility = Visibility.Visible;
             using var downloadStream = await client.GetStreamAsync(ListDetailsMenuItem?.DownloadUri);
 
-            var localFile = await DownloadsFolder.CreateFileAsync(
-                ListDetailsMenuItem?.DownloadUri?.Segments.Last()+".zip");
-
+            var localFile = await DownloadsFolder.CreateFileAsync(ListDetailsMenuItem?.DownloadUri?.Segments.Last());
+            
             // write
-            //using var fsStream = await localFile.OpenStreamForWriteAsync();
-            //await downloadStream.CopyToAsync(fsStream);
+            using var fsStream = await localFile.OpenStreamForWriteAsync();
+            await downloadStream.CopyToAsync(fsStream);
 
-            // workaround for microsoft store
+            // workaround for microsoft store (zip the installer on the fly)
+            /*var localFile = await DownloadsFolder.CreateFileAsync(
+                ListDetailsMenuItem?.DownloadUri?.Segments.Last()+".zip");
+            
             using (var fsStream = await localFile.OpenStreamForWriteAsync())
             {
                 fsStream.Seek(0, SeekOrigin.Begin);
@@ -107,7 +109,7 @@ public sealed partial class DriversDetailControl : UserControl
 
                 using var entryStream = installerFile.Open();
                 await downloadStream.CopyToAsync(entryStream);
-            }
+            }*/
 
             DownloadProgressBar.Visibility = Visibility.Collapsed;
 

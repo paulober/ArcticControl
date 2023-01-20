@@ -16,7 +16,6 @@
 
         <WebView2
             x:Name="WebView"
-            NavigationCompleted="WebView_OnNavigationCompleted"
             Source="{x:Bind ViewModel.Source, Mode=OneWay}" />
 
         <StackPanel

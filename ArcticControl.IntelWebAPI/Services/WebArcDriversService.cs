@@ -172,8 +172,8 @@ public class WebArcDriversService : IWebArcDriversService
 #endif
             _webArcDrivers.Add(new WebArcDriver(
                 result.Item2, 
-                result.Item1, 
-                result.Item3, 
+                result.Item1,
+                result.Item3,
                 result.Item4, 
                 result.Item5, 
                 result.Item6, 
