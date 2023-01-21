@@ -26,7 +26,7 @@
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
-    <GenerateTestArtifacts>True</GenerateTestArtifacts>
+    <GenerateTestArtifacts>False</GenerateTestArtifacts>
     <AppxBundle>Never</AppxBundle>
     <AppxBundlePlatforms>x64|arm64</AppxBundlePlatforms>
     <!-- Only for ms store deployment <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate> -->
@@ -41,10 +41,17 @@
 
   <ItemGroup>
     <None Remove="Styles\Brushes.xaml" />
+    <None Remove="Update.appinstaller" />
     <None Remove="Views\Dialogs\PrivacyConsentDialog.xaml" />
     <None Remove="Views\DriversListViewDetailsControl.xaml" />
     <None Remove="Views\PerformanceValueTemplate.xaml" />
     <None Remove="Views\StartPage.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Update.appinstaller">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -82,9 +89,6 @@
   <ItemGroup>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Update.appinstaller">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <Page Update="Styles\Brushes.xaml">
       <Generator>MSBuild:Compile</Generator>

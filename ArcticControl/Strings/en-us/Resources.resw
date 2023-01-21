@@ -121,7 +121,22 @@
     <value>Arctic Control</value>
   </data>
   <data name="AppDescription" xml:space="preserve">
-    <value>Arctic Control</value>
+    <value>Arctic Control is an alternative unofficial driver update/configuration and overclocking utility for Intel® Arc™ A-Series dGPUs. This project is based on community feedback and requests. Under development, if you miss a feature or encountered a bug, feel free to share your feedback with me. But also positive feedback is of course very welcome. Important, this is an beta relase to test compatibility and only contains a limited amount of useable useable features.
+
+Currently included features:
+- Driver download utility with easy access to release-notes
+- Games tab: For management of driver settings for diffrent games or globaly. Currently only lists installed Steam and EpicGames games and. Support for game specific driver settings is in the works.
+- Performance tab: Gpu overclocking functionality.
+  - Future changes: numeric input fields for each setting; more performance monitoring values; a telemetry overlay
+- Integrated WebView of Intel® Arc™ News website for quick access to Arc™ related updates and changes
+
+If you have feedback let me now in following thread on the Intel Insiders Community discord: https://discord.com/channels/554824368740630529/1049459749160235058
+
+This app is a project of a Intel® Arc™ community member and NOT related to Intel® in any way.
+
+The application uses Microsoft AppCenter Analytics/Crashes, please read the related privacy policy on their official website (https://appcenter.ms/ or https://aka.ms/appcenterprivacy).
+
+Application icon copyright: Control panel icons created by Freepik - Flaticon https://www.flaticon.com/free-icons/control-panel</value>
   </data>
   <data name="Shell_Drivers.Content" xml:space="preserve">
     <value>Drivers</value>
