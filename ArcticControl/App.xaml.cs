@@ -66,6 +66,10 @@ public partial class App : Application
         Host = Microsoft.Extensions.Hosting.Host.
         CreateDefaultBuilder().
         UseContentRoot(AppContext.BaseDirectory).
+        ConfigureAppConfiguration(appConfig => 
+        {
+            appConfig.AddUserSecrets<App>();
+        }).
         ConfigureServices((context, services) =>
         {
             // add logging
@@ -73,7 +77,7 @@ public partial class App : Application
             
             // place for AppCenter sdk configuration
             AppCenter.SetCountryCode(new GeographicRegion().CodeTwoLetter);
-            AppCenter.Configure(***REMOVED***);
+            AppCenter.Configure(context.Configuration["AppCenterSecret"]);
 
             // Http client factory
             // HttpClient is intended to be instantiated once per application, rather than per-use. See Remarks.

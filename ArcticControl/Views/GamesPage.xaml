@@ -36,7 +36,7 @@
             ItemClick="GridView_ItemClick"
             ItemsSource="{x:Bind ViewModel.Source,Mode=OneWay}"
             SelectionMode="None"
-            Padding="0,0,-25,0">
+            Padding="0,0,-10,0">
             <GridView.ItemTemplate>
                 <DataTemplate x:DataType="models:InstalledGame">
                     <Image PointerEntered="InstalledGame_PointerEntered" PointerExited="InstalledGame_PointerExited" Source="{x:Bind ImagePath}" Stretch="UniformToFill" Width="130" Height="190"/>
