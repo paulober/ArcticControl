@@ -66,10 +66,6 @@ public partial class App : Application
         Host = Microsoft.Extensions.Hosting.Host.
         CreateDefaultBuilder().
         UseContentRoot(AppContext.BaseDirectory).
-        ConfigureAppConfiguration(appConfig =>
-        {
-            appConfig.AddUserSecrets<App>();
-        }).
         ConfigureServices((context, services) =>
         {
             // add logging
@@ -77,7 +73,7 @@ public partial class App : Application
             
             // place for AppCenter sdk configuration
             AppCenter.SetCountryCode(new GeographicRegion().CodeTwoLetter);
-            AppCenter.Configure(context.Configuration["AppCenterSecret"]);
+            AppCenter.Configure(***REMOVED***);
 
             // Http client factory
             // HttpClient is intended to be instantiated once per application, rather than per-use. See Remarks.
@@ -85,6 +81,10 @@ public partial class App : Application
             services.AddHttpClient("Intel", client =>
             {
                 client.BaseAddress = new Uri("https://www.intel.com/");
+            });
+            services.AddHttpClient("AppRepository", client =>
+            {
+                client.BaseAddress = new Uri("https://arcticcontrol.paulober.dev/app/");
             });
 
             // Default Activation Handler
@@ -98,6 +98,7 @@ public partial class App : Application
             services.AddSingleton<ILocalSettingsService, LocalSettingsService>();
             services.AddSingleton<IThemeSelectorService, ThemeSelectorService>();
             services.AddSingleton<IPrivacyConsentDisplayService, PrivacyConsentDisplayService>();
+            services.AddSingleton<IUpdateAvailableDisplayService, UpdateAvailableDisplayService>();
             services.AddTransient<IWebViewService, WebViewService>();
             services.AddTransient<INavigationViewService, NavigationViewService>();
 

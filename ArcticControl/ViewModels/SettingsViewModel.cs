@@ -204,4 +204,40 @@ public class SettingsViewModel : ObservableRecipient
     {
         Application.Current.Exit();
     }
+    
+    public async void UpdateNowBtn_OnClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is not Button btn)
+        {
+            return;
+        }
+        
+        var newVersion = await AppUpdateHelper.CheckForUpdates();
+        if (newVersion != string.Empty)
+        {
+            btn.IsEnabled = false;
+            btn.Content = "Installing update...";
+            
+            var status = await AppUpdateHelper.UpdateNowHelperAsync(newVersion);
+            if (status != 1)
+            {
+                btn.Content = "Installed! App should restart now";
+                
+                btn.BorderBrush = new SolidColorBrush(Colors.Green);
+                btn.BorderThickness = new Thickness(1);
+                return;
+            }
+        }
+        else
+        {
+            btn.Content = "No update available";
+            btn.BorderBrush = new SolidColorBrush(Colors.Indigo);
+            btn.BorderThickness = new Thickness(1);
+            return;
+        }
+
+        btn.Content = "Update failed or requires manual restart";
+        btn.BorderBrush = new SolidColorBrush(Colors.Orange);
+        btn.BorderThickness = new Thickness(1);
+    }
 }

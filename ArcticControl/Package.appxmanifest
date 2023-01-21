@@ -13,17 +13,13 @@
 
   <Identity
     Name="paulober.ArcticControl"
-    Publisher="CN=42BD3C1F-9B9E-4875-88FA-EA94684D36E4"
-    Version="0.1.31.0" />
+    Publisher="CN=paulober, C=DE"
+    Version="0.1.36.0" />
 
   <Properties>
     <DisplayName>Arctic Control</DisplayName>
     <PublisherDisplayName>paulober</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
-
-	<uap13:AutoUpdate>
-		<uap13:AppInstaller File="Update.appinstaller" />
-	</uap13:AutoUpdate>
   </Properties>
 
   <Dependencies>

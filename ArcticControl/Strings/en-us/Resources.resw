@@ -246,7 +246,7 @@ Application icon copyright: Control panel icons created by Freepik - Flaticon ht
     <value>Advanced (be aware these settings can damage your hardware, this is on your own risk)</value>
   </data>
   <data name="Settings_GPUPowerMaxLimit.Text" xml:space="preserve">
-    <value>GPU maximal Power Limit (does not work on any hardware)</value>
+    <value>GPU maximal Power Limit in W (does not work on any hardware)</value>
   </data>
   <data name="Settings_GPUPowerMaxLimit_InputError.Text" xml:space="preserve">
     <value>Your input is invalid. It must be greater that 228 and smaller than 400.</value>
@@ -307,5 +307,14 @@ Application icon copyright: Control panel icons created by Freepik - Flaticon ht
   </data>
   <data name="PerformancePage_Overclocking_VoltageLock_NumberBox.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Voltage expressed in units of mV with a resolution of 1 mV. 0 will return hardware to dynamic. Temporarily disables voltage offset.</value>
+  </data>
+  <data name="Settings_UpdateNowBtn.Content" xml:space="preserve">
+    <value>Check for update and install</value>
+  </data>
+  <data name="NewUpdateAvailableDialog_Content" xml:space="preserve">
+    <value>New update is available, please install it to get the newest performance and feature updates.</value>
+  </data>
+  <data name="Settings_Update.Text" xml:space="preserve">
+    <value>Update</value>
   </data>
 </root>

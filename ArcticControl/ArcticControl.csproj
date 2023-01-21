@@ -26,12 +26,12 @@
     <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
-    <GenerateTestArtifacts>False</GenerateTestArtifacts>
+    <GenerateTestArtifacts>True</GenerateTestArtifacts>
     <AppxBundle>Never</AppxBundle>
     <AppxBundlePlatforms>x64|arm64</AppxBundlePlatforms>
     <!-- Only for ms store deployment <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate> -->
 	<!-- For outside Microsoft store deployment -->
-    <PackageCertificateThumbprint>BE5FC4CC7F1784AC74E442CE3AB3D0003ED383F8</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>C187787C2A09452E779B789ECEC18402C3E2C821</PackageCertificateThumbprint>
     <AppxPackageSigningEnabled>True</AppxPackageSigningEnabled>
     <AppxPackageSigningTimestampServerUrl>http://timestamp.digicert.com</AppxPackageSigningTimestampServerUrl>
     <AppInstallerUri>https://arcticcontrol.paulober.dev/app/</AppInstallerUri>
@@ -41,17 +41,10 @@
 
   <ItemGroup>
     <None Remove="Styles\Brushes.xaml" />
-    <None Remove="Update.appinstaller" />
     <None Remove="Views\Dialogs\PrivacyConsentDialog.xaml" />
     <None Remove="Views\DriversListViewDetailsControl.xaml" />
     <None Remove="Views\PerformanceValueTemplate.xaml" />
     <None Remove="Views\StartPage.xaml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Update.appinstaller">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -89,6 +82,9 @@
   <ItemGroup>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Update.appinstaller">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
     <Page Update="Styles\Brushes.xaml">
       <Generator>MSBuild:Compile</Generator>

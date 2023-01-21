@@ -11,134 +11,146 @@
         <helpers:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
     </Page.Resources>
     <Grid>
-        <StackPanel
-            x:Name="ContentArea">
-            <TextBlock x:Uid="Settings_Personalization" Style="{ThemeResource SubtitleTextBlockStyle}" />
-            <StackPanel Margin="{StaticResource SmallTopBottomMargin}">
-                <TextBlock x:Uid="Settings_Theme" />
+        <ScrollViewer>
+            <StackPanel x:Name="ContentArea">
+                <TextBlock x:Uid="Settings_Personalization" Style="{ThemeResource SubtitleTextBlockStyle}" />
+                <StackPanel Margin="{StaticResource SmallTopMargin}">
+                    <TextBlock x:Uid="Settings_Theme" />
+
+                    <StackPanel Margin="{StaticResource XSmallTopMargin}">
+                        <RadioButton
+                            x:Uid="Settings_Theme_Light"
+                            Command="{x:Bind ViewModel.SwitchThemeCommand}"
+                            IsChecked="{x:Bind ViewModel.ElementTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Light, Mode=OneWay}"
+                            FontSize="15"
+                            GroupName="AppTheme">
+                            <RadioButton.CommandParameter>
+                                <xaml:ElementTheme>Light</xaml:ElementTheme>
+                            </RadioButton.CommandParameter>
+                        </RadioButton>
+                        <RadioButton
+                            x:Uid="Settings_Theme_Dark"
+                            Command="{x:Bind ViewModel.SwitchThemeCommand}"
+                            IsChecked="{x:Bind ViewModel.ElementTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Dark, Mode=OneWay}"
+                            FontSize="15"
+                            GroupName="AppTheme">
+                            <RadioButton.CommandParameter>
+                                <xaml:ElementTheme>Dark</xaml:ElementTheme>
+                            </RadioButton.CommandParameter>
+                        </RadioButton>
+                        <RadioButton
+                            x:Uid="Settings_Theme_Default"
+                            Command="{x:Bind ViewModel.SwitchThemeCommand}"
+                            IsChecked="{x:Bind ViewModel.ElementTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Default, Mode=OneWay}"
+                            FontSize="15"
+                            GroupName="AppTheme">
+                            <RadioButton.CommandParameter>
+                                <xaml:ElementTheme>Default</xaml:ElementTheme>
+                            </RadioButton.CommandParameter>
+                        </RadioButton>
+                    </StackPanel>
+                </StackPanel>
+
+                <TextBlock 
+                    x:Uid="Settings_Advanced" 
+                    Style="{ThemeResource SubtitleTextBlockStyle}" 
+                    Margin="{StaticResource MediumTopMargin}" />
 
                 <StackPanel Margin="{StaticResource XSmallTopMargin}">
-                    <RadioButton
-                        x:Uid="Settings_Theme_Light"
-                        Command="{x:Bind ViewModel.SwitchThemeCommand}"
-                        IsChecked="{x:Bind ViewModel.ElementTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Light, Mode=OneWay}"
-                        FontSize="15"
-                        GroupName="AppTheme">
-                        <RadioButton.CommandParameter>
-                            <xaml:ElementTheme>Light</xaml:ElementTheme>
-                        </RadioButton.CommandParameter>
-                    </RadioButton>
-                    <RadioButton
-                        x:Uid="Settings_Theme_Dark"
-                        Command="{x:Bind ViewModel.SwitchThemeCommand}"
-                        IsChecked="{x:Bind ViewModel.ElementTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Dark, Mode=OneWay}"
-                        FontSize="15"
-                        GroupName="AppTheme">
-                        <RadioButton.CommandParameter>
-                            <xaml:ElementTheme>Dark</xaml:ElementTheme>
-                        </RadioButton.CommandParameter>
-                    </RadioButton>
-                    <RadioButton
-                        x:Uid="Settings_Theme_Default"
-                        Command="{x:Bind ViewModel.SwitchThemeCommand}"
-                        IsChecked="{x:Bind ViewModel.ElementTheme, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter=Default, Mode=OneWay}"
-                        FontSize="15"
-                        GroupName="AppTheme">
-                        <RadioButton.CommandParameter>
-                            <xaml:ElementTheme>Default</xaml:ElementTheme>
-                        </RadioButton.CommandParameter>
-                    </RadioButton>
+                    <TextBlock x:Uid="Settings_GPUPowerMaxLimit" />
+                    <Grid Width="Auto" Margin="{StaticResource SmallTopMargin}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <NumberBox
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Width="160"
+                            Value="{x:Bind ViewModel.GPUPowerMaxLimit, Mode=TwoWay}"
+                            SpinButtonPlacementMode="Inline"
+                            SmallChange="1"
+                            LargeChange="10"
+                            Loaded="{x:Bind ViewModel.GPUPowerMaxLimitNumberBox_Loaded, Mode=OneTime}"/>
+                        <Button
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            VerticalAlignment="Center"
+                            Content="Save"
+                            Click="{x:Bind ViewModel.SaveMaxGPUPowerLimitButton_Click, Mode=OneTime}"
+                            Margin="{StaticResource MediumLeftRightMargin}"/>
+                        <ToggleButton
+                            x:Name="UnlimitedPowerToggleButton"
+                            Visibility="Collapsed"
+                            x:Load="False"
+                            Grid.Row="1" 
+                            Grid.Column="0" 
+                            Grid.ColumnSpan="2" 
+                            Content="Unlimited (very dangerous)"
+                            ToolTipService.Placement="Top"
+                            ToolTipService.ToolTip="only limit will be temperature and other limits. It's on your own risk. It can hurt you components and could be a potential fire hazard!"
+                            Click="{x:Bind ViewModel.UnlimitedPowerButton_OnClick}"
+                            Background="IndianRed"
+                            Foreground="Wheat"
+                            Margin="{StaticResource MediumTopBottomMargin}">
+                        </ToggleButton>
+                        <TeachingTip 
+                            Visibility="Collapsed"
+                            x:Load="False"
+                            x:Name="NotAdminTeachingTip"
+                            Title="Insufficient permissions"
+                            Subtitle="Relaunch the app as administrator in oder to use this button!"
+                            IsOpen="{x:Bind ViewModel.IsNotAdminTeachingTipOpen}"
+                            PreferredPlacement="Auto"
+                            PlacementMargin="20"
+                            IsLightDismissEnabled="True"
+                            ActionButtonClick="{x:Bind ViewModel.NotAdminTeachingTip_OnActionButtonClick}"
+                            ActionButtonContent="Close app now"
+                            CloseButtonContent="Maybe later...">
+                        </TeachingTip>
+                    </Grid>
+                    <TextBlock 
+                        x:Uid="Settings_GPUPowerMaxLimit_InputError"
+                        FontSize="{ThemeResource ToolTipContentThemeFontSize}"
+                        Foreground="Red"
+                        Visibility="{x:Bind ViewModel.GPUPowerMaxLimitInputErrorVis, Mode=OneWay}" />
                 </StackPanel>
-            </StackPanel>
 
-            <TextBlock x:Uid="Settings_Advanced" Style="{ThemeResource SubtitleTextBlockStyle}" />
-
-            <StackPanel Margin="{StaticResource SmallTopBottomMargin}">
-                <TextBlock x:Uid="Settings_GPUPowerMaxLimit" />
-                <Grid Width="Auto" Margin="{StaticResource SmallTopMargin}">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <NumberBox
-                        Grid.Row="0"
-                        Grid.Column="0"
-                        Width="160"
-                        Value="{x:Bind ViewModel.GPUPowerMaxLimit, Mode=TwoWay}"
-                        SpinButtonPlacementMode="Inline"
-                        SmallChange="1"
-                        LargeChange="10"
-                        Loaded="{x:Bind ViewModel.GPUPowerMaxLimitNumberBox_Loaded, Mode=OneTime}"/>
-                    <Button
-                        Grid.Row="0"
-                        Grid.Column="1"
-                        VerticalAlignment="Center"
-                        Content="Save"
-                        Click="{x:Bind ViewModel.SaveMaxGPUPowerLimitButton_Click, Mode=OneTime}"
-                        Margin="{StaticResource MediumLeftRightMargin}"/>
-                    <ToggleButton
-                        x:Name="UnlimitedPowerToggleButton"
-                        Visibility="Collapsed"
-                        x:Load="False"
-                        Grid.Row="1" 
-                        Grid.Column="0" 
-                        Grid.ColumnSpan="2" 
-                        Content="Unlimited (very dangerous)"
-                        ToolTipService.Placement="Top"
-                        ToolTipService.ToolTip="only limit will be temperature and other limits. It's on your own risk. It can hurt you components and could be a potential fire hazard!"
-                        Click="{x:Bind ViewModel.UnlimitedPowerButton_OnClick}"
-                        Background="IndianRed"
-                        Foreground="Wheat"
-                        Margin="{StaticResource MediumTopBottomMargin}">
-                    </ToggleButton>
-                    <TeachingTip 
-                        Visibility="Collapsed"
-                        x:Load="False"
-                        x:Name="NotAdminTeachingTip"
-                        Title="Insufficient permissions"
-                        Subtitle="Relaunch the app as administrator in oder to use this button!"
-                        IsOpen="{x:Bind ViewModel.IsNotAdminTeachingTipOpen}"
-                        PreferredPlacement="Auto"
-                        PlacementMargin="20"
-                        IsLightDismissEnabled="True"
-                        ActionButtonClick="{x:Bind ViewModel.NotAdminTeachingTip_OnActionButtonClick}"
-                        ActionButtonContent="Close app now"
-                        CloseButtonContent="Maybe later...">
-                    </TeachingTip>
-                </Grid>
-                <TextBlock 
-                    x:Uid="Settings_GPUPowerMaxLimit_InputError"
-                    FontSize="{ThemeResource ToolTipContentThemeFontSize}"
-                    Foreground="Red"
-                    Visibility="{x:Bind ViewModel.GPUPowerMaxLimitInputErrorVis, Mode=OneWay}" />
-            </StackPanel>
-
-            <TextBlock x:Uid="Settings_About" Style="{ThemeResource SubtitleTextBlockStyle}" 
+                <TextBlock x:Uid="Settings_Update" Style="{ThemeResource SubtitleTextBlockStyle}" 
                        Margin="{StaticResource MediumTopMargin}" />
 
-            <StackPanel Margin="{StaticResource XSmallTopMargin}">
-                <TextBlock Text="{x:Bind ViewModel.VersionDescription, Mode=OneWay}" Style="{ThemeResource BodyTextBlockStyle}" />
+                <Button 
+                    x:Uid="Settings_UpdateNowBtn"
+                    Click="{x:Bind ViewModel.UpdateNowBtn_OnClick}" 
+                    Margin="{StaticResource SmallTopMargin}"/>
 
-                <TextBlock
-                    x:Uid="Settings_AboutDescription"
-                    Margin="{StaticResource XSmallTopMargin}"
-                    Style="{ThemeResource BodyTextBlockStyle}" />
-                <TextBlock
-                    x:Uid="Settings_PrivacyText"
-                    Margin="{StaticResource XSmallTopMargin}"
-                    Style="{ThemeResource BodyTextBlockStyle}" />
-                <TextBlock
-                    x:Uid="Settings_NotFromIntelNote"
-                    Margin="{StaticResource XSmallTopBottomMargin}"
-                    Style="{ThemeResource BodyTextBlockStyle}" />
-                <HyperlinkButton x:Uid="SettingsPage_PrivacyTermsLink" Margin="{StaticResource SettingsPageHyperlinkButtonMargin}" />
-                <HyperlinkButton x:Uid="SettingsPage_TermsOfServiceLink" Margin="{StaticResource SettingsPageHyperlinkButtonMargin}"/>
-                <HyperlinkButton NavigateUri="https://www.flaticon.com/free-icons/control-panel" Margin="{StaticResource SettingsPageHyperlinkButtonMargin}">Control panel icons created by Freepik - Flaticon</HyperlinkButton>
+                <TextBlock x:Uid="Settings_About" Style="{ThemeResource SubtitleTextBlockStyle}" 
+                       Margin="{StaticResource MediumTopMargin}" />
+
+                <StackPanel Margin="{StaticResource XSmallTopMargin}">
+                    <TextBlock Text="{x:Bind ViewModel.VersionDescription, Mode=OneWay}" Style="{ThemeResource BodyTextBlockStyle}" />
+
+                    <TextBlock
+                        x:Uid="Settings_AboutDescription"
+                        Margin="{StaticResource XSmallTopMargin}"
+                        Style="{ThemeResource BodyTextBlockStyle}" />
+                    <TextBlock
+                        x:Uid="Settings_PrivacyText"
+                        Margin="{StaticResource XSmallTopMargin}"
+                        Style="{ThemeResource BodyTextBlockStyle}" />
+                    <TextBlock
+                        x:Uid="Settings_NotFromIntelNote"
+                        Margin="{StaticResource XSmallTopBottomMargin}"
+                        Style="{ThemeResource BodyTextBlockStyle}" />
+                    <HyperlinkButton x:Uid="SettingsPage_PrivacyTermsLink" Margin="{StaticResource SettingsPageHyperlinkButtonMargin}" />
+                    <HyperlinkButton x:Uid="SettingsPage_TermsOfServiceLink" Margin="{StaticResource SettingsPageHyperlinkButtonMargin}"/>
+                    <HyperlinkButton NavigateUri="https://www.flaticon.com/free-icons/control-panel" Margin="{StaticResource SettingsPageHyperlinkButtonMargin}">Control panel icons created by Freepik - Flaticon</HyperlinkButton>
+                </StackPanel>
             </StackPanel>
-        </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Page>

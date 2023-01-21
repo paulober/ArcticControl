@@ -15,11 +15,16 @@ internal sealed partial class ShellPage : Page
 {
     public ShellViewModel ViewModel { get; }
     private readonly IPrivacyConsentDisplayService _privacyConsentDisplayService;
+    private readonly IUpdateAvailableDisplayService _updateAvailableDisplayService;
 
-    public ShellPage(ShellViewModel viewModel, IPrivacyConsentDisplayService privacyConsentDisplayService)
+    public ShellPage(
+        ShellViewModel viewModel, 
+        IPrivacyConsentDisplayService privacyConsentDisplayService, 
+        IUpdateAvailableDisplayService updateAvailableDisplayService)
     {
         ViewModel = viewModel;
         _privacyConsentDisplayService = privacyConsentDisplayService;
+        _updateAvailableDisplayService = updateAvailableDisplayService;
         InitializeComponent();
 
         ViewModel.NavigationService.Frame = NavigationFrame;
@@ -39,6 +44,7 @@ internal sealed partial class ShellPage : Page
         KeyboardAccelerators.Add(BuildKeyboardAccelerator(VirtualKey.GoBack));
 
         await _privacyConsentDisplayService.ShowIfAppropriateAsync();
+        await _updateAvailableDisplayService.ShowIfAppropriateAsync();
     }
 
     private void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
