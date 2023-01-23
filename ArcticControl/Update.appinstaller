@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <AppInstaller Uri="https://arcticcontrol.paulober.dev/app/ArcticControl.appinstaller"
-              Version="0.1.31.0"
+              Version="0.1.39.0"
               xmlns="http://schemas.microsoft.com/appx/appinstaller/2018">
 	
     <MainPackage Name="paulober.ArcticControl"
-              Version="0.1.31.0"
+              Version="0.1.39.0"
               Publisher="CN=paulober, C=DE"
 			  ProcessorArchitecture="x64"
-              Uri="https://cdn-arcticcontrol.paulober.dev/ArcticControl_0.1.31.0_x64.msix"/>
+              Uri="https://arcticcontrol.paulober.dev/app/ArcticControl_0.1.39.0_x64.msix"/>
 
     <UpdateSettings>
         <OnLaunch HoursBetweenUpdateChecks="0" ShowPrompt="true" UpdateBlocksActivation="false"/>

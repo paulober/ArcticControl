@@ -322,7 +322,7 @@
                                         SmallChange="2"
                                         LargeChange="10"
                                         Minimum="0"
-                                        Maximum="2500"
+                                        Maximum="3200"
                                         Value="{x:Bind ViewModel.FrequencyMinimum, Mode=TwoWay}"
                                         Width="200"
                                         PlaceholderText="0 MHz"
@@ -427,7 +427,7 @@
                                         <Slider 
                                             x:Name="GPUFrequencyOffsetSlider"
                                             Minimum="0"
-                                            Maximum="245"
+                                            Maximum="800"
                                             Value="{x:Bind ViewModel.GpuFrequencyOffsetSliderValue, Mode=TwoWay}"
                                             Width="200"
                                             ValueChanged="GPUFrequencyOffsetSlider_ValueChanged"/>
