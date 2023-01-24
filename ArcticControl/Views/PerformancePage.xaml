@@ -461,13 +461,13 @@
                                         <Slider 
                                             x:Name="GPUVoltageOffsetSlider"
                                             Minimum="0"
-                                            Maximum="245"
+                                            Maximum="400"
                                             Value="{x:Bind ViewModel.GpuVoltageOffsetSliderValue, Mode=TwoWay}"
                                             Width="200"
                                             ValueChanged="GPUVoltageOffsetSlider_ValueChanged"/>
                                         <RelativePanel HorizontalAlignment="Stretch">
                                             <TextBlock RelativePanel.AlignLeftWithPanel="True" Text="0"/>
-                                            <TextBlock RelativePanel.AlignRightWithPanel="True" Text="261"/>
+                                            <TextBlock RelativePanel.AlignRightWithPanel="True" Text="400"/>
                                         </RelativePanel>
                                     </StackPanel>
                                 </RelativePanel>
