@@ -269,7 +269,7 @@ public class GamesSettingsViewModel : ObservableRecipient, INavigationAware
                     
                     // enable input controls as now game-specific settings can be made
                     // TODO: enable when feature is supported
-                    //InputControlsEnabled = true;
+                    InputControlsEnabled = true;
                 }
             }
             else if (!string.IsNullOrEmpty(epicGamesLaunchPath))
@@ -333,7 +333,7 @@ public class GamesSettingsViewModel : ObservableRecipient, INavigationAware
                 else
                 {
                     // TODO: enable when feature supported
-                    InputControlsEnabled = false;
+                    InputControlsEnabled = true;
                     //DisEnableAllInputs(true);
                 }
             }

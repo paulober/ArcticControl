@@ -7,7 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d" HorizontalAlignment="Stretch">
 
-    <ScrollViewer MaxWidth="1000">
+    <ScrollViewer MaxWidth="1000" Padding="{StaticResource SmallRightMargin}">
         <Grid HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
@@ -83,7 +83,7 @@
                     Title="Note"
                     Margin="{StaticResource MediumBottomMargin}"
                     Visibility="{x:Bind ViewModel.GameDetailElementsVisibility, Mode=OneWay}"
-                    Message="Game specific settings are currently under development..." />
+                    Message="For steam games you currently have to launch the game via the Launch button and wait until ArcticControl detects it for editing it's settings" />
 
                 <Grid 
                     HorizontalAlignment="Stretch" 
@@ -98,8 +98,6 @@
                         Grid.Column="1"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Top"
-                        ToolTipService.Placement="Left"
-                        ToolTipService.ToolTip="Currently you can only edit game specific settings when launching the game via the Launch button first. This will change in a future release."
                         Style="{ThemeResource AccentButtonStyle}"
                         FontSize="{StaticResource LargeFontSize}"
                         Click="{x:Bind ViewModel.LaunchButton_OnClick}">
