@@ -775,7 +775,7 @@ UInt32 ArcticControlGPUInterop::GPUInterop::GetGamingFlipMode(String^ applicatio
     }
 
     ctl_3d_feature_getset_t get_3d_property{0};
-    get_3d_property.Size = sizeof(ctl_3d_feature_getset_t);
+    get_3d_property.Size = sizeof(get_3d_property);
 
     get_3d_property.FeatureType = CTL_3D_FEATURE_GAMING_FLIP_MODES;
     get_3d_property.bSet = false;
@@ -789,7 +789,7 @@ UInt32 ArcticControlGPUInterop::GPUInterop::GetGamingFlipMode(String^ applicatio
         char* pBuf = new char[app_name.length() + 1];
         strcpy_s(pBuf, app_name.length() + 1, app_name.c_str());
         get_3d_property.ApplicationName = pBuf;
-        get_3d_property.ApplicationNameLength = sizeof pBuf;
+        get_3d_property.ApplicationNameLength = static_cast<int8_t>(strlen(pBuf));
     }
     get_3d_property.ValueType = CTL_PROPERTY_VALUE_TYPE_ENUM;
     get_3d_property.Version = 0;
@@ -831,23 +831,12 @@ bool ArcticControlGPUInterop::GPUInterop::SetGamingFlipMode(UInt32 flip_mode, St
     // application specify
     if (application != nullptr)
     {
-        /*marshal_context^ context = gcnew marshal_context();
-        const char* app_name = context->marshal_as<const char*>(application);
-        set_3d_property.ApplicationName = const_cast<char*>(app_name);
-        set_3d_property.ApplicationNameLength = static_cast<int8_t>(strlen(app_name));
-        delete context;*/
-
-        /*CString app_name(application);
-        CStringA app_name_a(app_name);
-        const char* a(app_name_a);
-        set_3d_property.ApplicationName = const_cast<char*>(a);*/
-
         std::string app_name = marshal_as<std::string>(application);
         // +1 for the NULL terminator
         char* pBuf = new char[app_name.length() + 1];
         strcpy_s(pBuf, app_name.length() + 1, app_name.c_str());
         set_3d_property.ApplicationName = pBuf;
-        set_3d_property.ApplicationNameLength = sizeof pBuf;
+        set_3d_property.ApplicationNameLength = static_cast<int8_t>(strlen(pBuf));
     }
     
     set_3d_property.ValueType = CTL_PROPERTY_VALUE_TYPE_ENUM;
@@ -893,7 +882,7 @@ UInt32 ArcticControlGPUInterop::GPUInterop::GetAnisotropicFilteringMode(String^ 
         char* pBuf = new char[app_name.length() + 1];
         strcpy_s(pBuf, app_name.length() + 1, app_name.c_str());
         get_3d_property.ApplicationName = pBuf;
-        get_3d_property.ApplicationNameLength = sizeof pBuf;
+        get_3d_property.ApplicationNameLength = static_cast<int8_t>(strlen(pBuf));
     }
     get_3d_property.ValueType = CTL_PROPERTY_VALUE_TYPE_ENUM;
     get_3d_property.Version = 0;
@@ -943,7 +932,7 @@ bool ArcticControlGPUInterop::GPUInterop::SetAnisotropicFilteringMode(UInt32 ani
         char* pBuf = new char[app_name.length() + 1];
         strcpy_s(pBuf, app_name.length() + 1, app_name.c_str());
         set_3d_property.ApplicationName = pBuf;
-        set_3d_property.ApplicationNameLength = sizeof pBuf;
+        set_3d_property.ApplicationNameLength = static_cast<int8_t>(strlen(pBuf));
     }
     set_3d_property.ValueType = CTL_PROPERTY_VALUE_TYPE_ENUM;
     set_3d_property.Value.EnumType.EnableType = static_cast<ctl_3d_anisotropic_types_t>(anisotropic_mode);
@@ -988,7 +977,7 @@ UInt32 ArcticControlGPUInterop::GPUInterop::GetCmaaMode(String^ application)
         char* pBuf = new char[app_name.length() + 1];
         strcpy_s(pBuf, app_name.length() + 1, app_name.c_str());
         get_3d_property.ApplicationName = pBuf;
-        get_3d_property.ApplicationNameLength = sizeof pBuf;
+        get_3d_property.ApplicationNameLength = static_cast<int8_t>(strlen(pBuf));
     }
     get_3d_property.ValueType = CTL_PROPERTY_VALUE_TYPE_ENUM;
     get_3d_property.Version = 0;
@@ -1034,7 +1023,7 @@ bool ArcticControlGPUInterop::GPUInterop::SetCmaaMode(UInt32 cmaa_mode, String^ 
         char* pBuf = new char[app_name.length() + 1];
         strcpy_s(pBuf, app_name.length() + 1, app_name.c_str());
         set_3d_property.ApplicationName = pBuf;
-        set_3d_property.ApplicationNameLength = sizeof pBuf;
+        set_3d_property.ApplicationNameLength = static_cast<int8_t>(strlen(pBuf));
     }
     set_3d_property.ValueType = CTL_PROPERTY_VALUE_TYPE_ENUM;
     set_3d_property.Value.EnumType.EnableType = static_cast<ctl_3d_anisotropic_types_t>(cmaa_mode);
@@ -1128,7 +1117,7 @@ bool ArcticControlGPUInterop::GPUInterop::SetSharpeningFilter(const bool on, Str
         char* pBuf = new char[app_name.length() + 1];
         strcpy_s(pBuf, app_name.length() + 1, app_name.c_str());
         set_3d_property.ApplicationName = pBuf;
-        set_3d_property.ApplicationNameLength = sizeof pBuf;
+        set_3d_property.ApplicationNameLength = static_cast<int8_t>(strlen(pBuf));
     }
     set_3d_property.ValueType = CTL_PROPERTY_VALUE_TYPE_ENUM;
     set_3d_property.Value.EnumType.EnableType
