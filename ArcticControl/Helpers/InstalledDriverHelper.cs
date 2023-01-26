@@ -56,7 +56,7 @@ internal static class InstalledDriverHelper
                         }
                     }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     continue;
                 }

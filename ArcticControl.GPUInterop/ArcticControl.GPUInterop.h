@@ -581,6 +581,7 @@ namespace ArcticControlGPUInterop {
 		uint32_t* adapter_count_;
 		ctl_device_adapter_handle_t* h_devices_;
 		int selected_device_ = -1;
+		List<String^>^ device_names_;
 
 		// fans
 		uint32_t* fans_count_;
@@ -604,7 +605,7 @@ namespace ArcticControlGPUInterop {
 		bool init_api();
 
 	public:
-		GPUInterop() {
+		GPUInterop() {			
 			// https://dgpu-docs.intel.com/devices/hardware-table.html
 			supported_device_ids_ = gcnew array<UInt32>(11) {
 				0x5690, // <-- Arc A77M
@@ -619,6 +620,8 @@ namespace ArcticControlGPUInterop {
 				0x56C1, // <-- Data Center GPU Flex 140
 				0x56C0  // <-- Data Center GPU Flex 170
 			};
+
+			device_names_ = gcnew List;
 		};
 
 		!GPUInterop();
@@ -627,6 +630,10 @@ namespace ArcticControlGPUInterop {
 		// add your methods for this class here
 		bool InitCtlApi();
 		String^ GetAdapterName();
+		List<String^>^ GetDeviceAdapterNames()
+		{
+			return device_names_;
+		}
 		array<TempSensor^>^ GetTemperatures();
 		/// <summary>
 		/// <para>Very dangerous!! - Read description</para>
@@ -708,7 +715,6 @@ namespace ArcticControlGPUInterop {
 		PCIeProperties^ GetPCIeProperties();
 
 		// just for test
-		static String^ GetMyName();
 		bool TestApi();
 	};
 }

@@ -67,6 +67,8 @@
 	  <Capability Name="internetClient"/>
 	  <!-- WindowsAppSDK Deployment api -->
 	  <rescap:Capability Name="packageManagement"/>
+      <!-- Required by manifest registration, don't know why -->
+	  <rescap:Capability Name="runFullTrust" />
   </Capabilities>
 
   <genTemplate:Metadata>

@@ -67,7 +67,7 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
 
     public bool WaiverSigned = false;
     
-    private bool _loadFanSpeedSlider = false;
+    private bool _loadFanSpeedSlider;
 
     public bool LoadFanSpeedSlider
     {
@@ -150,7 +150,7 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
         set => SetProperty(ref _fanSpeedSliderValue, value);
     }
 
-    private bool _fanSpeedFixed = false;
+    private bool _fanSpeedFixed;
 
     public bool FanSpeedFixed
     {
@@ -166,7 +166,7 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
         set => SetProperty(ref _powerLimitSliderEnabled, value);
     }
     
-    private bool _isTelemetryOverlayToggleBtnChecked = false;
+    private bool _isTelemetryOverlayToggleBtnChecked;
 
     public bool IsTelemetryOverlayToggleBtnChecked
     {
@@ -227,7 +227,7 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
         Tuple.Create(new PerformanceSource(new PerformanceSourceArgs
         { 
             Type = PerformanceSourceType.PerformanceCounter, 
-            PerformanceCounterArgs = new string[] {"Processor Information", "% Processor Utility", "_Total"}, 
+            PerformanceCounterArgs = new[] {"Processor Information", "% Processor Utility", "_Total"}, 
             Format = "0.0"
         }, deferPerfCounterSetup: true), nameof(CpuUtilizationObj)),
         Tuple.Create(new PerformanceSource(new PerformanceSourceArgs()
@@ -235,7 +235,7 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
             Type = PerformanceSourceType.ValueOffsetCallback,
             // PerformanceCounterArgs = new string[] {"Memory", "Available KBytes"},
             Format = "0.0",
-            ValueOffsetCallback = (float value, object? arcNativeArgs) =>
+            ValueOffsetCallback = (_, _) =>
             {
                 try
                 {

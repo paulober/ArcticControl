@@ -19,8 +19,8 @@ using ManagedPowerProperties = ArcticControl.Models.PowerProperties;
 namespace ArcticControl.Services;
 public class IntelGraphicsControlService: IIntelGraphicsControlService
 {
-    private readonly bool _initialized = false;
-    private bool _frequencyDomainsInitialized = false;
+    private readonly bool _initialized;
+    private bool _frequencyDomainsInitialized;
     private readonly GPUInterop? _gpuInterop;
 
     public IntelGraphicsControlService()

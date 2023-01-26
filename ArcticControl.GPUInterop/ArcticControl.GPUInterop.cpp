@@ -14,13 +14,6 @@ using namespace msclr::interop;
 std::string decode_ret_code(ctl_result_t res);
 #define WRITE_LINE System::Diagnostics::Debug::WriteLine
 
-String^ ArcticControlGPUInterop::GPUInterop::GetMyName()
-{
-    // throw gcnew System::NotImplementedException();
-    // TODO: hier return-Anweisung eingeben
-    return "Hi there in CLR. I'm the real slim shady!";
-}
-
 bool ArcticControlGPUInterop::GPUInterop::init_api()
 {
     if (h_devices_ != nullptr || adapter_count_ != nullptr || h_api_handle_ != nullptr)
@@ -104,10 +97,18 @@ bool ArcticControlGPUInterop::GPUInterop::init_api()
                             if (array<uint32_t>::IndexOf(supported_device_ids_, dev_adapter_props.pci_device_id) > -1)
                             {
                                 WRITE_LINE("[GPUInterop]: init_api - found supported device");
+
+                                // set first device as the selected
+                                if (selected_device_ == -1)
+                                {
+                                    // device is supported -> set it as selected
+                                    selected_device_ = idx;
+                                }
+
+                                device_names_->Add(gcnew String(dev_adapter_props.name));
                                 
-                                // device is supported -> set it as selected
-                                selected_device_ = idx;
-                                break;
+                                // no brake to enum all device adapters with their properties
+                                // break;
                             }
                         }
                     }
