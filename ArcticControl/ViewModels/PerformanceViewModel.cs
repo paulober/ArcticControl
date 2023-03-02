@@ -546,6 +546,19 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
             _igcs.SetOverclockGpuFrequencyOffset(GpuFrequencyOffsetSliderValue);
         }
 
+        if (FanSpeedSliderValue != _currentActiveSliderValues[SliderValueDefaults.FanSpeed])
+        {
+            _igcs.InitFansHandles();
+            if (!FanSpeedFixed)
+            {
+                _igcs.SetFanSpeedToDefaultMode();
+            }
+            else
+            {
+                _igcs.SetFanToFixedSpeedMode((int)FanSpeedSliderValue);
+            }
+        }
+
         // check if gpu driver accepted values or adjust some and also reset CurrentValues variable
         GetOverclockingValues(skipTempLimit: doSkipTempLimit);
 

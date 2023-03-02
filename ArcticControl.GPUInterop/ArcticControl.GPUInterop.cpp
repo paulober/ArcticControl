@@ -32,7 +32,7 @@ bool ArcticControlGPUInterop::GPUInterop::init_api()
 
     ctl_init_args.AppVersion = CTL_MAKE_VERSION(CTL_IMPL_MAJOR_VERSION, CTL_IMPL_MINOR_VERSION);
     ctl_init_args.flags = CTL_INIT_FLAG_USE_LEVEL_ZERO;
-    ctl_init_args.Size = sizeof(ctl_init_args);
+    ctl_init_args.Size = sizeof ctl_init_args;
     ctl_init_args.Version = 0;
     ZeroMemory(&ctl_init_args.ApplicationUID, sizeof(ctl_application_id_t));
 
@@ -682,7 +682,7 @@ bool ArcticControlGPUInterop::GPUInterop::InitFansHandles()
         fans_count_ = nullptr;
     }
 
-    fans_count_ = static_cast<uint32_t*>(malloc(sizeof(*fans_count_)));
+    fans_count_ = static_cast<uint32_t*>(malloc(sizeof *fans_count_));
     *fans_count_ = 0;
 
     if (ctl_result_t result = ctlEnumFans(h_devices_[selected_device_], fans_count_, h_fans_); CTL_RESULT_SUCCESS == result)
@@ -705,7 +705,11 @@ bool ArcticControlGPUInterop::GPUInterop::InitFansHandles()
 
 ArcticControlGPUInterop::FanProperties^ ArcticControlGPUInterop::GPUInterop::GetFanProperties()
 {
-    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0 || h_fans_ == nullptr || *fans_count_ < 1)
+    if (h_api_handle_ == nullptr 
+        || *adapter_count_ < 1 
+        || selected_device_ < 0 
+        || h_fans_ == nullptr 
+        || *fans_count_ < 1)
     {
         return nullptr;
     }
@@ -750,17 +754,72 @@ bool ArcticControlGPUInterop::GPUInterop::SetFansToDefaultMode()
         return false;
     }
 
-    for (uint32_t i = 0; i < *fans_count_; i++)
+    if (*fans_count_ > 0)
     {
-        const ctl_result_t result = ctlFanSetDefaultMode(h_fans_[i]);
+        const ctl_result_t result = ctlFanSetDefaultMode(h_fans_[0]);
 
         if (result == CTL_RESULT_SUCCESS)
         {
             return true;
         }
-        
+
         WRITE_LINE(
-            "[GPUInterop]: Error setting fans to default mode! "+ 
+            "[GPUInterop]: Error setting fan to default mode! " +
+            "Fans count : " + (*fans_count_).ToString() +
+            "Result: " + gcnew String(decode_ret_code(result).c_str()));
+    }
+
+    return false;
+}
+
+System::Int32 ArcticControlGPUInterop::GPUInterop::GetFanSpeed()
+{
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
+    {
+        return false;
+    }
+
+    if (*fans_count_ > 0)
+    {
+        const ctl_result_t result = ctlFanGetState(h_fans_[0], CTL_FAN_SPEED_UNITS_PERCENT, nullptr);
+
+        if (result == CTL_RESULT_SUCCESS)
+        {
+            return true;
+        }
+
+        WRITE_LINE(
+            "[GPUInterop]: Error setting fan to fixed speed mode! " +
+            "Fans count : " + (*fans_count_).ToString() +
+            "Result: " + gcnew String(decode_ret_code(result).c_str()));
+    }
+
+    return false;
+}
+
+bool ArcticControlGPUInterop::GPUInterop::SetFansToFixedSpeed(const System::Int32 speed)
+{
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
+    {
+        return false;
+    }
+
+    ctl_fan_speed_t fan_speed{};
+    fan_speed.Size = sizeof ctl_fan_speed_t;
+    fan_speed.speed = static_cast<int32_t>(speed);
+    fan_speed.units = CTL_FAN_SPEED_UNITS_PERCENT;
+
+    if (*fans_count_ > 0)
+    {
+        const ctl_result_t result = ctlFanSetFixedSpeedMode(h_fans_[0], &fan_speed);
+
+        if (result == CTL_RESULT_SUCCESS)
+        {
+            return true;
+        }
+
+        WRITE_LINE(
+            "[GPUInterop]: Error setting fan to fixed speed mode! " +
             "Fans count : " + (*fans_count_).ToString() +
             "Result: " + gcnew String(decode_ret_code(result).c_str()));
     }

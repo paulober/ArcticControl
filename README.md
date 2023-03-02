@@ -1,16 +1,14 @@
-# Arctic Control [under development, early beta]
+# Arctic Control [under development]
 
 # Description
 
 Arctic Control is an alternative driver update/configuration and overclocking utility for Intel® Arc™ A-Series dGPUs. Important, this is an beta relase to test compatibility and only contains a very limited amount of useable features. This project is under development. Let me know with a rating if you like this project.
 
-Currently it only contains two stable features:
-- Driver download utility with easy access to Releasenotes
+Currently it only contains some features:
+- Driver download utility with easy access to release-notes
 - Integrated WebView of Intel® Arc™ News website for quick access to Arc™ related updates and changes
-
-Included experimental features:
 - Performance tab: Does only include limited overclocking sliders but many more are planed or already in development.
-- Games tab: For management of driver settings for diffrent games. Currently only lists installed steam games and has not functionality enabled in release build. Feature is currently under development.
+- Games tab: For management of driver settings for different games. Currently only lists installed steam and epic games games. Feature is currently under development.
 
 This application does and will not include a "Studio" feature like Arc Control as there are way better programms already out there than I can ever develop, like the OBS-Project.
 
@@ -21,19 +19,20 @@ This application is a project of a Intel® Arc™ community member and NOT relat
 If you have feedback let me now in following thread on the Intel Insiders Community discord: https://discord.com/channels/554824368740630529/1049459749160235058 or here on the repo the issues tab.
 
 # Installation instructions
-| All files contain "x64" or "arm64" in their name, always download the version of a certain file which contains your processor architecture.
 
-- Head over to the releases tab on the right and download the file ending with .msix from the latest release.
+- Head over to https://arcticcontrol.paulober.dev for the latest download
 
 ### Requirements
 - Microsoft [.NET 7 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
 
 ### First installation
-- If this is the first time you install this application, head over to the releases tab on the right and download the files ending with .cer and .cmd from the latest release.
-- Open your downloads folder and right click the "installCertificate.cmd" and select "Run as administrator"
+- If this is the first time you install this application, head over to the ~~releases tab on the right and download the files ending with .cer and .cmd from the latest release~~ project website and download the certificate bundle.
+- Open your downloads folder unpack the ZIP file and right click the "installCertificate.cmd" and select "Run as administrator" (this will install my development certificate into your local "Trusted Persons/Publisher" certificate store to allow installation of the .msix app package, the new standard for Windows installers also used by the Microsoft Store)
 - Continue with steps in the next section.
 
-### Package installation
+### Package installation (Please use the website as appinstaller does currently not work for single project packaged Windows App SDK apps)
+
+| Deprecated, please use the project website for downloads
 - If you already installed this application once, just open one of the following appinstaller links in your browser or download the .appinstaller file manually from the releases tab: 
 
 | -- OS --       | Installer link (important: copy the hole text starting with ms-appinstaller) |

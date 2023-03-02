@@ -21,6 +21,8 @@ public interface IIntelGraphicsControlService : IDisposable
     public PowerLimitsCombination? GetPowerLimits();
 
     public bool InitFansHandles();
+    public bool SetFanSpeedToDefaultMode();
+    public bool SetFanToFixedSpeedMode(int speed);
     public FanProperties? GetFanProperties();
 
     public GamingFlipMode GetGamingFlipMode(string? app = null);

@@ -621,7 +621,7 @@ namespace ArcticControlGPUInterop {
 				0x56C0  // <-- Data Center GPU Flex 170
 			};
 
-			device_names_ = gcnew List;
+			device_names_ = gcnew List<System::String^>;
 		};
 
 		!GPUInterop();
@@ -692,6 +692,8 @@ namespace ArcticControlGPUInterop {
 		FanProperties^ GetFanProperties();
 		FanConfig^ GetFanConfig();
 		bool SetFansToDefaultMode();
+		System::Int32 GetFanSpeed();
+		bool SetFansToFixedSpeed(System::Int32 speed);
 
 		// Games (3d) - provide null to application if want to get/set global settings
 		UInt32 GetGamingFlipMode(String^ application);

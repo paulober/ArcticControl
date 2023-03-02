@@ -21,6 +21,7 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
 {
     private readonly bool _initialized;
     private bool _frequencyDomainsInitialized;
+    private bool _fanHandlesInitialized;
     private readonly GPUInterop? _gpuInterop;
 
     public IntelGraphicsControlService()
@@ -375,9 +376,16 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
             return false;
         }
 
+        if (_fanHandlesInitialized)
+        {
+            return true;
+        }
+
         try
         {
             var result = _gpuInterop.InitFansHandles();
+
+            _fanHandlesInitialized = result;
 
             return result;
         }
@@ -388,6 +396,28 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         }
 
         return false;
+    }
+
+    public bool SetFanToFixedSpeedMode(int speed)
+    {
+        if (!_initialized || _gpuInterop == null)
+        {
+            return default;
+        }
+
+        try
+        {
+            var result = _gpuInterop.SetFansToFixedSpeed(speed);
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[IntelGraphicsControlService]: Error - SetFanToFixedSpeedMode");
+            Crashes.TrackError(ex);
+        }
+
+        return default;
     }
 
     public ManagedFanProperties? GetFanProperties()
@@ -416,6 +446,28 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
         catch (Exception ex)
         {
             Debug.WriteLine("[IntelGraphicsControlService]: Error - GetFanProperties");
+            Crashes.TrackError(ex);
+        }
+
+        return default;
+    }
+
+    public bool SetFanSpeedToDefaultMode()
+    {
+        if (!_initialized || _gpuInterop == null)
+        {
+            return default;
+        }
+
+        try
+        {
+            var result = _gpuInterop.SetFansToDefaultMode();
+
+            return result;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[IntelGraphicsControlService]: Error - SetFanSpeedToDefaultMode");
             Crashes.TrackError(ex);
         }
 

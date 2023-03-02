@@ -9,6 +9,9 @@ public class DummyIntelGraphicsControlService : IIntelGraphicsControlService
     public void Dispose() { return; }
     public AnisotropicFilteringMode GetAnisotropicFilteringMode(string? app = null) { return AnisotropicFilteringMode.Unknown; }
     public CmaaMode GetCmaaMode(string? app = null) { return CmaaMode.Unknown; }
+    public bool SetFanSpeedToDefaultMode() => default;
+    public bool SetFanToFixedSpeedMode(int speed) => false;
+
     public FanProperties? GetFanProperties() { return null; }
     public FrequencyProperties? GetFrequencyProperties() { return null; }
     public FrequencyState? GetFrequencyState() { return null; }

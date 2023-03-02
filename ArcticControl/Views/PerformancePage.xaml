@@ -1,4 +1,4 @@
-﻿<Page
+<Page
     x:Class="ArcticControl.Views.PerformancePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -572,7 +572,6 @@
                                 <!-- Fan Speed manual control (slider) -->
                                 <RelativePanel 
                                     x:Name="FanSpeedSliderContainer"
-                                    x:Load="{x:Bind ViewModel.LoadFanSpeedSlider, Mode=OneWay}"
                                     Visibility="Collapsed" 
                                     HorizontalAlignment="Stretch" 
                                     Margin="{StaticResource LargeTopMargin}">
@@ -598,6 +597,8 @@
                                             x:Name="FanSpeedSlider"
                                             Minimum="0"
                                             Maximum="100"
+                                            TickFrequency="1"
+                                            TickPlacement="None"
                                             Value="{x:Bind ViewModel.FanSpeedSliderValue, Mode=TwoWay}"
                                             Width="200"
                                             ValueChanged="FanSpeedSlider_ValueChanged"/>

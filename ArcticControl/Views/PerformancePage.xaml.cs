@@ -201,14 +201,17 @@ public sealed partial class PerformancePage : Page
             FanSpeedControlDropDownButton.Content = mfi.Text;
             if (mfi.Text == "Fixed")
             {
-                ViewModel.LoadFanSpeedSlider = true;
+                if (!ViewModel.LoadFanSpeedSlider)
+                {
+                    ViewModel.LoadFanSpeedSlider = true;
+                }
                 ViewModel.FanSpeedFixed = true;
                 FanSpeedSlider.Visibility = Visibility.Visible;
             }
             else
             {
-                ViewModel.FanSpeedFixed = false;
-                FanSpeedSlider.Visibility = Visibility.Collapsed;
+                ViewModel.FanSpeedFixed = false; 
+                //FanSpeedSlider.Visibility = Visibility.Collapsed;
             }
         }
     }
