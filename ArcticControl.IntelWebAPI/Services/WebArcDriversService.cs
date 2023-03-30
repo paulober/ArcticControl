@@ -106,31 +106,31 @@ public class WebArcDriversService : IWebArcDriversService
         var downloadsOrderRegex = new Regex("available-download-button__cta.*? data-href=\"(?<downloadlink>.*?(\\.zip|\\.exe))\"");
 
         var downloadsOrder = downloadsOrderRegex.Matches(webPage);
-        if (downloadsOrder == null || downloadsOrder.Count != 2)
+        if (downloadsOrder == null || downloadsOrder.Count < 1)
         {
             throw new Exception("PreloadWebDriver - no downloads order found");
         }
-        var downloadIndex = downloadsOrder[1].Groups["downloadlink"].Value.Contains(".exe") ? 1 : 0;
+        var downloadIndex = downloadsOrder.Last().Groups["downloadlink"].Value.Contains(".exe") ? downloadsOrder.Count - 1 : 0;
 
-        var sizeRegex = new Regex("(?:: (?<size>[. 0-9]+(?:KB|MB|GB))(?:\\s|\\S|\\n)*?<\\/li>)");
+        var sizeRegex = new Regex("Size: (?<size>[. 0-9]+ (?:KB|MB|GB))(?:\\s|\\S|\\n)*?");
 
         var sizeMatches = sizeRegex.Matches(webPage);
-        if (sizeMatches == null || sizeMatches.Count != 2)
+        if (sizeMatches == null || sizeMatches.Count < 1)
         {
             throw new Exception("PreloadWebDriver - could not load download sizes");
         }
         var driverSize = sizeMatches[downloadIndex].Groups["size"].Value;
 
-        var sha1Regex = new Regex("(?:SHA1: (?<sha1>[A-Z. 0-9]+)(?:\\s|\\n)*?<\\/li>)");
+        var sha1Regex = new Regex("SHA1: (?<sha1>[A-Z. 0-9]+)(?:\\s|\\n)*?");
 
         var sha1Matches = sha1Regex.Matches(webPage);
-        if (sha1Matches == null || sha1Matches.Count != 2)
+        if (sha1Matches == null || sha1Matches.Count < 1)
         {
             throw new Exception("PreloadWebDriver - could not load sha1 hashes");
         }
         var sha1Hash = sha1Matches[downloadIndex].Groups["sha1"].Value;
 
-        var releaseNotesRegex = new Regex("<a class=\"dc-page-documentation-list__item--fixed\" href=\"(?<url>.*?\\.pdf)\">");
+        var releaseNotesRegex = new Regex("dc-page-documentation-list__item--fixed.*? href=\"(?<url>.*?\\.pdf)\"");
 
         var releaseNotesMatch = releaseNotesRegex.Match(webPage);
         if (releaseNotesMatch == null || !releaseNotesMatch.Groups.ContainsKey("url"))
