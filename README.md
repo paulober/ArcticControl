@@ -1,4 +1,4 @@
-# Arctic Control [under development]
+# Arctic Control
 
 # Description
 
