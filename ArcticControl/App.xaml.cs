@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Net;
 using ArcticControl.Activation;
 using ArcticControl.Contracts.Services;
 using ArcticControl.Core.Contracts.Services;
@@ -74,7 +75,10 @@ public partial class App : Application
         {
             // add logging
             services.AddLogging();
-            
+
+            // Fix new minimum tls version requirement by Intel Web Servers
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls13;
+
             // place for AppCenter sdk configuration
             AppCenter.SetCountryCode(new GeographicRegion().CodeTwoLetter);
             AppCenter.Configure(context.Configuration["AppCenterSecret"]);
@@ -85,10 +89,14 @@ public partial class App : Application
             services.AddHttpClient("Intel", client =>
             {
                 client.BaseAddress = new Uri("https://www.intel.com/");
+                // Fix new minimum http version requirement by Intel Web Servers
+                client.DefaultRequestVersion = HttpVersion.Version20;
+                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.86");
             });
             services.AddHttpClient("AppRepository", client =>
             {
                 client.BaseAddress = new Uri("https://arcticcontrol.paulober.dev/app/");
+                client.DefaultRequestVersion = HttpVersion.Version20;
             });
 
             // Default Activation Handler
