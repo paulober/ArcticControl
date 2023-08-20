@@ -7,7 +7,7 @@ using ArcticControl.IntelWebAPI.Models;
 using Microsoft.Extensions.Logging;
 
 namespace ArcticControl.IntelWebAPI.Services;
-public class WebArcDriversService : IWebArcDriversService
+public partial class WebArcDriversService : IWebArcDriversService
 {
     // TODO: use logger in this class
 
@@ -78,8 +78,8 @@ public class WebArcDriversService : IWebArcDriversService
         //var versionRegex = new Regex("(?:<p class=\"dc-page-short-description__text\">(?:(?:.*?\\r?\\n?)*?(?<version>\\d+\\.\\d+?\\.\\d+\\.\\d+)(?:.*?\\r?\\n?)*?)<\\/p>)");
 
         // meta tag based
-        var versionRegex = new Regex("<meta name=\"DownloadVersion\" content=\"(?<version>\\d+\\.\\d+?\\.\\d+\\.\\d+)\"\\/>");
-        
+        var versionRegex = VersionRegex();
+
         var versionMatch = versionRegex.Match(webPage);
         if (versionMatch == null || !versionMatch.Groups.ContainsKey("version"))
         {
@@ -91,9 +91,9 @@ public class WebArcDriversService : IWebArcDriversService
 
         // complicated one
         //var downloadRegex = new Regex("<button.+?data-wap_ref=.+?download-button\".+?available-download-button__cta\".+?data-modal-id=\"2\".+?data-href=\"(.*?)\">");
-        
+
         // meta tag based
-        var downloadRegex = new Regex("<meta name=\"RecommendedDownloadUrl\" content=\"(?<url>.*?)\"\\/>");
+        var downloadRegex = DownloadRegex();
 
         var downloadMatch = downloadRegex.Match(webPage);
         if (downloadMatch == null)
@@ -103,7 +103,7 @@ public class WebArcDriversService : IWebArcDriversService
         var downloadUri = new Uri(downloadMatch.Groups[1].Value, UriKind.Absolute);
 
         // check if exe or zip download comes first
-        var downloadsOrderRegex = new Regex("available-download-button__cta.*? data-href=\"(?<downloadlink>.*?(\\.zip|\\.exe))\"");
+        var downloadsOrderRegex = DownloadsOrderRegex();
 
         var downloadsOrder = downloadsOrderRegex.Matches(webPage);
         if (downloadsOrder == null || downloadsOrder.Count < 1)
@@ -112,7 +112,7 @@ public class WebArcDriversService : IWebArcDriversService
         }
         var downloadIndex = downloadsOrder.Last().Groups["downloadlink"].Value.Contains(".exe") ? downloadsOrder.Count - 1 : 0;
 
-        var sizeRegex = new Regex("Size: (?<size>[. 0-9]+ (?:KB|MB|GB))(?:\\s|\\S|\\n)*?");
+        var sizeRegex = SizeRegex();
 
         var sizeMatches = sizeRegex.Matches(webPage);
         if (sizeMatches == null || sizeMatches.Count < 1)
@@ -121,7 +121,7 @@ public class WebArcDriversService : IWebArcDriversService
         }
         var driverSize = sizeMatches[downloadIndex].Groups["size"].Value;
 
-        var sha1Regex = new Regex("SHA1: (?<sha1>[A-Z. 0-9]+)(?:\\s|\\n)*?");
+        var sha1Regex = SHA1Regex();
 
         var sha1Matches = sha1Regex.Matches(webPage);
         if (sha1Matches == null || sha1Matches.Count < 1)
@@ -130,7 +130,7 @@ public class WebArcDriversService : IWebArcDriversService
         }
         var sha1Hash = sha1Matches[downloadIndex].Groups["sha1"].Value;
 
-        var releaseNotesRegex = new Regex("dc-page-documentation-list__item--fixed.*? href=\"(?<url>.*?\\.pdf)\"");
+        var releaseNotesRegex = ReleaseNotesRegex();
 
         var releaseNotesMatch = releaseNotesRegex.Match(webPage);
         if (releaseNotesMatch == null || !releaseNotesMatch.Groups.ContainsKey("url"))
@@ -144,7 +144,7 @@ public class WebArcDriversService : IWebArcDriversService
         const string endMarker = "\n</div>\n</div>";
         var endIdx = webPage.IndexOf(endMarker, startIdx);
 
-        var driverDesc = webPage.Substring(startIdx, endIdx-startIdx+endMarker.Length);
+        var driverDesc = webPage.Substring(startIdx, endIdx - startIdx + endMarker.Length);
 
         return Tuple.Create(driverDate, version, downloadUri, driverSize, sha1Hash, releaseNotes, driverDesc);
     }
@@ -158,7 +158,7 @@ public class WebArcDriversService : IWebArcDriversService
         try
         {
             //using var response = await client.GetAsync("/content/www/de/de/download/726609/intel-arc-graphics-windows-dch-driver.html");
-            using var response = await client.GetAsync("/content/www/us/en/download/726609/intel-arc-iris-xe-graphics-whql-windows.html");
+            using var response = await client.GetAsync("/content/www/us/en/download/785597/intel-arc-iris-xe-graphics-whql-windows.html");
             response.EnsureSuccessStatusCode();
             var responseBody = await response.Content.ReadAsStringAsync();
 
@@ -171,12 +171,12 @@ public class WebArcDriversService : IWebArcDriversService
             Debug.WriteLine("Collected first intel driver data in " + sw.ElapsedMilliseconds.ToString() + " ms");
 #endif
             _webArcDrivers.Add(new WebArcDriver(
-                result.Item2, 
+                result.Item2,
                 result.Item1,
                 result.Item3,
-                result.Item4, 
-                result.Item5, 
-                result.Item6, 
+                result.Item4,
+                result.Item5,
+                result.Item6,
                 result.Item7
             ));
 
@@ -222,7 +222,7 @@ public class WebArcDriversService : IWebArcDriversService
         catch (Exception e)
         {
             Debug.WriteLine("\nException Cought!");
-            Debug.WriteLine("Message "+ e.Message);
+            Debug.WriteLine("Message " + e.Message);
             await Task.CompletedTask;
             return false;
         }
@@ -244,4 +244,17 @@ public class WebArcDriversService : IWebArcDriversService
 
         return _webArcDrivers;
     }
+
+    [GeneratedRegex("<meta name=\"DownloadVersion\" content=\"(?<version>\\d+\\.\\d+?\\.\\d+\\.\\d+)( [A-Za-z]+ [A-Za-z]+)?\"\\/>")]
+    private static partial Regex VersionRegex();
+    [GeneratedRegex("<meta name=\"RecommendedDownloadUrl\" content=\"(?<url>.*?)\"\\/>")]
+    private static partial Regex DownloadRegex();
+    [GeneratedRegex("available-download-button__cta.*? data-href=\"(?<downloadlink>.*?(\\.zip|\\.exe))\"")]
+    private static partial Regex DownloadsOrderRegex();
+    [GeneratedRegex("Size: (?<size>[. 0-9]+ (?:KB|MB|GB))(?:\\s|\\S|\\n)*?")]
+    private static partial Regex SizeRegex();
+    [GeneratedRegex("SHA1: (?<sha1>[A-Z. 0-9]+)(?:\\s|\\n)*?")]
+    private static partial Regex SHA1Regex();
+    [GeneratedRegex("dc-page-documentation-list__item--fixed.*? href=\"(?<url>.*?\\.pdf)\"")]
+    private static partial Regex ReleaseNotesRegex();
 }
