@@ -158,7 +158,7 @@ public partial class WebArcDriversService : IWebArcDriversService
         try
         {
             //using var response = await client.GetAsync("/content/www/de/de/download/726609/intel-arc-graphics-windows-dch-driver.html");
-            using var response = await client.GetAsync("/content/www/us/en/download/785597/intel-arc-iris-xe-graphics-whql-windows.html");
+            using var response = await client.GetAsync("/content/www/us/en/download/785597/intel-arc-iris-xe-graphics-windows.html");
             response.EnsureSuccessStatusCode();
             var responseBody = await response.Content.ReadAsStringAsync();
 

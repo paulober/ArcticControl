@@ -91,7 +91,7 @@ public partial class App : Application
                 client.BaseAddress = new Uri("https://www.intel.com/");
                 // Fix new minimum http version requirement by Intel Web Servers
                 client.DefaultRequestVersion = HttpVersion.Version20;
-                client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.86");
+                client.DefaultRequestHeaders.Add("User-Agent", "curl/8.4.0");
             });
             services.AddHttpClient("AppRepository", client =>
             {
