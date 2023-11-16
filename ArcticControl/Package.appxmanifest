@@ -14,7 +14,7 @@
   <Identity
     Name="paulober.ArcticControl"
     Publisher="CN=paulober, C=DE"
-    Version="0.1.43.0" />
+    Version="0.1.46.0" />
 
   <Properties>
     <DisplayName>Arctic Control</DisplayName>

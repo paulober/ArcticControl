@@ -23,7 +23,7 @@ If you have feedback let me now in following thread on the Intel Insiders Commun
 - Head over to https://arcticcontrol.paulober.dev for the latest download
 
 ### Requirements
-- Microsoft [.NET 7 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
+- Microsoft [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 
 ### First installation
 - If this is the first time you install this application, head over to the ~~releases tab on the right and download the files ending with .cer and .cmd from the latest release~~ project website and download the certificate bundle.
