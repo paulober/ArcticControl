@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Globalization;
 using System.Net.Http;
 using System.Reflection.PortableExecutable;
 using System.Text.RegularExpressions;
@@ -78,14 +79,30 @@ public partial class WebArcDriversService : IWebArcDriversService
         //var versionRegex = new Regex("(?:<p class=\"dc-page-short-description__text\">(?:(?:.*?\\r?\\n?)*?(?<version>\\d+\\.\\d+?\\.\\d+\\.\\d+)(?:.*?\\r?\\n?)*?)<\\/p>)");
 
         // meta tag based
-        var versionRegex = VersionRegex();
-
-        var versionMatch = versionRegex.Match(webPage);
-        if (versionMatch == null || !versionMatch.Groups.ContainsKey("version"))
+        string? version;
+        try
         {
-            throw new Exception("PreloadWebDriver - no version found");
+            var versionRegex = VersionRegex();
+
+            var versionMatch = versionRegex.Match(webPage);
+            if (!versionMatch.Success || versionMatch.Groups.Count != 3 || versionMatch.Groups["version"] == null || !versionMatch.Groups["version"].Success)
+            {
+                Console.WriteLine(versionMatch.Groups);
+                throw new Exception("PreloadWebDriver - no version new found");
+            }
+            version = versionMatch.Groups["version"].Value;
         }
-        var version = versionMatch.Groups["version"].Value;
+        catch (Exception)
+        {
+            var versionRegex = VersionRegexOld();
+
+            var versionMatch = versionRegex.Match(webPage);
+            if (!versionMatch.Success || versionMatch.Groups["version"] == null || !versionMatch.Groups["version"].Success)
+            {
+                throw new Exception("PreloadWebDriver - no version old found");
+            }
+            version = versionMatch.Groups["version"].Value;
+        }
 
         // get download uri //
 
@@ -95,11 +112,7 @@ public partial class WebArcDriversService : IWebArcDriversService
         // meta tag based
         var downloadRegex = DownloadRegex();
 
-        var downloadMatch = downloadRegex.Match(webPage);
-        if (downloadMatch == null)
-        {
-            throw new Exception("PreloadWebDriver - download uri not found");
-        }
+        var downloadMatch = downloadRegex.Match(webPage) ?? throw new Exception("PreloadWebDriver - download uri not found");
         var downloadUri = new Uri(downloadMatch.Groups[1].Value, UriKind.Absolute);
 
         // check if exe or zip download comes first
@@ -170,11 +183,13 @@ public partial class WebArcDriversService : IWebArcDriversService
             sw.Stop();
             Debug.WriteLine("Collected first intel driver data in " + sw.ElapsedMilliseconds.ToString() + " ms");
 #endif
+            var splitedSize = result.Item4.Split(" ");
             _webArcDrivers.Add(new WebArcDriver(
                 result.Item2,
                 result.Item1,
                 result.Item3,
-                result.Item4,
+                // format the en-US number to its representation in the current culture
+                double.Parse(splitedSize[0], new CultureInfo("en-US")).ToString("N", CultureInfo.CurrentCulture) + " " + splitedSize[1],
                 result.Item5,
                 result.Item6,
                 result.Item7
@@ -182,12 +197,7 @@ public partial class WebArcDriversService : IWebArcDriversService
 
             // get other driver detail page urls - does skip link marked as selected
             var otherDriverUrlsRegex = new Regex("<select.*?id=\"version-driver-select\".*?>.|\\r|\\n*?<option value=\"(?<url>\\/.*?\\.html)\">");
-            var matches = otherDriverUrlsRegex.Matches(responseBody);
-            if (matches == null)
-            {
-                throw new Exception("PreloadWebDriver - Cannot match other driver links!");
-            }
-
+            var matches = otherDriverUrlsRegex.Matches(responseBody) ?? throw new Exception("PreloadWebDriver - Cannot match other driver links!");
             foreach (var match in matches)
             {
                 if (match != null && match?.GetType() == typeof(Match))
@@ -245,13 +255,15 @@ public partial class WebArcDriversService : IWebArcDriversService
         return _webArcDrivers;
     }
 
-    [GeneratedRegex("<meta name=\"DownloadVersion\" content=\"(?<version>\\d+\\.\\d+?\\.\\d+\\.\\d+)( [A-Za-z]+ [A-Za-z]+)?\"\\/>")]
+    [GeneratedRegex("<meta name=\"DownloadVersion\" content=\"(?<version>\\d+\\.\\d+\\.\\d+\\.\\d+_\\d+\\.\\d+)( [A-Za-z]+ [A-Za-z]+)?\"\\/>")]
     private static partial Regex VersionRegex();
+    [GeneratedRegex("<meta name=\"DownloadVersion\" content=\"(?<version>\\d+\\.\\d+\\.\\d+\\.\\d+)( [A-Za-z]+ [A-Za-z]+)?\"\\/>")]
+    private static partial Regex VersionRegexOld();
     [GeneratedRegex("<meta name=\"RecommendedDownloadUrl\" content=\"(?<url>.*?)\"\\/>")]
     private static partial Regex DownloadRegex();
     [GeneratedRegex("available-download-button__cta.*? data-href=\"(?<downloadlink>.*?(\\.zip|\\.exe))\"")]
     private static partial Regex DownloadsOrderRegex();
-    [GeneratedRegex("Size: (?<size>[. 0-9]+ (?:KB|MB|GB))(?:\\s|\\S|\\n)*?")]
+    [GeneratedRegex("Size: (?<size>[,. 0-9]+ (?:KB|MB|GB))(?:\\s|\\S|\\n)*?")]
     private static partial Regex SizeRegex();
     [GeneratedRegex("SHA1: (?<sha1>[A-Z. 0-9]+)(?:\\s|\\n)*?")]
     private static partial Regex SHA1Regex();

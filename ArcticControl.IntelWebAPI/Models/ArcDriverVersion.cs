@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 
 namespace ArcticControl.IntelWebAPI.Models;
 
@@ -49,6 +50,12 @@ public class ArcDriverVersion : IEquatable<ArcDriverVersion>
         get;
     }
 
+    [MaxLength(4)]
+    private string BuildNumberAdditionalPart
+    {
+        get;
+    }
+
     /// <summary>
     /// Just a state container for element grouping in the UI.
     /// </summary>
@@ -64,11 +71,32 @@ public class ArcDriverVersion : IEquatable<ArcDriverVersion>
 
     public ArcDriverVersion(string version)
     {
+        // https://www.intel.com/content/www/us/en/support/articles/000005654/graphics.html
+
         var split = version.Split('.');
         WddmVersion = int.Parse(split[0]);
         UnusedField = short.Parse(split[1]);
-        BuildNumberPart1 = split[2];
-        BuildNumberPart2 = split[3];
+
+        switch (split.Length)
+        {
+
+            case 4:
+                BuildNumberPart1 = split[2];
+                BuildNumberPart2 = split[3];
+                BuildNumberAdditionalPart = "0";
+                break;
+            case 5:
+                BuildNumberPart1 = split[2];
+                BuildNumberPart2 = split[3].Split("_")[0];
+                BuildNumberAdditionalPart = split[4];
+                break;
+            default:
+                BuildNumberPart1 = "0";
+                BuildNumberPart2 = "0";
+                BuildNumberAdditionalPart = "0";
+                Debug.WriteLine("Invalid Arc Driver Version!");
+                break;
+        }
     }
 
     /// <summary>
@@ -81,12 +109,13 @@ public class ArcDriverVersion : IEquatable<ArcDriverVersion>
     /// </summary>
     public string BuildNumber => "Build: " + string.Join('.', BuildNumberPart1, BuildNumberPart2);
     public string GetFullVersion() => string.Join('.', WddmVersion.ToString(), UnusedField.ToString(), BuildNumberPart1, BuildNumberPart2);
+    public string GetAdditionalBuildNumber() => BuildNumberAdditionalPart;
     
     /// <summary>
     /// String representation of driver version with Intel prefix.
     /// </summary>
     /// <returns></returns>
-    public override string ToString() => "Intel® Graphics Driver " + GetFullVersion();
+    public override string ToString() => "Intel® Graphics Driver " + GetFullVersion() + (BuildNumberAdditionalPart != "0" ? "_" + BuildNumberAdditionalPart : "");
 
     // overloaded operators
     // TODO: need to update if WDDM (Windows Display Driver Model) gets an update so the WddmVersion will change
@@ -124,7 +153,8 @@ public class ArcDriverVersion : IEquatable<ArcDriverVersion>
             return other.WddmVersion == WddmVersion
                 && other.UnusedField == UnusedField
                 && other.BuildNumberPart1 == BuildNumberPart1
-                && other.BuildNumberPart2 == BuildNumberPart2;
+                && other.BuildNumberPart2 == BuildNumberPart2
+                && other.BuildNumberAdditionalPart == BuildNumberAdditionalPart;
         }
 
         return false;
