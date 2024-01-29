@@ -17,7 +17,6 @@ public class PageService : IPageService
         Configure<StartPageViewModel, StartPage>();
         Configure<DriversViewModel, DriversPage>();
         Configure<GamesSettingsViewModel, GamesSettingsPage>();
-        Configure<GamesDetailViewModel, GamesDetailPage>();
         Configure<GamesViewModel, GamesPage>();
         Configure<PerformanceViewModel, PerformancePage>();
         Configure<NewsViewModel, NewsPage>();

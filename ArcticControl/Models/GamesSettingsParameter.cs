@@ -1,6 +1,4 @@
-﻿using ArcticControl.Core.Models;
-
-namespace ArcticControl.Models;
+﻿namespace ArcticControl.Models;
 
 public struct GamesSettingsParameter
 {

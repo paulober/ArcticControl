@@ -119,7 +119,6 @@ public partial class App : Application
             services.AddSingleton<INavigationService, NavigationService>();
 
             // Core Services
-            services.AddSingleton<ISampleDataService, SampleDataService>();
             services.AddSingleton<IFileService, FileService>();
             services.AddSingleton<IGamesScannerService, GamesScannerService>();
 
@@ -143,11 +142,9 @@ public partial class App : Application
             services.AddTransient<PerformancePage>();
             services.AddTransient<GamesViewModel>();
             services.AddTransient<GamesPage>();
-            services.AddTransient<GamesDetailViewModel>();
             services.AddTransient<GamesSettingsViewModel>();
             services.AddTransient<DriversViewModel>();
             services.AddTransient<DriversPage>();
-            services.AddTransient<GamesDetailPage>();
             services.AddTransient<ShellPage>();
             services.AddTransient<ShellViewModel>();
             services.AddTransient<StartPageViewModel>();

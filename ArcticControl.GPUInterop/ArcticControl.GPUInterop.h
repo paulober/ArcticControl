@@ -617,8 +617,6 @@ namespace ArcticControlGPUInterop {
 				0x5693, // <-- Arc A370M
 				0x5694, // <-- Arc A350M
 				0x56A6, // <-- Arc A310
-				0x56C1, // <-- Data Center GPU Flex 140
-				0x56C0  // <-- Data Center GPU Flex 170
 			};
 
 			device_names_ = gcnew List<System::String^>;
@@ -633,6 +631,10 @@ namespace ArcticControlGPUInterop {
 		List<String^>^ GetDeviceAdapterNames()
 		{
 			return device_names_;
+		}
+		void ChangeSelectedDevice(int idx)
+		{
+			selected_device_ = idx;
 		}
 		array<TempSensor^>^ GetTemperatures();
 		/// <summary>

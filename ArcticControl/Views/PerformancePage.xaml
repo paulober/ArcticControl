@@ -157,7 +157,8 @@
                         BorderBrush="SlateGray" 
                         BorderThickness="0,1,0,0"
                         Padding="0,25,0,25"
-                        HorizontalAlignment="Stretch">
+                        HorizontalAlignment="Stretch"
+                        RowSpacing="30">
 
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -165,6 +166,7 @@
                         </Grid.ColumnDefinitions>
 
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
@@ -182,7 +184,28 @@
                             ClickMode="Release"
                             IsChecked="{x:Bind ViewModel.IsTelemetryOverlayToggleBtnChecked, Mode=TwoWay}"
                             IsEnabled="False"
+                            HorizontalAlignment="Right"
                             Click="TelemetryOverlayToggleButton_Click"/>
+
+                        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0">
+                            <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xe964;" />
+
+                            <TextBlock 
+                                Text="Selected GPU" 
+                                FontSize="20"
+                                Padding="{StaticResource MediumLeftMargin}"
+                                Style="{ThemeResource BodyStrongTextBlockStyle}" />
+                        </StackPanel>
+
+                        <ComboBox 
+                            x:Name="Comb" 
+                            HorizontalAlignment="Right"
+                            Grid.Row="1" 
+                            Grid.Column="1"
+                            SelectionChanged="{x:Bind ViewModel.AvailableGPUs_SelectionChanged}"
+                            ItemsSource="{x:Bind ViewModel.AvailableGPUs, Mode=OneWay}" 
+                            SelectedIndex="{x:Bind ViewModel.SelectedGPU, Mode=TwoWay}">
+                        </ComboBox>
                     </Grid>
                 </Grid>
             </ScrollViewer>

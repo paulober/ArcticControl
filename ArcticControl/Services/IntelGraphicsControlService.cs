@@ -15,6 +15,7 @@ using ManagedBurstPowerLimit = ArcticControl.Models.BurstPowerLimit;
 using ManagedPeakPowerLimit = ArcticControl.Models.PeakPowerLimit;
 using ManagedPowerLimitsCombination = ArcticControl.Models.PowerLimitsCombination;
 using ManagedPowerProperties = ArcticControl.Models.PowerProperties;
+using Windows.ApplicationModel.Activation;
 
 namespace ArcticControl.Services;
 public class IntelGraphicsControlService: IIntelGraphicsControlService
@@ -31,6 +32,14 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
             _gpuInterop = new GPUInterop();
 
             _initialized = _gpuInterop.InitCtlApi();
+
+            if (_initialized)
+            {
+                // print devices
+                var adapterNames = _gpuInterop.GetDeviceAdapterNames();
+                Debug.WriteLine("Adapters");
+                Debug.WriteLine(string.Join("; ", adapterNames));
+            }
         }
         catch (Exception)
         {
@@ -42,6 +51,48 @@ public class IntelGraphicsControlService: IIntelGraphicsControlService
     public bool IsDummy() => false;
 
     public bool IsInitialized() => _initialized;
+
+    public List<string> GetDevices()
+    {
+        if (!_initialized || _gpuInterop == null)
+        {
+            return [];
+        }
+
+        try
+        {
+            var devices = _gpuInterop.GetDeviceAdapterNames();
+            return devices;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[IntelGraphicsControlService]: Error - GetDevices");
+            Crashes.TrackError(ex);
+        }
+
+        return [];
+    }
+
+    public bool ChangeSelectedDevice(int idx)
+    {
+        if (!_initialized || _gpuInterop == null)
+        {
+            return false;
+        }
+
+        try
+        {
+            _gpuInterop.ChangeSelectedDevice(idx);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("[IntelGraphicsControlService]: Error - ChangeSelectedDevice");
+            Crashes.TrackError(ex);
+        }
+
+        return false;
+    }
 
     public bool SetOverclockWaiver()
     {

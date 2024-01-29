@@ -3,7 +3,6 @@ using System.Windows.Input;
 
 using ArcticControl.Contracts.Services;
 using ArcticControl.Contracts.ViewModels;
-using ArcticControl.Core.Contracts.Services;
 using ArcticControl.Helpers;
 using ArcticControl.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -17,7 +16,6 @@ namespace ArcticControl.ViewModels;
 public class GamesViewModel : ObservableRecipient, INavigationAware
 {
     private readonly INavigationService _navigationService;
-    private readonly ISampleDataService _sampleDataService;
     private readonly IGamesScannerService _gamesScannerService;
 
     public ICommand ItemClickCommand
@@ -25,7 +23,7 @@ public class GamesViewModel : ObservableRecipient, INavigationAware
         get;
     }
 
-    public ObservableCollection<InstalledGame> Source { get; } = new ObservableCollection<InstalledGame>();
+    public ObservableCollection<InstalledGame> Source { get; } = [];
 
     private bool _arcDriverInstalled = false;
     public bool ArcDriverInstalled
@@ -35,12 +33,10 @@ public class GamesViewModel : ObservableRecipient, INavigationAware
     }
     
     public GamesViewModel(
-        INavigationService navigationService, 
-        ISampleDataService sampleDataService, 
+        INavigationService navigationService,
         IGamesScannerService gamesScannerService)
     {
         _navigationService = navigationService;
-        _sampleDataService = sampleDataService;
         _gamesScannerService = gamesScannerService;
 
         ItemClickCommand = new RelayCommand<InstalledGame>(OnItemClick);

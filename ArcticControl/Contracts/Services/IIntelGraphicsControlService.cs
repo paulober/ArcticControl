@@ -5,6 +5,9 @@ public interface IIntelGraphicsControlService : IDisposable
 {
     public bool IsDummy();
     public bool IsInitialized();
+
+    public List<string> GetDevices();
+    public bool ChangeSelectedDevice(int idx);
     public bool SetOverclockWaiver();
     public double GetOverclockPowerLimit();
     public double GetOverclockTemperatureLimit();

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Management;
 using ArcticControl.Contracts.Services;
@@ -9,6 +10,7 @@ using ArcticControl.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 
 namespace ArcticControl.ViewModels;
 
@@ -47,7 +49,7 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
     public AdvancedObservableCollection<PerformanceValueDataObject> PerformanceValues
     {
         get; init;
-    } = new();
+    } = [];
 
     /// <summary>
     /// does not actually contain only slider values
@@ -174,6 +176,23 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
         set => SetProperty(ref _isTelemetryOverlayToggleBtnChecked, value);
     }
 
+    private ObservableCollection<string> _availableGPUs;
+
+    public ObservableCollection<string> AvailableGPUs
+    {
+        get => _availableGPUs;
+        set => SetProperty(ref _availableGPUs, value);
+    }
+
+    private int _selectedGPU = 0;
+
+    public int SelectedGPU
+    {
+        get => _selectedGPU;
+        set => SetProperty(ref _selectedGPU, value);
+    }
+
+
     #region ValueDataObject properties to be able to update the values
     private PerformanceValueDataObject _cpuUtilizationObj 
         = new() { Title = "CPU Utilization", Value = "0.0", Unit = "%" };
@@ -208,6 +227,7 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
         _localSettingsService = localSettingsService;
         // _gpuInterop = new GPUInterop();
         _igcs = intelGraphicsControlService;
+        _availableGPUs = new ObservableCollection<string>(_igcs.GetDevices());
     }
 
     public bool IsNoArcDriverInstalled() => _igcs.IsDummy();
@@ -568,6 +588,12 @@ public class PerformanceViewModel : ObservableRecipient, INavigationAware
     public void SetOverclockWaiver()
     {
         _igcs.SetOverclockWaiver();
+    }
+
+    public void AvailableGPUs_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        var result = _igcs.ChangeSelectedDevice(SelectedGPU);
+        Debug.WriteLine("[PreformanceViewModel] ChangeSelectedDevice result: " + result.ToString());
     }
 
     public Task TelemetryOverlayEnabledChanged()

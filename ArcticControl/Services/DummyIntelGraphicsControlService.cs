@@ -42,4 +42,7 @@ public class DummyIntelGraphicsControlService : IIntelGraphicsControlService
     public bool SetOverclockTemperatureLimit(double newGpuTemperatureLimit) { return false; }
     public bool SetOverclockWaiver() { return false; }
     public bool SetSharpeningFilter(bool on, string? app = null) { return false; }
+
+    public List<string> GetDevices() => [];
+    public bool ChangeSelectedDevice(int idx) => false;
 }
