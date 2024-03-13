@@ -22,7 +22,7 @@ bool ArcticControlGPUInterop::GPUInterop::init_api()
     }
 
     h_devices_ = nullptr;
-    ctl_init_args_t ctl_init_args{};
+    ctl_init_args_t ctl_init_args;
     h_api_handle_ = static_cast<ctl_api_handle_t*>(malloc(sizeof(ctl_api_handle_t)));
     
     adapter_count_ = static_cast<uint32_t*>(malloc(sizeof*adapter_count_));
@@ -30,6 +30,7 @@ bool ArcticControlGPUInterop::GPUInterop::init_api()
 
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
+    ZeroMemory(&ctl_init_args, sizeof(ctl_init_args));
     ctl_init_args.AppVersion = CTL_MAKE_VERSION(CTL_IMPL_MAJOR_VERSION, CTL_IMPL_MINOR_VERSION);
     ctl_init_args.flags = CTL_INIT_FLAG_USE_LEVEL_ZERO;
     ctl_init_args.Size = sizeof ctl_init_args;
@@ -52,7 +53,7 @@ bool ArcticControlGPUInterop::GPUInterop::init_api()
                 if (CTL_RESULT_SUCCESS == result)
                 {
                     // check for compatibility (only Arc A-Series dGPUs)
-                    ctl_device_adapter_properties_t dev_adapter_props{0};
+                    ctl_device_adapter_properties_t dev_adapter_props = {0};
                     dev_adapter_props.Size = sizeof(ctl_device_adapter_properties_t);
                     dev_adapter_props.pDeviceID = malloc(sizeof(LUID));
                     dev_adapter_props.device_id_size = sizeof(LUID);
@@ -131,16 +132,19 @@ bool ArcticControlGPUInterop::GPUInterop::init_api()
                     // TODO: maybe remove all h_devices_ handles which are not needed
                     // end check for compatibility
 
+                    // TODO: enable fans in a future update
+                    return true;
+
                     // TODO: maybe move this into separate method
                     // get fan handles for later
                     fans_count_ = static_cast<uint32_t*>(malloc(sizeof(*fans_count_)));
-                    *fans_count_ = 0;
+                    this->fans_count_ = 0;
 
-                    result = ctlEnumFans(h_devices_[selected_device_], fans_count_, h_fans_);
+                    result = ctlEnumFans(h_devices_[selected_device_], fans_count_, nullptr);
 
                     if (CTL_RESULT_SUCCESS == result)
                     {
-                        h_fans_ = static_cast<ctl_fan_handle_t*>(malloc(sizeof(ctl_fan_handle_t) * (*fans_count_)));
+                        h_fans_ = static_cast<ctl_fan_handle_t*>(malloc(sizeof(ctl_fan_handle_t) * (unsigned long long)(this->fans_count_)));
 
                         if (h_fans_ != nullptr)
                         {
@@ -538,7 +542,7 @@ System::Tuple<double, double>^ ArcticControlGPUInterop::GPUInterop::GetOverclock
         return nullptr;
     }
 
-    ctl_oc_vf_pair_t get_oc_vf_pair;
+    ctl_oc_vf_pair_t get_oc_vf_pair = {};
     get_oc_vf_pair.Size = sizeof(ctl_oc_vf_pair_t);
 
     if (const ctl_result_t result = ctlOverclockGpuLockGet(h_devices_[selected_device_], &get_oc_vf_pair);
@@ -557,7 +561,7 @@ bool ArcticControlGPUInterop::GPUInterop::SetOverclockGPULock(const double volta
         return nullptr;
     }
 
-    ctl_oc_vf_pair_t set_oc_vf_pair;
+    ctl_oc_vf_pair_t set_oc_vf_pair = {};
     set_oc_vf_pair.Size = sizeof(ctl_oc_vf_pair_t);
     set_oc_vf_pair.Voltage = voltage;
     set_oc_vf_pair.Frequency = frequency;
@@ -580,7 +584,7 @@ bool ArcticControlGPUInterop::GPUInterop::InitPowerDomains()
     }
 
     pwr_count_ = static_cast<uint32_t*>(malloc(sizeof*pwr_count_));
-    *pwr_count_ = 0;
+    this->pwr_count_ = 0;
 
     ctl_result_t result = ctlEnumPowerDomains(h_devices_[selected_device_], pwr_count_, nullptr);
     if (result != CTL_RESULT_SUCCESS || pwr_count_ == nullptr)
@@ -671,7 +675,7 @@ ArcticControlGPUInterop::PowerLimitsCombination^ ArcticControlGPUInterop::GPUInt
 
 bool ArcticControlGPUInterop::GPUInterop::InitFansHandles()
 {
-    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0 || selected_device_ < 0)
+    if (h_api_handle_ == nullptr || *adapter_count_ < 1 || selected_device_ < 0)
     {
         return false;
     }
@@ -683,7 +687,7 @@ bool ArcticControlGPUInterop::GPUInterop::InitFansHandles()
     }
 
     fans_count_ = static_cast<uint32_t*>(malloc(sizeof *fans_count_));
-    *fans_count_ = 0;
+    this->fans_count_ = 0;
 
     if (ctl_result_t result = ctlEnumFans(h_devices_[selected_device_], fans_count_, h_fans_); CTL_RESULT_SUCCESS == result)
     {
@@ -1219,6 +1223,7 @@ bool ArcticControlGPUInterop::GPUInterop::InitFrequencyDomains()
     if (ctl_result_t result = ctlEnumFrequencyDomains(h_devices_[selected_device_], &freq_handle_count, nullptr);
         result == CTL_RESULT_SUCCESS && freq_handle_count > 0)
     {
+        // TODO: fix
         h_freq_handle_ = new ctl_freq_handle_t[freq_handle_count];
         ctlEnumFrequencyDomains(h_devices_[selected_device_], &freq_handle_count, h_freq_handle_);
 

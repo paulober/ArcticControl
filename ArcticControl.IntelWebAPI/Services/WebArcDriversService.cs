@@ -134,14 +134,17 @@ public partial class WebArcDriversService : IWebArcDriversService
         }
         var driverSize = sizeMatches[downloadIndex].Groups["size"].Value;
 
+        var sha256Regex = SHA256Regex();
         var sha1Regex = SHA1Regex();
 
+        var sha256Matches = sha256Regex.Matches(webPage);
         var sha1Matches = sha1Regex.Matches(webPage);
-        if (sha1Matches == null || sha1Matches.Count < 1)
+        var isSha256 = sha256Matches != null && sha256Matches.Count >= 1;
+        if (!isSha256 && (sha1Matches == null || sha1Matches.Count < 1))
         {
-            throw new Exception("PreloadWebDriver - could not load sha1 hashes");
+            throw new Exception("PreloadWebDriver - could not load sha1 or sha256 hashes");
         }
-        var sha1Hash = sha1Matches[downloadIndex].Groups["sha1"].Value;
+        var sha1Hash = (isSha256 ? sha256Matches[downloadIndex] : sha1Matches[downloadIndex]).Groups[isSha256 ? "sha256" : "sha1"].Value;
 
         var releaseNotesRegex = ReleaseNotesRegex();
 
@@ -267,6 +270,8 @@ public partial class WebArcDriversService : IWebArcDriversService
     private static partial Regex SizeRegex();
     [GeneratedRegex("SHA1: (?<sha1>[A-Z. 0-9]+)(?:\\s|\\n)*?")]
     private static partial Regex SHA1Regex();
+    [GeneratedRegex("SHA256: (?<sha256>[A-Z. 0-9]+)(?:\\s|\\n)*?")]
+    private static partial Regex SHA256Regex();
     [GeneratedRegex("dc-page-documentation-list__item--fixed.*? href=\"(?<url>.*?\\.pdf)\"")]
     private static partial Regex ReleaseNotesRegex();
 }

@@ -175,11 +175,11 @@
                     <TextBlock
                         Grid.Row="0"
                         Margin="{StaticResource SmallTopMargin}"
-                        Text="SHA1"
+                        Text="SHA1 / SHA256"
                         Style="{StaticResource DetailSubTitleStyle}" />
                     <TextBlock 
                         Grid.Row="1" 
-                        Text="{x:Bind ListDetailsMenuItem.SHA1, FallbackValue='N/A', Mode=OneWay}" 
+                        Text="{x:Bind ListDetailsMenuItem.SHA, FallbackValue='N/A', Mode=OneWay}" 
                         Style="{StaticResource DetailBodyBaseMediumStyle}" />
                 </Grid>
 
