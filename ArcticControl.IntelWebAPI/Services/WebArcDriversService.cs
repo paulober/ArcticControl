@@ -109,11 +109,11 @@ public partial class WebArcDriversService : IWebArcDriversService
         // complicated one
         //var downloadRegex = new Regex("<button.+?data-wap_ref=.+?download-button\".+?available-download-button__cta\".+?data-modal-id=\"2\".+?data-href=\"(.*?)\">");
 
-        // meta tag based
-        var downloadRegex = DownloadRegex();
+        // meta tag based - does not exist anymore
+        /*var downloadRegex = DownloadRegex();
 
         var downloadMatch = downloadRegex.Match(webPage) ?? throw new Exception("PreloadWebDriver - download uri not found");
-        var downloadUri = new Uri(downloadMatch.Groups[1].Value, UriKind.Absolute);
+        var downloadUri = new Uri(downloadMatch.Groups[1].Value, UriKind.Absolute);*/
 
         // check if exe or zip download comes first
         var downloadsOrderRegex = DownloadsOrderRegex();
@@ -124,6 +124,7 @@ public partial class WebArcDriversService : IWebArcDriversService
             throw new Exception("PreloadWebDriver - no downloads order found");
         }
         var downloadIndex = downloadsOrder.Last().Groups["downloadlink"].Value.Contains(".exe") ? downloadsOrder.Count - 1 : 0;
+        var downloadUri = new Uri(downloadsOrder[downloadIndex].Groups["downloadlink"].Value, UriKind.Absolute);
 
         var sizeRegex = SizeRegex();
 
@@ -235,7 +236,7 @@ public partial class WebArcDriversService : IWebArcDriversService
         catch (Exception e)
         {
             Debug.WriteLine("\nException Cought!");
-            Debug.WriteLine("Message " + e.Message);
+            Debug.WriteLine("Message: " + e.Message);
             await Task.CompletedTask;
             return false;
         }
